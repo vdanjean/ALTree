@@ -1,0 +1,341 @@
+\documentclass[dvips,12pt,nocolor]{report}
+
+%%%%%%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{a4wide}
+\usepackage[nocolor]{pdfswitch}
+\usepackage{texgraphicx}% Pour inclure les pstex_t
+\graphicspath{{fig/}{eps/}}
+\usepackage[latin1]{inputenc}% pour pouvoir taper des accents directement
+\usepackage[T1]{fontenc}% jolie fontes
+\usepackage{color}% Pour la couleur (mais pourquoi je l'ai mis ! :
+                  % pour xfig)
+%\usepackage{colortbl}% Pour faire des tableaux avec des cases colorees
+\usepackage{subfigure}% Pour faire des figures en plusieurs parties
+\usepackage{boxedminipage}% Pour faire des boxedminipage
+\usepackage{xspace}% Pour les espaces Ã  la fin des macros
+\usepackage{amssymb} %
+\usepackage{times} % Pareil
+\usepackage{float} % Pour le positionnement H de figure
+\usepackage{vmargin} %
+\usepackage{url} %
+\usepackage{amsmath}
+\usepackage{threeparttable} % pour les notes dans les tables
+\usepackage[square]{natbib}
+\usepackage{lscape}
+\usepackage{placeins}
+\usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{setspace}
+
+%\doublespacing
+
+%%%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\mysinglespace}{\def\baselinestretch{1.1}}
+\newcommand{\mydoublespace}{\def\baselinestretch{1.6}}
+\newcommand{\treevolve}{\texttt{TREEVOLVE}\xspace}
+\newcommand{\phase}{\texttt{phase}\xspace}
+\newcommand{\famhap}{\texttt{FamHap}\xspace}
+\newcommand{\paup}{\texttt{paup}\xspace}
+\newcommand{\phylip}{\texttt{phylip}\xspace}
+\renewcommand{\thetable} {\rm\Roman{table}}
+\renewcommand{\thefigure} {\rm\Roman{figure}}
+\newcommand{\newchitree}{\texttt{NewChi2tree.pl}\xspace}
+\newcommand{\etHT}{\texttt{Etiquette-HT.pl}\xspace}
+\newcommand{\rechaplo}{\texttt{Rechaplo2phylogeny.pl}\xspace}
+\newcommand{\acctran}{\texttt{acctran}\xspace}
+\newcommand{\deltran}{\texttt{deltran}\xspace}
+\newcommand{\chisquare}{chi-square\xspace}
+\newcommand{\chisquares}{chi-squares\xspace}
+\newcommand{\cmd}[1]{\textit{#1}}
+%%%%%%%%%%%%%%%%%
+\begin{document}
+\pagestyle{empty}
+\pagestyle{myheadings}
+\title{}
+\author{Claire Bardel, Vincent Danjean, Pierre Darlu and Emmanuelle Génin}
+
+\maketitle
+
+\chapter{Overview of the software}
+\section{Introduction}
+
+Présenter le but de ce logiciel. Association detection and localization of susceptibility loci using haplotype phylogenies. + Provide tools to facilitate this analysis. Blablater un peu plus sur le contexte peut-etre? Ou renvoyer aux articles.
+
+Expliquer vite le principe de la méthode, au moins pour pouvoir parler de caractere S par la suite!!
+
+\section{Installing the software}
+Inclure les differentes platformes sur lesquelles ça tourne.\\
+Voir avec Vince; installation des bibliothèques perl, installation de la bibliothèque C. Avec Linux, paquet debian dispo sur page Vince. Voir si on peut compiler le C pour windows et/ou macOSX.
+
+\section{The different programs available} 
+
+\subsection{\newchitree}
+Perform the association test and the localization analysis. 
+
+\subsection{\rechaplo}
+File conversion: from haplotype reconstruction programs to input fils for phylogenetic reconstruction... \\
+Works with two haplotye reconstruction program: phase and famhap (mettre les ref), and can produce files for two phylogenetic reconstruction program: paup et hylip (ref)\\
+
+\subsection{\etHT}
+Performs the addition of the character S to the set of haplotypes. If you don't want to add the S character manually, you must use this program before running \newchitree. 
+
+
+\section{Description of the other files}
+Les fichiers d'exemple...
+
+Faire un fichier d'ex pour chaque prog: avoir un fichier \famhap, un fichier \phase et fabriquer les .paup et les .phylip
+
+Puis, montrer un vrai .paup tout complété qui marche. 
+
+avoir aussi les fichiers de sortie de \paup et de \phylip.
+
+Avoir un fichier apres passage par \etHT. 
+
+Avoir fichier de sortie de localisation et d'association
+
+
+
+\chapter{Running the program \rechaplo }
+\section{Description}
+\section{Input files}
+Input files: the output files of the haplotype recontruction programs. Currently, only \phase (for case/control data) and \famhap (for family data) output files are allowed, but we plan to extend the number of haplotype recontruction programs usable. The haplotype reconstruction program used to generate the input file must be specified after the -r option.
+
+\subsection{Using \phase output file}
+
+Two different cases must be considered:
+\begin{itemize} 
+\item The case-control status of each individual has been specified in the input file for phase and phase has been run with the -c-1 option. In this case only one input file is necessary for \rechaplo: the phase output file (let's call it out.phase). In this case, the program must be run like this: \\
+  \rechaplo -r phase -i out.phase -other\_options   
+\item The case-control status of each individual has not been specified in the input file for phase. In this case, two input files are necessary: the phase output file (out.phase) and another file which specifies the disease status for each individual (status.phase). This file consists in twos rows: the first contains the individual's ID and the second, their disease status (0=control, 1=case). In this case, the program must be run like this: \\
+  \rechaplo -r phase -i out.phase -j status.phase -other\_options 
+\end{itemize}
+
+\subsection{Using \famhap output files}
+Verifier les options de famhap necessaires\\
+Two input files are necessary: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called H1\_MOSTLIKELI (or H0\_MOSTLIKELI). In this case, the program must be run like this: \\
+  \rechaplo -r famhap -i out.famhap -j H1\_MOSTLIKELI -other\_options 
+\section{Output files}
+Two kind of output files can be generated depending on the phylogeny reconstruction program you want to use. The name of the phylogeny reconstruction program should follow the -p option.
+\subsection{Generating \paup input files (out.paup)}
+The file generated contains the options necessary to run \newchitree after paup (some informations must be in the paup log file to run \newchitree). Different options must be specified by the user: 
+\begin{itemize}
+\item the sequence of the ancestral haplotype
+\item the maximum number of trees inferred(!! trouver autre terme) by \paup
+\item the optimization of the character changes (\acctran/\deltran)
+\item the name of the different files generated
+\item the number of trees described by paup in the log file
+\end{itemize}
+These options are indicated within square brackets. The chosen option must be put out of the square brackets because \paup ignores what is written within square brackets.
+\subsection{Generating \phylip  input files (out.phylip)}
+The user must either add the sequence of the ancestral haplotype in the file out.phylip and prepare a file named ancestor, containing this sequence (don't forget to add the character 1 at the end of the sequence, or eliminate this sequence (and modify the number of sequences accordingly) !!Revoir ce paragraphe en faisant les manips en meme temps: il est probable qu'il faille detailler en fonction du type de donnees. !!
+
+\subsection{The output file correspond.txt} 
+This file is automatically generated and the user cannot change it's
+name. It consists in lines containing the label of each haplotype and
+the number of cases and controls carrying it separeted by spaces or
+tabulations. The number of cases carrying a given haplotype is
+preceded by the letter ``m'' and the number of controls is preceded
+by the letter ``c''.
+
+Example of a file: \\
+\begin{tabular}{ccc}
+H002 &   m015 &   c001\\
+H003 &   m000 &   c001\\
+H001 &   m000 &   c002\\
+H000\_anc & m000 & c000\\
+\end{tabular}
+\section{Other options}
+
+\subsection{The -h option: help}
+If the program is run with the option -h, a quick help is provided. In this help, the user will find summary of the different options.
+
+\subsection{The -r option: type of data}
+The user must specify if the data are of type DNA (ATGC) or NUM (number from 0 to 9, for the current version of the program, numbers superior to 9 cannot be used). 
+
+\subsection{The -o option: name of the main output file}
+With this option, the user choose the name of the output file. If -o is omitted, the standard output will be used.
+
+\section{Summary of the different options}
+!!Peut-etre à mettre au debut??!!
+
+\begin{tabular}{ll}
+  -r & Haplotype reconstruction program\\
+        -i &Input file 1 \\
+        -j & Input file 2 (not mandatory, see above) \\
+        -o & Output file \\
+        -t & Type of data: DNA (ATGCU) or NUM (0-9) \\
+        -p & Phylogeny reconstruction program \\
+        -h & this help \\
+\end{tabular}
+
+\section{Example files}
+A faire... et mettre des exemples de ligne de commande.
+
+\chapter{Running the program \etHT}
+\section{Description}
+This program use a paup input file (input.paup) as input file, and generate a new paup input file (input\_et.paup) after having added a new character S to each haplotype. 
+
+S excluded from the reconstruction of the tree, but included for the apomorphy recontrsuction -> modif of the paup block
+
+les 2 facon de coder le caractere S.
+
+Pb pour 1 ind.
+
+\section{Input files}
+The input file must be a valid paup input file. Mettre un exemple. The name of the input file must be specified after the -i option
+\section{Output files}
+The output file is a paup input file. The S character is coded M for cases and C for controls. The name of the output file can be specified after the -o option. If the -o option is not used, the standard output is used. 
+\section{Other options}
+
+\subsection{The -h option: help}
+If the program is run with the option -h, a quick help is provided. In this help, the user will find summary of the different options.
+
+\subsection{The -p option}
+The proportion of cases in the sample must be specified after the -p option
+
+\subsection{The -s option}
+Corresponds to the parameter $\sigma$ (cf description)
+
+\section{Summary of the different options}
+!!Peut-etre à mettre au debut??!!
+
+\begin{tabular}{ll}
+  -r & Haplotype reconstruction program\\
+        -i &Input file 1 \\
+        -o & Output file \\
+        -p & proportion of cases in the sample \\
+        -s & $\sigma$ parameter \\
+        -h & this help \\
+\end{tabular}
+
+\section{Example files}
+\chapter{Running the program \newchitree}
+The program can perform either an association test or a localization test. Each option has a long name (which must be preceded by --) and some of them also have a short name (which must be preceded by -).
+
+\section{General options (to be used both for association and for localization)}
+
+\subsection{First input file (option --first-input-file or -i)}
+ This file is the output file of the phylogeny reconstruction
+ program. 
+
+\subsubsection{If \paup is used}
+To run \newchitree, some informations must be present in the input
+file. That mean that some options of \paup \emph{must}  be used to
+generate a correct input file for \newchitree. For the moment, the
+constraints are quite stricts, but we plan to release them in the
+future. 
+\begin{itemize}
+\item The ancestral states must be provided to \paup with the
+  \cmd{ancstates} command in the assumption bloc;
+\item The trees must be rooted using the \cmd{lundberg} option;
+\item The apomorphy list and a table containing branch lenght must
+  appear in the \paup output file. To do so, in the \cmd{describetrees}
+  command you must use the following options: \cmd{brlens=yes} and \cmd{apolist=yes};
+\end{itemize}
+An example of a \paup input file containig the options necessary to
+run \newchitree is provided. % !!! Dans le tar.gz?
+
+\subsubsection{If \phylip is used}
+The input file for \newchitree is the output file named ``outfile'' by
+\phylip. Currently, \newchitree only works with output data from
+\texttt{MIX} (0/1 data). We plan to adapt it to other reconstruction
+program soon. To generate a correct input file for \newchitree, you must
+use some options:
+\begin{itemize}
+\item The tree must be rooted (option \cmd{o}). For the moment,
+  \newchitree does not run if the ancetral state option is used in
+  phylip; % !!! pb: pas la seq ancetre dans le fichier de sortie...
+  \item The states at all nodes of tree must appear in the output file
+  (option \cmd{5} set to \cmd{yes}).
+\end{itemize}
+
+Exemples of \newchitree input files are provided. %!!!  ou???
+
+\subsection{Name of the output file (option --output-file or -o)}
+This user can choose the name of the output file by using the --output-file or -o option. If this option is not used, the standard output is used. 
+
+\subsection{Name of the phylogeny program used (option --tree-building-program or  -p )}
+After the -p, you should specify which phylogeny reconstruction
+program (\paup or \phylip) was used to generate the first input file.
+
+\subsection{Data type  (option --data-type or -t)}
+The -t must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
+should be used if you have numerical data (typically SNP data, but
+microsatellites are supported by the program in a lesser extend).
+Warning: \cmd{DNA} must be used if you have DNA data (A, T, G, C).
+Warning: only numbers from 0 to 9 are allowed for microsatellite data.
+DNA option currently does not work if you have used phylip to
+reconstruct the phylogenetic tree.
+
+\subsection{How to get help?}
+
+\subsubsection{option --short-help or -h}
+This option displays a short help message which recapitulate all the options
+
+\subsubsection{option --help} 
+This option displays a message with a description of the different options.
+
+\subsubsection{option --man}
+This option displays the man page for the program.
+
+\subsubsection{option --version}
+This option gives the number of the version currently used.
+
+\section{Association test (option  --association or -a)}
+When the -a option is used, the program will perform the phylogeny based association test. 
+\subsection{Options to specify}
+
+\subsubsection{Second input file (--second-input-file or -j option)}
+This input file consists in lines contains the label of each haplotype
+and the number of cases and controls carrying it separeted by spaces
+or tabulations. For a complete description of this file, see !!!Vincesection 2.1.3!!! ``output file correspond.txt''.
+
+\subsubsection{Number of permutations (option --permutations or -r)}
+The program can compute a type I error corrected for multiple testing associated with the test by using a double permutation procedure. In this case, the user must define the number of permutations to perform to evaluate the type I error by using the --permutation (or -r) option. This number should be high, but the higher it is, the longer the computation time will be. Depending on the studied data sets, we suggest this number to be chosen between 10000 and 100000.
+
+\subsubsection{Threshold for chi-square significance (option chi2-threshold or -n)}
+If you do not want to compute the exact type I error, a significance threshold for the \chisquares can be chosen by the user using the --chi2-threshold (or -n) option. 
+ 
+\subsubsection{Branch prolongation (option --prolongation or -b)}
+If the -b option is specified in the command line, the different
+branches of the tree will be prolonged. (see
+figure~\ref{fig:option_b})
+
+\begin{figure}
+\begin{tabular}{ll}
+%\includegraphics[width=0.45\linewidth]{option_b_1.fig} &
+%\includegraphics[width=0.45\linewidth]{option_b_2.fig} \\
+Without the -b option & With the -b option \\
+\multicolumn{2}{c}{The \chisquares are calculated between\footnote{The
+    nosplit pattern of \chisquare is used}:} \\
+  Level 1: 1 - 2 and 3 & 1 2 and 3 \\
+  Level 2: 2.1 - 2.2 - 3.1 - 3.2 & 1 - 2.1 - 2.2 - 3.1 and 3.2 \\
+  Level 3: 3.2.1 and 3.2.2 & 1 - 2.1 - 2.2 - 3.1 - 3.2.1 and 3.2.2\\
+\end{tabular}
+
+\caption{Effect of the -b option}
+\label{fig:option_b}
+\end{figure}
+\subsubsection{--splitmode|s nosplit|chi2split}
+Option à supprimer car complique beaucoup, non?
+
+
+\subsection{Description of the output file}
+See exemple: \\
+The output file show the tree, with the number of cases an controls at each nodes. At the root of the tree, there is a list of the different tests performed on the tree: the level of the test is indicated within square brackets, followed by the number of degrees of freedom is indicated (df=), the value of the \chisquare test and the corresponding p-value. In a second part of the file, a list of the p-values estimated by permutations (but non corrected for multiple testing) for each level of the tree is provided. Then, the last line gives the corrected p-value for the test.
+
+\section{Localization test (option --s-localization or -l)}
+
+\subsection{Options to specify}
+\subsubsection{Number of trees (option --trees-to-analyse)}
+With this option, you choose the number of equiparsimonious trees to
+use in the localization test.
+
+\subsubsection{ --s-site-characters ancestral state -> derived state}
+\subsubsection{ --co-evo|e simple|double}
+
+\subsection{Description of the output file}
+
+
+\end{document}
