@@ -60,6 +60,20 @@
 \chapter{Overview of the software}
 \section{Introduction}
 
+This software was designed to perform two phylogeny based analysis: first, it allows the detection of an association between a candidate gene and a disease, and second, it enables to make hypothesis about the susceptibility loci. 
+
+Before using the program, you must build a phylogeny of the haplotypes. Three phylogeny software are compatible with our program:
+\begin{itemize}
+\item \paup~\cite{Swofford02}: available at \url{http://paup.csit.fsu.edu/}. This software is not free software and can be purchased (100\$ for the unix version). 
+\item \phylip~\cite{Felsenstein04}: freely available at \url{http://evolution.genetics.washington.edu/phylip.html}
+\item \paml~\cite{YangPAML}: freely available at \url{http://abacus.gene.ucl.ac.uk/software/paml.html}. As stated by its author, \paml is not good at tree making. So we advise you to use another software to build the tree and then to use paml to estimate the character states at each node.
+
+\end{itemize}
+
+Currently, only parsimony methods implemented in paup (command set, option criterion set to ``parsimony'') and in phylip (program mix and dnapars) have been tested. If you want to use maximum likelihood (ML), we suggest you to use your favorite software to compute the ML tree and then, to use \paml to estimate the character states at each node. 
+
+
+
 Présenter le but de ce logiciel. Association detection and localization of susceptibility loci using haplotype phylogenies. + Provide tools to facilitate this analysis. Blablater un peu plus sur le contexte peut-etre? Ou renvoyer aux articles.
 
 Expliquer vite le principe de la méthode, au moins pour pouvoir parler de caractere S par la suite!!
