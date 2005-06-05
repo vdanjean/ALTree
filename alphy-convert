@@ -1,0 +1,505 @@
+#! /usr/bin/perl
+# This program trasforms output files from different haplotype reconstructions programs (Phase, FAMHAP, ...) into input files for phylogeny reconstruction programs (PAUP or Phylip)
+
+use strict;
+use diagnostics;
+use warnings;
+use Getopt::Std;
+
+our($opt_h, $opt_r, $opt_i, $opt_j, $opt_o, $opt_t, $opt_p);
+
+
+##### FONCTIONS ANNEXES GLOBALES POUR TOUS LES INPUTS ####
+
+sub print_hash_ind
+{
+    my($hash_ind)=shift;
+    my($clef);
+    print "AFFICHAGE\n";
+    foreach $clef (keys %{$hash_ind}) {
+	print $clef ," ", $hash_ind->{$clef}->{"statut"}, " ", $hash_ind->{$clef}->{"haplo1"}, " ", $hash_ind->{$clef}->{"haplo2"}, "\n";
+    }
+}
+
+#Verification that 
+# - the hash contains 2 haplo per individual
+# - the statut is defined
+sub VerifyHashInd
+{
+    my($hash_ind)=shift;
+    my($nb_loci)=shift;
+    my($ind);
+    foreach $ind (keys %{$hash_ind}) {
+	if ((!exists $hash_ind->{$ind}->{"statut"}) && (!$opt_j)) {
+	    die "Statut are not available in the input file: You should either provide a second input file (option -j ) or add it in the input file of phase and use the -c-1 option of phase";
+	} elsif ((!exists $hash_ind->{$ind}->{"haplo1"}) 
+		 || (!exists $hash_ind->{$ind}->{"haplo2"})) {
+	    die "Undefined haplotypes for individual $ind\n";
+	} elsif ((length($hash_ind->{$ind}->{"haplo1"}) != $nb_loci) 
+		 || (length($hash_ind->{$ind}->{"haplo2"}) != $nb_loci)) {
+	    my($long)=length($hash_ind->{$ind}->{"haplo2"});
+	    die "Bad haplotype sequence length for individual: $ind\n";
+	}
+    }
+}
+
+############################
+
+##### READ PHASE OUTPUT  #####
+
+#Read information in the phase outfile (option -c)
+#The info are stored in a hash{num_ind}->{"info"} 
+#  (info=statut[if available], haplo1, haplo2)
+
+sub ReadPhase
+{   
+    my($file)=shift;
+    # Do we have to read statut in INPUT1 or not (use INPUT2)?
+    my($read_statut)=shift;
+
+    my($mark)=0;
+    my(%hash_ind);
+    my($passe_par_la)=0; #indicates if a section is read in the input file
+    my($ligne, $nb_loci);
+    my($file_has_statut)=0; #=1 when we are sure that info about statut are in the file
+
+    open(INPUT1, '<', $file) || die "Unable to open '$file': $!\n";
+
+    while ($ligne=<INPUT1>) {
+	chomp($ligne);
+	if ($ligne =~ /^BEGIN (OUTFILE_LIST|BESTPAIRS1|INPUT_SUMMARY)$/) {
+	    if ($mark != 0) {
+		die "Nested sections ! \n";
+	    }
+	    if ($1 eq "OUTFILE_LIST") {
+		$mark=2;
+	    } elsif ($1 eq "INPUT_SUMMARY") {
+		$mark=3;
+	    } else {
+		$mark=1;
+	    }
+	    if ($passe_par_la & (1<<($mark-1)) ) {
+		die "Double section 'BEGIN $1' !\n";
+	    }
+	    $passe_par_la |= (1<<($mark-1));
+	    next;
+	}
+	if ($ligne =~ /^END (OUTFILE_LIST|BESTPAIRS1|INPUT_SUMMARY)$/) {
+	    if ($mark == 0) {
+		die "Section $1 ends before start ! \n";
+	    }
+	    $mark=0;
+	    next;
+	}
+	if ($mark==1) {
+	    my ($ligne2, $ligne3, $statut, $ind);
+	    if ($ligne !~ /^([01])\s+([0-9A-Za-z\#_-]+)$/) {
+		print STDERR "Skipping strange line : $ligne\n";
+	    } else {
+		$statut=$1;
+		$ind=$2;
+		my $i;
+		for ($i=1; $i<=2; $i++) {
+		    $ligne2=<INPUT1>;
+		    chomp($ligne2);
+		    $ligne2 =~ tr/()[] //d; # faire aussi un s/(-1)/?/;
+		    $ligne2 =~ s/-1/?/g;
+		    $hash_ind{$ind}->{"haplo".$i}=$ligne2; 
+		}
+		if ($read_statut) {
+		    $hash_ind{$ind}->{"statut"}=$statut;
+		}
+	    }
+	}
+	if ($mark==2) {
+	    if ($ligne =~ / : p-value for testing cases vs controls$/) {
+		$file_has_statut=1;
+	    }
+	}
+	if ($mark==3){
+	    if ($ligne =~ /^Number of Loci: ([0-9]+)$/) {
+		$nb_loci=$1;
+	    }
+	}
+    }
+    close(INPUT1);
+
+    if ($passe_par_la != 7) {
+	print "PASSE PAR LA=$passe_par_la \n";
+	die "The program has either read too many sections or not enough!\n";
+    }
+    if ($file_has_statut == 0 && $read_statut == 1) {
+	die "Statut are not available in the input file: You should either provide a second input file (option -j ) or add it in the input file of phase and use the -c-1 option of phase"
+	}
+    if  (%hash_ind) { #not empty
+	return \%hash_ind, $nb_loci;
+    } else {
+	die "Error in reading Input 1: info have not been stored correctly in the hash. Check your input file?\n";
+    }    
+}
+
+#To add statut info in the hash when it's not available in INPUT1
+sub ReadStatut
+{
+    my ($file)=shift;
+    my ($hash_ind)=shift;
+    my(@tableau, $ligne);
+
+    open(INPUT2, '<', $file) || die "Unable to open '$file': $!\n";
+
+    while ($ligne=<INPUT2>) {
+	chomp($ligne);
+    	@tableau=split(/\s+/, $ligne);
+	if (!exists($hash_ind->{$tableau[0]})) {
+	    die "This individual doesn't exist in $opt_i: $tableau[0] !\n";
+	}
+	$hash_ind->{$tableau[0]}->{"statut"}=$tableau[1];
+    }
+
+    close(INPUT2);
+
+    my($ind);
+    foreach $ind (keys %{$hash_ind}) {
+	if (!exists($hash_ind->{$tableau[0]}->{"statut"})) {
+	    die "No statut was found for individual $ind !\n";
+	}
+    }
+}
+
+##########################################
+
+#### READ FAMHAP OUTPUT ##################
+#Read information in the FAMHAP outfile ( outfile=file1) 
+#The info are stored in a hash{haploID}=haplotype_sequence
+sub ReadFAMHAPOutfile
+{
+    my($file1)=shift;
+    my($ligne, , $ligne2, @tableau, %hashHaploID);
+    my($haplo, $HaploID);
+    my($nb_loci, $nb_haplo);
+    
+    open(FAMHAPOUT, '<', $file1) || die "Unable to open '$file1': $!\n";
+    
+    while ($ligne=<FAMHAPOUT>) {
+	chomp($ligne);
+	if ($ligne =~ /^Selected loci:$/) {
+	    $ligne2=<FAMHAPOUT>;
+	    chomp($ligne2);
+	    @tableau=split(/\s+/, $ligne2);
+	    $nb_loci=$#tableau+1; 
+	}
+	if ($ligne =~ /HaploiD: ([0-9]+)/) {
+	    $HaploID=$1;
+	    @tableau=split(/\s+/, $ligne);
+	    $haplo="";
+	    my($i);
+	    if (not defined $nb_loci) {
+		die "Problem in the input file: nb_loci could not be read: $nb_loci\n";
+	    } else {
+		for ($i=0; $i<$nb_loci; $i++) {
+		    $haplo.=$tableau[$i];
+		    # Je ne vérifie pas que les alleles font bien un seul 
+		    # caractère (une seuk chiffre ou une seule lettre...
+		}
+	    }
+	    #hash dont clef=HaploID, et valeur = la seq de l'haplotype
+	    if ($HaploID ne "") {
+		$hashHaploID{$HaploID}=$haplo;
+		#DEBUG print "haplo=$haplo, hashHaploID=$HaploID hashHaploID{haplo}=	$hashHaploID{$HaploID}\n";
+	    } else {
+		die "Problem in the input file, HaploID could not be correctly read: $HaploID\n";
+	    }
+	}
+    }
+    close(FAMHAPOUT);
+    return (\%hashHaploID, $nb_loci);
+}
+
+#Read information in the FAMHAP Hx_MOSTLIKELI (file2) 
+#uses the hashHaploID 
+sub ReadFAMHAPMostLikeli
+{
+    my($file2)=shift;
+    my($hashHaploID)=shift;
+    my($ligne, $FT, $FID, $FNT, $MT, $MNT);
+    my(%hash_ind);
+
+    open(OUTHAPLO, '<', $file2) || die "Unable to open '$file2': $!\n";
+
+    while ($ligne=<OUTHAPLO>) {
+	chomp($ligne);
+	if ($ligne =~ /^\s*FID: ([0-9]+)\s+FT: ([0-9]+)\s+FNT: ([0-9]+)\s+MT: ([0-9]+)\s+MNT: ([0-9]+)/) {
+	    $FID=$1;
+	    $FT=$2;
+	    $FNT=$3;
+	    $MT=$4;
+	    $MNT=$5;
+	   # print "3=$3\n";
+	   # print "hashHaploID3= $hashHaploID->{$3}\n";
+	    $hash_ind{$FID."0"}->{"haplo1"}=$hashHaploID->{$FNT};
+	    $hash_ind{$FID."0"}->{"haplo2"}=$hashHaploID->{$MNT};
+	    $hash_ind{$FID."0"}->{"statut"}=0;
+	    $hash_ind{$FID."1"}->{"haplo1"}=$hashHaploID->{$FT};
+	    $hash_ind{$FID."1"}->{"haplo2"}=$hashHaploID->{$MT};
+	    $hash_ind{$FID."1"}->{"statut"}=1;
+	}
+    }
+    close(OUTHAPLO);
+    return(\%hash_ind);
+}
+
+
+
+
+# call the different function involved in the reading of FAMHAP input file and storage of the infoin a hash{num_ind}->{"info"} (info=statut[if available], haplo1, haplo2)
+sub ReadFAMHAP
+{
+    my($file1)=shift;
+    my($file2)=shift;
+    my($hashHaploID, $hash_ind);
+    my($haplo);
+    my($nb_loci);
+    ($hashHaploID, $nb_loci)=ReadFAMHAPOutfile($file1);
+    ($hash_ind)= ReadFAMHAPMostLikeli($file2, $hashHaploID);   
+#print "nb_haplo= $nb_haplo, nb_loci=$nb_loci\n";
+  #  foreach $haplo (keys %{$hashHaploID}) {
+  #  	print "haplo: $haplo hash=$hashHaploID->{$haplo}\n";
+  #  }
+   # print_hash_ind($hash_ind);
+    return($hash_ind, $nb_loci);
+}
+
+##########################################
+
+#### DATA TRANSFO ########################
+sub TransfoData
+{
+    my($hash_ind)=shift;
+    my($j)=1;
+    my($ind, %hash_haplo);
+
+     
+    foreach $ind (keys %{$hash_ind}) {
+	if (($hash_ind->{$ind}->{"statut"} != 0) && ($hash_ind->{$ind}->{"statut"} !=1)) {
+	    die "Invalid disease statut for individual $ind: ", $hash_ind->{$ind}->{"statut"}, "\n";
+	} else {
+	    my($i);
+	    for ($i=1; $i<=2; $i++) {
+		$hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[$hash_ind->{$ind}->{"statut"}]++;
+		$hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[0]+=0; # moche mais pour eviter les non défini dans affichage
+		$hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[1]+=0;
+		
+	    	if (!exists $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[2]) {
+		    $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[2]=$j;
+		    $j++;
+		}
+	    }
+	}
+	
+    }
+    my($nb_haplo);
+    $nb_haplo=keys %hash_haplo;
+   # print "Nb_haplo= $nb_haplo\n";
+    return \%hash_haplo, $nb_haplo;
+}      
+###########################################
+
+#### BUILDING OF DIFFERENT OUTPUT FILE ####
+
+#Affiche juste les haplo. Surtout pour debug
+sub AfficheHashHaplo
+{
+    my($hash_haplo)=shift;
+    my($haplo);
+    foreach $haplo (keys %{$hash_haplo}) {
+	printf "H%.3i_c%.3i_m%.3i\t%s\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[0], $hash_haplo->{$haplo}->[1], $haplo;
+#	print "hash_haplo->{$haplo}->[1]", $hash_haplo->{$haplo}->[1], "\n";
+    }
+} 
+
+
+# Prepare a file (correspond.txt) in which the number of cases and the number of controls are specified for each haplotype.
+sub MakeCorrespondanceFile
+{
+    my($hash_haplo)=shift;
+    my($haplo);
+    open (CORRESP, '>', "correspond.txt") || die "Unable to open correspond.txt: $!\n";
+    foreach $haplo (keys %{$hash_haplo}) {
+	printf CORRESP "H%.3i\tc%.3i\tm%.3i\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[0], $hash_haplo->{$haplo}->[1];
+    }
+    close(CORRESP);
+}
+
+
+
+# Read the opt_t and define the character to add to the ancestral sequence ($anc) and to the other haplotypes ($der). Also define the "format symbol for paup.
+sub ReadDataType
+{
+    my($data_type)=shift;
+    my ($der, $anc);
+    my($write_data_type);
+    if ($data_type eq "DNA") {
+	$write_data_type="ATGCU";
+	$anc="G";
+	$der="C";
+    } elsif ($data_type eq "NUM") {
+	$write_data_type="0123456789";
+	$anc="1";
+	$der="2";
+    } else {
+	die "Invalid data type specified in opt_t: $opt_t. You should use DNA or NUM\n";
+    }
+    return ($anc, $der, $write_data_type);
+}
+
+
+
+#Build a PAUP OUTFILE
+sub BuildPAUP
+{ 
+    my($file)=shift;
+    my($hash_haplo)=shift;
+    my($nb_haplo)=shift;
+    my($nb_loci)=shift;
+    my($data_type)=shift;
+    my($der, $anc);
+    my($write_data_type);
+    
+    MakeCorrespondanceFile($hash_haplo);
+    ($anc, $der, $write_data_type)=ReadDataType($data_type);
+    open(OUTPAUP, '>', $file) || die "Unable to open '$file': $!\n";
+    print OUTPAUP "#Nexus\n";
+    print OUTPAUP "Begin data;\n";
+    print OUTPAUP "dimension ntax=",$nb_haplo+1," nchar=", $nb_loci+1,";\n";
+    print OUTPAUP "format symbols=\"$write_data_type\" missing=?;\n";
+    print OUTPAUP "matrix\n";
+    my($haplo);
+    foreach $haplo (keys %{$hash_haplo}) {
+	printf OUTPAUP "H%.3i_c%.3i_m%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[0], $hash_haplo->{$haplo}->[1], $haplo, $der; # a modifier si je fais un deuxième fichier de sortie...
+    }
+    print OUTPAUP "H000_ancetre [add ancestral haplotype]$anc\n";
+    print OUTPAUP ";\n";
+    print OUTPAUP "end;\n";
+    print OUTPAUP "begin assumptions;\n";
+    print OUTPAUP "ancstates *anc vector = [add ancestral haplotype]$anc;\n";
+    print OUTPAUP "end;\n";
+    print OUTPAUP "begin paup;\n";
+    print OUTPAUP "set nowarnreset autoclose maxtrees = [2000] increase=[no - Auto AutoInc = 100] monitor = no taxlabels = full\n";
+    print OUTPAUP "root=lundberg warnroot=no opt=[deltran - acctran] ancstates=anc;\n";
+    print OUTPAUP "hsearch;\n";
+    print OUTPAUP "savetrees [from=1 to=1] file=[test.tree] root=yes format=altnexus;\n";
+    print OUTPAUP "cleartrees nowarn=yes;\n";
+    print OUTPAUP "gettrees rooted=yes file=[test.tree];\n";
+    print OUTPAUP "log file = [test.res.log] replace=[yes - no];\n"; 
+    print OUTPAUP "describetrees [all] /plot=[cladogram - phylogram] brlens=yes rootmethod=lundberg apolist=yes;\n";
+    print OUTPAUP "log stop;\n";
+    print OUTPAUP "end;\n";
+    print OUTPAUP "quit;\n";
+    print OUTPAUP "[WARNING, this file is designed for bi-allelic data. If it is not the case, you may have to modify this input file, for example by specifying the ordered option in the typeset command in the assumption block]\n";
+    close(OUTPAUP);
+
+}
+
+#Build a PHYLIP OUTFILE
+sub BuildPHYLIP
+{ 
+    my ($file)=shift;
+    my($hash_haplo)=shift;
+    my($nb_haplo)=shift;
+    my($nb_loci)=shift;
+    my($data_type)=shift;
+    my ($der, $anc);
+    my($write_data_type);
+
+#### SI ON UTILISE PHYLIP? FAIRE UN TEST: on doit avoir du 0/1 ou du ATGCU... SInon, marche pas!
+
+
+    MakeCorrespondanceFile($hash_haplo);
+    ($anc, $der, $write_data_type)=ReadDataType($data_type);
+    open(OUTPHYLIP, '>', $file) || die "Unable to open '$file': $!\n";
+    print OUTPHYLIP  "\t", $nb_haplo+1, "\t",  $nb_loci+1, "\n";
+    my($haplo);
+    foreach $haplo (keys %{$hash_haplo}) {#### SI ON UTILISE PHYLIP? FAIRE UN TEST: on doit avoir du 0/1 ou du ATGCU... SInon, marche pas!
+	printf OUTPHYLIP "H%.3i%s\t%s%s\n", $hash_haplo->{$haplo}->[2],"      ", $haplo, $der;
+    }
+    print OUTPHYLIP "H000_anc  ", "\t", "[ancestral sequence]$anc\n";
+    close(OUTPHYLIP);
+    print STDERR "Don't forget to prepare the ancestor file containing the ancestor sequence followed by the character $anc\n";
+}
+############################################
+
+
+sub main
+{
+    my($progname, $rec_program);
+    getopts('hr:i:j:o:t:p:');
+    
+    if ($opt_h) {
+	($progname = $0) =~ s|^.*/([^/]*)$|$1|;
+	print STDERR "usage : $progname \n";
+	print STDERR "\t-r Haplotype reconstruction program\n";
+	print STDERR "\t-i Input file 1\n";
+	print STDERR "\t[-j Input file 2]\n";
+	print STDERR "\t-o Output file  \n";
+	print STDERR "\t-t Type of data: DNA (ATGCU) or NUM (0-9)\n";
+	print STDERR "\t-p Phylogeny reconstruction program\n";
+	print STDERR "\t-h: this help\n";
+	exit (1);
+    }
+    if ($opt_r){
+	$rec_program = $opt_r;
+    } else {
+	die "Name of the haplotype reconstruction program used missing: opt_r\n";
+    }    
+    if (!$opt_i) { # Principal outfile of haplotypic reconstruction program
+	die "No input file\n";
+    }
+    if (!$opt_o) { # Output file for a phylogeny reconstruction program
+	die "No output file\n";
+    }
+    my($phylo_program);
+    if ($opt_p){
+	$phylo_program = $opt_p;
+    } else {
+	die "Name of the phylogeny reconstruction program used missing: opt_p\n";
+    }  
+    if (!$opt_t){
+	die "Type of data: opt_t (DNA or NUM) not specified!\n"; #il faudra peut-etre vérifier que les données sont bien du bon type??? 
+    }       
+    
+    my($hash_ind, $hash_statut, $hash_haplo);
+    my($nb_haplo, $nb_loci);
+
+    if ($rec_program =~ /^[Pp][Hh][Aa][Ss][Ee]$/) {
+	($hash_ind, $nb_loci)=ReadPhase($opt_i, !$opt_j);
+	VerifyHashInd($hash_ind, $nb_loci);
+	if ($opt_j) {
+	    ReadStatut($opt_j, $hash_ind);
+	}
+    } elsif ($rec_program =~ /^[Ff][Aa][Mm][Hh][Aa][Pp]$/) {
+	if (!$opt_j) {
+	    die "No file H1_MOSTLIKELI or H0_MOSTLIKELI provided\n";
+	} else {
+	   ($hash_ind, $nb_loci)=ReadFAMHAP($opt_i, $opt_j);
+	    VerifyHashInd($hash_ind, $nb_loci);
+	}
+    } else {
+	die "Unknown software. Check the -r option! \n";
+    }
+    
+    #print_hash_ind($hash_ind);       
+    
+    ($hash_haplo, $nb_haplo)=TransfoData($hash_ind);
+   # AfficheHashHaplo($hash_haplo); # pour verifier
+   
+    if ($phylo_program =~ /^[Pp][Aa][Uu][Pp]$/) {
+	BuildPAUP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t);  	
+    } elsif ($phylo_program =~ /^[Pp][Hh][Yy][Ll][Ii][Pp]$/) {
+	BuildPHYLIP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t);
+    } else {
+	die "Unknown phylogeny software. Check the -p option! \n";
+    }
+    
+}
+
+main;

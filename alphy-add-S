@@ -1,0 +1,150 @@
+#!/usr/bin/perl
+
+#Ce programme etiquette les haplotypes malades (ajout d'un G) ou témoins (ajout d'un C), en fonction d'un seuil de malade et témoins qui le porte.
+#Le programme prend en entrée un fichier .paup, et redonne un autre .paup
+
+use strict;
+use diagnostics;
+use warnings;
+use Getopt::Std;
+
+our($opt_h,$opt_i, $opt_o, $opt_s, $opt_p, $opt_t);
+
+
+sub travail
+{
+    
+    my($seuil)=shift;
+    my($test)=shift;
+    my($proportion_malades)=shift;
+    my($ligne);
+    my($temoin, $malade, $sequence, $nom, $debut, $ancetre);
+    my($anc, $num_car, $prop_mal, $prop_tem);
+    my(@tableau, @tab2);
+    while ($ligne=<STDIN>){
+	chomp($ligne);
+	if ($ligne =~ /^\s*H/) {
+	    @tableau=split(/\s+/, $ligne);
+	    $sequence=$tableau[1];
+	    $debut=$tableau[0];
+	    @tab2=split(/_/,$debut);
+	   # print $tab2[0],"\n";
+	    if ($tab2[0] =~ /^s*H000/){
+		$ancetre=$sequence."C";
+		print "$tab2[0]_$tab2[1] $ancetre\n";
+	    } else {
+		$temoin=$tab2[1];
+		$temoin =~ s/c//;
+		 # print STDERR "temoin=$temoin\n";
+		$malade=$tab2[2];
+		$malade =~ s/m//;
+		$nom=$tab2[0];
+		$prop_mal=$malade/($malade+$temoin);
+		$prop_tem=$temoin/($malade+$temoin);
+		#	print "M=$malade T=$temoin\n";
+		#print "test=$test\n";
+		if ($test==0) { # test: difference |mal-tem| >=seuil 
+		    if ($malade > $temoin && $malade-$temoin>=$seuil) {
+			$sequence.="G";
+		    } elsif ($malade < $temoin && $temoin-$malade>=$seuil) {
+			$sequence.="C";
+		    } else {
+			$sequence.="?";
+		    }
+		} elsif ($test==1) {
+		    #  if ($malade+$temoin==1) {
+		    #$sequence.="?";
+		    #} else {
+		    if ($prop_mal>$proportion_malades+
+			$seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
+			$sequence.="G";
+		    } elsif ($prop_mal<$proportion_malades-
+			     $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
+			$sequence.="C";
+		    } else {
+			$sequence.="?";
+		    }   
+		}
+		#}
+		print "$nom", "_m$malade", "_c$temoin\t", $sequence, "\n";
+		
+	    }
+	    
+	} elsif ($ligne =~ /dimension ntax=([0-9]*) nchar=([0-9]*);/) {
+	    $num_car=$2+1;
+	    print "dimension ntax=$1 nchar=", $2+1, ";\n";
+	} elsif ($ligne =~ /format symbols=\"([0-9ATGCU]+)\"/) {
+	    my($format)=$1;
+	    my($format_old)=$1;
+	    $format =~ tr/GC//d;
+	    $ligne =~ s/$format_old/${format}CG/;
+	    print $ligne, "\n";
+	} elsif ($ligne =~ /ancstates\s+\*anc\s+vector\s*=\s*([0-9ATCG]+)\s*;/) {
+	    $anc=$1;
+	    $anc=$anc."C";
+	    $ligne =~ s/$1/$anc/;
+	    print $ligne,"\n";
+	} elsif ($ligne=~ /begin paup;/) {
+	    print $ligne,"\n";
+	    print "exclude $num_car; \n";
+	} elsif ($ligne=~ /\s*describetrees/) {
+	    print "include $num_car;\n";
+	    print $ligne,"\n";
+       } else {
+	    print $ligne, "\n";
+	}
+    }
+}
+
+
+
+sub main
+{
+    my($progname);
+    my($seuil, $test, $proportion);
+
+    getopts('ho:i:s:t:p:');
+    
+    
+    if ($opt_h) {
+	($progname = $0) =~ s|^.*/([^/]*)$|$1|;
+	print STDERR "usage : $progname [-h] [-i input] [-o output_file]  [-t test: 0= mal-tem>seuil 1= seuil proportion0+/-sqr(pq/n)] [-p proportion initiale de malades]  \n";
+	print STDERR "\t-h: this help\n";
+	exit (1);
+    }
+    
+    if ($opt_i) {
+	open(STDIN, '<', $opt_i) or die "ouverture impossible de $opt_i : $!" ;
+    }
+    
+    if ($opt_o) {
+	open(STDOUT, '>', $opt_o) or die "ouverture impossible de $opt_o : $!" ;
+    }
+    if ($opt_s) {
+	$seuil=$opt_s;
+    } else {
+	die "manque le seuil pour étiquetter M ou T!!\n";
+    }    
+    if (defined($opt_t)) {
+	if ($opt_t==0) {
+	    $test=0;
+	} elsif ($opt_t==1) {
+	    $test=1;
+	} else {
+	    $test=-999;
+	    print STDERR "illegal value of opt_t\n";
+	}
+    } else {
+	die "manque le numero du test: 0: mal-tem=seuil  1: seuil=P0+/-sqr(pq/n)!!\n";
+    }    
+    if ($opt_p) {
+	$proportion=$opt_p;
+    } else {
+	die "manque la proportion initiale de malades dans la population!!\n";
+    }
+    travail($seuil, $test, $proportion);
+    
+}
+
+
+main;

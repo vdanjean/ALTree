@@ -1,0 +1,2117 @@
+#! /usr/bin/perl
+
+use strict;
+use diagnostics;
+use warnings;
+use Getopt::Long qw(:config permute);
+use Pod::Usage;
+
+use Data::Dumper;
+
+srand;
+
+our $VERSION;
+$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
+
+# Positionner la variable PERL5LIB si besoin
+
+# PERL5LIB est une variable comme PATH, sauf qu'elle ne sert pas à
+# trouver les programmes, mais plutôt les modules de perl
+# En bash :
+# export PERL5LIB=/chemin/vers/modules/perl:/chemin/vers/autres/modules
+# En tcsh :
+# setenv PERL5LIB /chemin/vers/modules/perl:/chemin/vers/autres/modules
+
+# Si les modules sont installés dans les emplacements standard de
+# perl, c'est inutile
+
+use chi2 ();
+use Newchi2treeUtils;
+
+###########################################
+########  GLOBAL VARIABLES        #########
+###########################################
+
+# Variable $nodes
+#   Ref on Hash of ('id' => Node)
+# my $nodes;
+
+# Variable $sites
+#   Ref on Hash of ('site_nb' -> Site)
+# my $sites;
+
+###########################################
+########  CONSTANTES              #########
+###########################################
+
+package SplitMode;
+use constant NOSPLIT   => 0;
+use constant CHI2SPLIT => 1;
+
+package CoEvo;
+use constant SIMPLE   => 0;
+use constant DOUBLE => 1;
+
+package SignUtil;
+use constant NO   => 0;
+use constant YES  => 1;
+
+package Seuil;
+use constant SAMPLESIZE => 5;
+use constant P_VAL_CHI2 => 0.01;
+use constant P_VAL_TESTPROP => 0.01;
+use constant ONLY_CASE  => 3;
+
+package DataType;
+use constant SNP => 0;
+use constant DNA => 1;
+
+package PhylProg;
+use constant PHYLIP => 0;
+use constant PAUP => 1;
+use constant PAML => 2;
+
+package main;
+###########################################
+########  READING OF INPUT FILES  #########
+###########################################
+
+#Read the file correspond.txt and put haplotype ID, nb case and nb controle in a hash: $correspondance{$HaploID}->{"case"} et  $correspondance{$HaploID}->{"controle"}
+sub ReadCorrespond 
+{
+    my($name_correspond) =shift;
+    my($ligne, @tableau);
+    my(%correspondance);
+    open (CORRESP, '<', $name_correspond) || die "Unable to open file $name_correspond: $!\n";
+    while ($ligne=<CORRESP>) {
+	chomp($ligne);
+	@tableau=split(/\s+/, $ligne);
+	if ($#tableau != 2) {
+	    die "error in $name_correspond: not 3 columns at line '$ligne'\n";
+	} else {
+	    $tableau[2]=~ s/c//;
+	    $tableau[1]=~ s/m//;
+	    if ($tableau[1] =~ /c/ || $tableau[2] =~ /m/) {
+		die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
+		}
+	    $correspondance{$tableau[0]}->{"case"}=$tableau[1]+0;
+	    $correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;	
+	}
+    }
+    my($clefs);
+    #DEBUG
+    #foreach $clefs (keys %correspondance) {
+    #print "$clefs case: ", $correspondance{$clefs}->{"case"}, "\n";
+    #	print "$clefs, control: ",$correspondance{$clefs}->{"control"}, "\n";
+    #}
+    return(\%correspondance);
+}
+
+sub AfficheTab
+{
+    my($tableau)=shift;
+    my($nb_elem)=scalar(@{$tableau->[0]});
+   # print "nb_elem=$nb_elem\n"; DEBUG
+    my($i, $j);
+    for ($i=0;$i<=$#$tableau;$i++) {
+	for ($j=0;$j<$nb_elem;$j++) {
+	    print $tableau->[$i]->[$j], "\t";
+	}
+	print "\n";
+    }
+}
+
+sub ReadInputFile1
+{
+    my($input_file)=shift;
+    my($phylo_program)=shift;
+    my($ligne);
+    my($identifiant);
+    
+    if ($phylo_program == PhylProg::PAUP) {
+	$identifiant="Tree number";
+    } elsif  ($phylo_program == PhylProg::PHYLIP) { 
+	$identifiant="requires a total of";
+    } else {
+	$identifiant = "Supplemental results for BASEML";
+    }
+    open (INPUT, '<', $input_file) || die "Unable to open file $input_file: $!\n";
+    my($indice)=0;
+    my(@tab_arbres)=(); # contain ref on a tab containing lines for 1 tree 
+    while ($ligne=<INPUT>) {
+	chomp($ligne);
+	if ($ligne=~/$identifiant\s*[0-9.]*/) {
+	    $indice++;
+	}
+	push (@{$tab_arbres[$indice]}, $ligne);
+    }
+    
+    return (\@tab_arbres);
+}
+
+
+sub TireArbre
+{
+    my($tab_arbres)=shift; # Arbres commencent à indice 1
+    my($total_trees)=scalar(@{$tab_arbres})-1;
+   
+    my($alea);
+    $alea=int(rand($total_trees))+1;
+    #print "alea=$alea\n";
+    return($alea);
+}
+    
+sub ReadPAUP
+{
+    my($tab_arbres)=shift; # Arbres commencent à indice 1
+    my($num_arbre)=shift;
+    my($ligne, @tableau);
+    my($marqueur)=0;
+    my(@tab_longbranche, @tab_infoapo);
+    my($i)=0;
+    my($j)=0;
+    my($nb_br_non_nulle)=0;
+    foreach $ligne (@{$tab_arbres->[$num_arbre]}) {
+	if ($ligne =~ /^\s+Node\s+to node/) {
+	    $marqueur=1;
+	}
+	if ($ligne =~ /^\s*Sum/) {
+	   # print "marqueur=$marqueur\n";
+	    $marqueur=0;
+	}
+	if ($ligne =~ /^Apomorphy lists:/) {
+	    $marqueur=2;
+	} 
+	
+	if ($marqueur==1) {
+	    $ligne =~ s/^\s+//;
+	    if ($ligne =~ /^[0-9]+/) {
+		@tableau=split(/\s+/, $ligne);
+		if ($#tableau != 4) {
+		    die "error: not 5 columns, $#tableau columns\n";
+		} else { 	
+		    $tab_longbranche[$i]->[0]= $tableau[1]; #father
+		    $tab_longbranche[$i]->[1]= $tableau[0]; #son
+		    $tab_longbranche[$i]->[2]= $tableau[2]; #branch length
+		    if ($tableau[2] != 0) {
+			$nb_br_non_nulle++;
+		    }
+		    $i++;
+		}
+	    }
+	    if ($ligne =~ /^H[0-9]+\s+/) {
+		@tableau=split(/\s+/, $ligne);	
+		if ($#tableau == 7) { 
+		    $tab_longbranche[$i]->[0]= $tableau[4]; #father
+		    $tab_longbranche[$i]->[1]= $tableau[0]; #son
+		    $tab_longbranche[$i]->[2]= $tableau[5]; #branch length
+		    if ($tableau[5] != 0) {
+			$nb_br_non_nulle++;
+		    } 
+		} elsif ( $#tableau == 6) {   
+		    $tab_longbranche[$i]->[0]= $tableau[3]; #father
+		    $tab_longbranche[$i]->[1]= $tableau[0]; #son
+		    $tab_longbranche[$i]->[2]= $tableau[4]; #branch length
+		    if ($tableau[4] != 0) {
+			$nb_br_non_nulle++;
+		    } 
+		} else {
+		    die "error in the number of columns for tab_longbranche\n";
+		    
+		}
+		$i++;
+	    }
+	}
+	my($modificateur)=0;
+	my($sens_chgt);
+	if ($marqueur==2) {
+	    my $has_sens=0;
+	    if ($ligne =~ /^\s+node_/) {
+		$ligne =~ s/^\s+//;
+		@tableau=split(/\s+/, $ligne);
+		if ($tableau[2] =~ /node_[0-9]+/) {
+		    $modificateur=0;;
+		} elsif ($tableau[2] =~ /H[0-9]+/) {
+		    $modificateur=2;
+		}
+		$tableau[2]=~ s/node_//g;
+		$tableau[0]=~ s/node_//g;
+		$tab_infoapo[$j]->[0]=$tableau[0]; # father
+		$tab_infoapo[$j]->[1]=$tableau[2]; # son
+		$tab_infoapo[$j]->[2]=$tableau[3+$modificateur]; # apomorphie number
+		$tab_infoapo[$j]->[3]=$tableau[5+$modificateur]; # CI
+		$tab_infoapo[$j]->[4]=$tableau[4+$modificateur]; # nb steps 
+		$sens_chgt = join(' ', $tableau[6+$modificateur], 
+				  $tableau[7+$modificateur], 
+				  $tableau[8+$modificateur]);
+		$has_sens=1;
+	    } elsif ($ligne =~ /\s+([0-9]+)\s+([0-9]+)\s+([0-1]\.[0-9]+)\s+([0-9A-Za-z] [=-][=-]> [0-9A-Za-z])/) {
+		$tab_infoapo[$j]->[0]=$tab_infoapo[$j-1]->[0]; # father
+		$tab_infoapo[$j]->[1]=$tab_infoapo[$j-1]->[1]; # son
+		$tab_infoapo[$j]->[2]=$1; # apomorphie number
+		$tab_infoapo[$j]->[3]=$3; # CI
+		$tab_infoapo[$j]->[4]=$2; # nb steps per branches
+		$sens_chgt=$4;
+		$has_sens=1;
+	    }
+	    if ($has_sens) {
+		$sens_chgt =~ s/=/-/g;
+		$tab_infoapo[$j]->[5]=Sens->New($sens_chgt); # direction of the change 
+		$j++;
+	    }
+	}
+	
+    }
+    splice(@{$tab_arbres}, $num_arbre, 1);
+   # print "nb_non_nul=$nb_br_non_nulle\n";
+    return (\@tab_longbranche, \@tab_infoapo, $nb_br_non_nulle);
+}
+
+sub ReadPHYLIP
+{
+    my($tab_arbres)=shift; # Arbres commencent à indice 1
+    my($num_arbre)=shift;
+    my($data_type)=shift;
+    my($ligne, @tableau);
+    my($marqueur)=0;
+    my($ancetre)="";
+    my(@tab, $tabinfo, $j);
+    
+    foreach $ligne (@{$tab_arbres->[$num_arbre]}) {
+	$ligne =~ s/^\s+//;
+    	if ($data_type == DataType::SNP) {
+	    if ($ligne =~ /best guesses of ancestral states:/) {
+		$marqueur=1;
+	    }
+	    if ($ligne =~ /^From\s+To\s+Any\s+Steps/) {
+		$marqueur=2;
+		$j=0;
+	    }
+	    if ($marqueur==1) {
+		if ($ligne =~ /0\!\s[01\?\s]./) {
+		    @tab=split(/\s+/, $ligne);
+		    shift(@tab);
+		    my($i);
+		    for ($i=0; $i<=$#tab; $i++) {
+			$ancetre.=$tab[$i];
+		    }
+		    print "ancetre=$ancetre\n";
+		}
+	    }
+	    if ($marqueur==2) {
+		if ($ligne =~ /^\s*(root|[0-9]+)\s+H?[0-9]+\s+(yes|no|maybe)\s+[01.? ]+\s*$/) {
+		    #print "trouvé! $ligne\n";
+		    @tab=split(/\s+/, $ligne);
+		    $tabinfo->[$j]->[0]=shift(@tab);
+		    $tabinfo->[$j]->[1]=shift(@tab);
+		    $tabinfo->[$j]->[2]=shift(@tab);
+		    $tabinfo->[$j]->[3]=join('',@tab);
+		    $j++;
+		}
+	    }
+	    
+	    if (not defined $ancetre) {
+		die "A changer, pb, sequ ancetrsale à trouver)\n";
+	    }#Voire gestion ancetre avec Vince
+	   
+	} else { # $data_type == DataType::DNA
+	    #A faire
+	}
+    }
+    return ($tabinfo, $ancetre);
+}
+
+sub ReadPAML 
+{
+    my($tab_arbres)=shift; # Arbres commencent à indice 1
+    my($ligne);
+    my($i)=-1;
+    my($j)=0;
+    my($nb_br_non_nulle)=0;
+    my($marqueur)=0;
+    my(@tab_longbranche, @tab_infoapo);
+    my($has_mutation)=0;
+    foreach $ligne (@{$tab_arbres->[1]}) {
+	chomp($ligne);
+	if ($ligne =~ /^\s*Summary of changes along branches/) {
+	    $marqueur=1;
+	    next;
+	}
+	if ($ligne =~ /^\s*List of extant and reconstructed sequences/) {
+	    if ($has_mutation != 0) {
+		$nb_br_non_nulle++;
+	    }
+	    $tab_longbranche[$i]->[2]=$has_mutation; 
+	    $marqueur=0;
+	    last;
+	}
+
+	if ($marqueur==1) {
+	    $ligne =~ s/^\s+//;
+	    if (($ligne =~ /\s*Branch [0-9]+:\s+([0-9]+)\.\.([0-9]+)\s*$/) || 
+		($ligne =~ /\s*Branch [0-9]+:\s+([0-9]+)\.\.[0-9]+\s+[(](.*)[)]\s*$/)) {
+		# Début de branche
+		#print "Cas 1 ($1 $2)\n";
+		$i++;
+		if ($has_mutation != 0) {
+		    $nb_br_non_nulle++;
+		}
+		if ($i>0) {
+		    $tab_longbranche[$i-1]->[2]=$has_mutation; #branch length for preceeding branch
+		}
+		$has_mutation=0;
+		$tab_longbranche[$i]->[0]= $1; #father
+		$tab_longbranche[$i]->[1]= $2; #son
+	    #} elsif ($ligne =~ /\s*([0-9]+)\s+([0-9A-Za-z?_-])\s+[0-9.]+\s*->/) {
+	    } elsif ($ligne =~ /\s*([0-9]+)\s+([0-9A-Za-z?_-])\s+[0-9.]+\s*->\s*([0-9A-Za-z?_-])\s*([0-9\.]*)?\s*/) {
+		
+		# A VERIFIER: NORMALEMENT NE DOIT SE PRODUIRE QU'EN BOUT DE BRANCHES!
+		if ($3 eq "?") {
+		    next;
+		}
+		$has_mutation++;
+		$tab_infoapo[$j]->[0] = $tab_longbranche[$i]->[0]; #father
+		$tab_infoapo[$j]->[1] = $tab_longbranche[$i]->[1]; #son
+      		$tab_infoapo[$j]->[2]=$1; # apomorphie number
+      		#$tab_infoapo[$j]->[3]=; # CI
+		$tab_infoapo[$j]->[4]=1; # nb steps =1 for SNPs 
+		my($sens_chgt)=$2."->".$3;
+		$tab_infoapo[$j]->[5]=Sens->New($sens_chgt); # direction of the change 
+		$j++;
+	    }
+	}
+    }
+    return (\@tab_longbranche, \@tab_infoapo, $nb_br_non_nulle);
+}
+
+########################################################
+
+###########################################
+#########  BUILDING OF THE TREE  ##########
+###########################################
+
+
+# Build the tree and add the branch length info
+sub TreeBuilding{
+    my($tab_longbranche)=shift;
+    my($i);
+    my($tree)=Tree->New();
+
+    #print "TreeBuilding\n";
+    for ($i=0;$i<=$#$tab_longbranche;$i++) {
+	my($pere_id, $fils_id, $long_br); # variables intermédiaires pour 
+	# lisibilite du prog
+
+	$pere_id=$tab_longbranche->[$i]->[0];
+	$fils_id=$tab_longbranche->[$i]->[1];
+	#print "branche pere($pere) -> fils($fils)\n";
+	$long_br=$tab_longbranche->[$i]->[2];
+
+	my $pere;
+	my $fils;
+	if (not $tree->HasNodeIndex($fils_id)) {
+	    $fils=Node->New($fils_id); #creation de la structure Node
+	    $tree->AddNode($fils);     # puis, on la met dans tree
+	} else {
+	    $fils=$tree->GetNode($fils_id);
+	}
+	if (not $tree->HasNodeIndex($pere_id)) {
+	    $pere=Node->New($pere_id); #creation de la structure Node
+	    $tree->AddNode($pere);     # puis, on la met dans tree
+	} else {
+	    $pere=$tree->GetNode($pere_id);
+	}
+	$pere->AddChild($fils);
+#	print "arbre{pere}->{children}->[0]->{id} ", $arbre->{$pere}->{"children"}->[0]->{"id"}, "\n"; 
+	if ($fils->HasFather()) {
+	    die ($fils->Name()." already have a father: ".$fils->GetFather()->Name()."\n");
+	} else {
+	    $fils->SetFather($pere);
+	}
+	if ($fils->HasBrLen()) {
+	    die($fils->Name()." already have a branch length: ".$fils->GetBrLen()."\n");
+	} else {
+	    $fils->SetBrLen($long_br);
+	}
+    }
+    return($tree);
+}
+
+sub FillTreeApoInfoPAUP
+{
+    my($tree)=shift;
+    my($tab_infoapo)=shift;
+    my($i);
+ 
+    #print "FillTreeApoInfo\n";
+    for ($i=0;$i<=$#$tab_infoapo;$i++) {
+	my($pere_id, $fils_id, $apo_num, $apo_CI, $apo_steps, $apo_sens)
+	    = @{$tab_infoapo->[$i]};
+	#print "branche pere($pere) -> fils($fils)\n";
+	if (not $tree->HasNodeIndex($pere_id) || 
+	    not $tree->HasNodeIndex($fils_id)) {
+	    die "unknown node: $pere_id or $fils_id\n";
+	}
+	my $pere=$tree->GetNode($pere_id);
+	my $fils=$tree->GetNode($fils_id);
+	if ($fils->GetFather() != $pere) {
+	    die ("Inconsistant data while analysing apomophy informations:\n".
+		 "=> node '$fils_id' is not the son of '$pere_id', but of '",
+		 $fils->GetFather()->Name()."'\n"		 
+		 );
+	}
+	
+	my $site;
+	if (not $tree->HasSiteIndex($apo_num)) { 
+	    $site=SitePerTree->New($apo_num);
+	    $tree->AddSite($site);
+	    if (defined $apo_CI) { # For PAML trees, CI is not defined
+		$site->SetCI($apo_CI);
+	    }
+	} else {
+	    $site=$tree->GetSite($apo_num);
+	}
+
+	my($ref_site_sens)=$site->ProvideSens($apo_sens);
+	$ref_site_sens->SetStep($apo_steps); # For PAML, $aposteps=1
+
+	$fils->AddApo($ref_site_sens); # lie arbre et hash_site_sens
+    }
+}
+
+sub FillTreeApo1Phylip # Put sequence in structure node 
+{
+    my($tree)=shift;
+    my($tabinfo)=shift;
+    my($ancestor)=shift;
+    my($fils);
+    my($sequence);
+  
+    for (my $i=0; $i<=$#$tabinfo; $i++) {
+	$fils=$tabinfo->[$i]->[1];
+	$sequence=$tabinfo->[$i]->[3];
+#	print "fils=$fils, seq=$sequence\n";
+	$tree->GetNode($fils)->SetSequence($sequence);
+    }
+    
+    $tree->GetRoot()->SetSequence($ancestor);
+}
+
+sub FillTreeApo2Phylip
+{
+    my($present_node)=shift;
+    my($racine)=shift;
+    my($ancetre_seq)=shift;
+    my($tree)=shift;
+    my($fatherseq);
+    my($childseq);
+    my($child);
+    
+    #print "noeud: ", $present_node->{"id"}, "\n";
+    if ($present_node eq $racine) {
+	$fatherseq=$ancetre_seq;
+    } else {
+	$fatherseq=$present_node->GetFather()->GetSequence();
+    }
+    $childseq=$present_node->GetSequence();
+    my($longueur)=length($childseq);
+    if (length($fatherseq) != $longueur) {
+	die "Error: reconstructed sequences have not the same length at note ",
+	$present_node->GetFather()->Name(), " ($fatherseq) and at node ",
+	$present_node->Name(), " ($childseq)\n";
+    } 
+    my($br_len)=0;
+    for (my $i=0; $i<$longueur;$i++) {
+	my($fathersite)= substr($fatherseq,$i,1);
+	my($childsite)= substr($childseq, $i,1);
+	if ($childsite eq ".") {
+	    $childsite=$fathersite;
+	}
+	elsif ($fathersite ne $childsite) {
+	    $br_len++;
+	    my($apo_num)=$i+1;
+	    my($apo_sens)=Sens->New($fathersite."->".$childsite);
+
+	    my $site;
+	    if (not $tree->HasSite($apo_num)) { 
+		my $site=SitePerTree->New($apo_num);
+		$tree->AddSite($site);
+	    } else {
+		$site=$tree->GetSite($apo_num);
+	    }
+	    $site->IncNbMut();
+
+	    my($ref_site_sens)=$site->ProvideSens($apo_sens);
+	    
+	    $present_node->AddApo($ref_site_sens); # lie arbre et hash_site_sens
+	}
+    }
+    $present_node->{"br_len"}=$br_len;
+    foreach $child ($present_node->GetChildrenList()) { 
+	FillTreeApo2Phylip($child, $racine, $ancetre_seq, $tree);
+    }
+}
+
+# Outgroup is not removed from the hash nodes.
+# It is only removed from the list of children of it's father 
+sub EliminateNode
+{
+    my($outgroup)=shift;
+    #print "outgroup= ", $outgroup->{"id"}, "\n";
+    my($father_outgr)=$outgroup->GetFather();
+    $father_outgr->DeleteChild($outgroup);
+}
+
+# Outgroup is put again in the list of children of it's father
+sub AddOutgroup 
+{
+    my($outgroup)=shift;
+    my($father_outgr)=$outgroup->GetFather();
+    $father_outgr->AddChild($outgroup);
+}
+
+sub NbFils
+{
+    my($node)=shift;
+    return $node->NbChildren();
+}
+
+sub Name
+{
+    my($node)=shift;
+    return $node->Name();
+}
+
+###########################################################
+####### CHECK FUNCTIONS ###################################
+###########################################################
+
+sub CheckCorrespondance 
+{
+    my($tree)=shift;
+    my($correspondance)=shift;
+    my($name_corres)=shift;
+    
+#Check if all the leaf are defined in $correspondance
+    foreach my $node ($tree->GetNodesList()) {
+	my($nb_fils)=$node->NbChildren();
+	if ($nb_fils == 0) { # We are on a leaf
+	    if (not defined $correspondance->{$node->GetId()}) {
+		$node->SetCase(0);
+		$node->SetControl(0);
+		print STDERR "Error: the leaf ", $node->Name(),
+		" is not in the input file $name_corres.\n",
+		"The number of cases and controls for this leaf are automatically set to 0\n";
+	    }
+	}
+	
+    }
+
+    # Check if all the entries for correspondance whose name begin by
+    # H are leafs in the tree
+
+    foreach my $clef (keys %{$correspondance}) {
+	if (not $tree->HasNodeIndex($clef)) {
+	    die "indefined node detected in $name_corres: $clef. Check the input file\n";
+	}
+	if ($clef=~ /^H/) {
+	    my($nb_fils)=$tree->GetNode($clef)->NbChildren();
+	    
+	    if ($nb_fils!=0) {
+		print STDERR "$clef, defined as a leaf in $name_corres is defined as a node in the tree\n";
+	    }
+	}
+    }    
+}
+
+sub CheckApoBrlen
+{
+    my($tree)=shift;
+    my($node);
+
+    $tree->GetRoot()->SetBrLen(0); # to prevent "uninitialized value"
+
+    foreach $node ($tree->GetNodesList()) {
+	if ($node->GetBrLen() != $node->NbApoStep()) { 
+            # check if nb_apo correspond to br_len
+	    die "Error in the tree: branch length= ", $node->GetBrLen(),
+	    " but ", $node->NbApoStep(),
+	    " apomorphies are defined for node ", $node->Name(), "\n";
+	}
+    }	
+}
+##################################################
+########  PARCOURS ET REMPLISSAGE ARBRE  #########
+##################################################
+
+sub parcours_nosplit # Pour apprendre
+{
+    my($tabnodes_a_traiter)=shift;
+    my($prolonge)=shift;
+    my($node, $child, @tab_noeuds_suivants);
+    my($val)=0;
+    foreach $node (@{$tabnodes_a_traiter}) {
+	if (NbFils($node) != 0) {
+	    $val=1;
+	    foreach $child ($node->GetChildrenList()) {
+		push (@tab_noeuds_suivants, $child);
+	    }
+	} else {
+	    if ($prolonge == 1) {
+	    	push (@tab_noeuds_suivants, $node);
+	    }
+	}
+	print $node->{"id"}, " ";
+    }
+    print "\n";
+    if ($val==1) {
+	parcours_nosplit(\@tab_noeuds_suivants, $prolonge);
+    } else {
+	return;
+    }
+}
+
+sub ClassicalChi2
+{
+    my($tabnodes_a_traiter)=shift;
+    my($sum_case, $sum_control, $node, $sum_total);
+    my($chi2)=0;
+    my($chi2invalid)=0;
+    foreach $node (@{$tabnodes_a_traiter}) {
+        $sum_control+=$node->{"control"};
+        $sum_case+=$node->{"case"};
+    }
+    $sum_total=$sum_control+$sum_case;
+    my($ddl)=scalar(@{$tabnodes_a_traiter})-1; # Nb branches -1
+
+    my($error)=0;
+    if ($ddl==0) { # 1 seul clade
+        $error=4;
+        #Faire un warning si on n'est pas à la racine?
+    } else {
+        if ($sum_case==0) {
+            $error=1;
+        } elsif ($sum_control==0) {
+            $error=2;
+        } else { # Calcul du chi2
+            my($m, $c, $t_m, $t_c);
+            foreach $node (@{$tabnodes_a_traiter}) {
+                $m=$node->{"case"};
+                $c=$node->{"control"};
+                $t_m=(($m+$c)*$sum_case)/$sum_total;
+                        #print STDERR "m=$m, t_m=$t_m, c=$c\n";
+                $chi2 += (($m-$t_m)*($m-$t_m))/$t_m;
+                $t_c=(($m+$c)*$sum_control)/$sum_total;
+                $chi2 += (($c-$t_c)*($c-$t_c))/$t_c;
+                if (($t_m <= Seuil::SAMPLESIZE) ||
+                    ($t_c <= Seuil::SAMPLESIZE)) {
+                    $chi2invalid++;
+                }
+            }
+        }
+    }
+    return ($chi2, $chi2invalid, $error, $sum_control, $sum_case);
+}
+
+sub CalculChi2
+{
+    my($tabnodes_a_traiter)=shift;
+    my($ddl)=shift; 
+    my($test_results)=shift;
+    my($sign_util)=shift;
+    my($chi2, $chi2invalid, $error, $sum_control, $sum_case);
+    my($significatif);
+    my($p_value);
+    
+    ($chi2, $chi2invalid, $error, $sum_control, $sum_case)= 
+	ClassicalChi2($tabnodes_a_traiter);
+    if ($error != 0) {
+	# TODO: A vérifier : est-ce OK de mettre $significatif à 0
+	# la valeur est utilisée au retour de cette fonction
+#	$significatif=0;
+	if ($error == 1) {
+	    $test_results->{"texte"}=
+		"No cases,  ($sum_control controls)";
+	    if ($sign_util==SignUtil::YES) {
+		$significatif=chi2::NON_SIGNIFICATIF;
+	    }
+	} elsif ($error == 2) {
+	    $test_results->{"texte"}="No controls: only $sum_case cases";
+	    if ($sum_case>=Seuil::ONLY_CASE) {
+		 if ($sign_util==SignUtil::YES) {
+		     $significatif=1;
+		     $test_results->{"sign"}=chi2::SIGNIFICATIF;
+		 }
+	    } else {
+		if ($sign_util==SignUtil::YES) {
+		    $significatif=0;
+		    $test_results->{"sign"}=chi2::NON_SIGNIFICATIF;
+		}	
+	    }
+	    #$test_results->{"sign"}=chi2::NON_SIGNIFICATIF;
+	} elsif ($error == 4) {
+	    $test_results->{"texte"}="Only one clade";
+	    if ($sign_util==SignUtil::YES) {		
+		$significatif=0;
+		$test_results->{"sign"}=chi2::NON_SIGNIFICATIF;
+	    }
+	    # Manque plein de trucs par rapport à la fonction dans chi2tree...
+	} else {
+	    die "invalid error $error\n";
+	}
+    } else {
+	if ($chi2invalid !=0) {
+	    $test_results->{"warning"}="Small sample size correction used";   
+	    # J'ai pas compté dans combien de branches...
+	    if ($ddl == 1) {
+		$p_value=CUtils::bilateral($tabnodes_a_traiter->[0]->{"case"},
+					   $tabnodes_a_traiter->[0]->{"control"},
+					   $tabnodes_a_traiter->[1]->{"case"},
+					   $tabnodes_a_traiter->[1]->{"control"});
+		if ($sign_util==SignUtil::YES) {
+		    $significatif=chi2::chi2_fisher_significatif($p_value);
+		}
+	    } else {
+		my(@clades, $node);
+		foreach $node (@{$tabnodes_a_traiter}) {
+		    push @clades, ($node->{"case"} + $node->{"control"});
+		    # remplit un tableau contenant les effectifs
+		    # totaux des différents clades à utiliser dans le
+		    # réechantillonnage
+		}
+		($p_value)= chi2::reech_chi2($sum_case, $sum_control,
+					     $ddl+1, $chi2, \@clades);
+		$test_results->{"warning"}.=" ($p_value)";
+		if ($sign_util==SignUtil::YES) {
+		    $significatif= chi2::reech_significatif ($p_value);
+		    if ($significatif != 
+			chi2::chi2_significatif($ddl, $chi2)) {
+			$test_results->{"warning"}.=" Result has changed !";
+		    }
+		}
+	    }
+	} else {
+	    if ($sign_util==SignUtil::YES) {
+		$significatif=chi2::chi2_significatif($ddl, $chi2);
+	    }
+	    #my $p=`pochisq $chi2 $ddl`+0; # Verif que les 2 appellent 
+	                                   #bien la même chose!
+	    $p_value=CUtils::pochisq($chi2,$ddl);
+	    #if ($p != $p_value) {
+	    #print STDERR "pochisq: $p != $p_value !\n";
+	    #}
+	}
+	if ($sign_util==SignUtil::YES) {
+	    if ($significatif) {
+		$test_results->{"sign"}=chi2::SIGNIFICATIF;
+	    #$test_results->{"texte"}.="significatif";
+	    } else {
+		$test_results->{"sign"}=chi2::NON_SIGNIFICATIF;
+		# $test_results->{"texte"}.="non significatif";
+	    }
+	}
+	$test_results->{"chi2"}=$chi2;
+	$test_results->{"p_val"}=$p_value;
+	#$test_results->{"texte"}.=" [p_value_chi2=$p_value]";
+    }
+    if ($sign_util==SignUtil::YES) {
+	return ($significatif, $p_value);
+    } else {
+	return ($p_value);
+    }
+}
+
+sub parcours_nosplit_chi2split
+{
+    my($tabnodes_a_traiter)=shift;
+    my($prolonge)=shift;
+    my($splitmode)=shift;
+    my($node_ecriture)=shift;
+    my($sign_util)=shift; # vaut 1 si on a besoin de la significativité, 0 sinon
+    my($node, $child, @tab_noeuds_suivants);
+    my($val)=0;
+    my($test, $p_val);
+    my($test_results);
+ 
+    $test_results->{"ddl"}=scalar(@{$tabnodes_a_traiter})-1; # Nb branches -1
+    if ($sign_util==SignUtil::YES) {
+	($test, $p_val)=CalculChi2($tabnodes_a_traiter, $test_results->{"ddl"}, $test_results, SignUtil::YES );
+    } elsif ($sign_util==SignUtil::NO) { 
+	($p_val)=CalculChi2($tabnodes_a_traiter, $test_results->{"ddl"}, $test_results, SignUtil::NO);
+    }
+    $test_results->{"node_teste"}=$node_ecriture;
+    push (@{$node_ecriture->{"res_test"}}, $test_results);
+    $test_results->{"level"}=scalar(@{$node_ecriture->{"res_test"}})-1;
+    
+    if ($sign_util== SignUtil::YES && $test==1 && $splitmode == SplitMode::CHI2SPLIT) { # sign et que on on est en chi2split
+	foreach $node (@{$tabnodes_a_traiter}) {
+	    if (NbFils($node) != 0) {
+		my @children=$node->GetChildrenList();
+		parcours_nosplit_chi2split(\@children, 
+					   $prolonge, $splitmode, $node);
+	    }
+	}
+    } elsif ($sign_util== SignUtil::NO || $test==0 || $splitmode == SplitMode::NOSPLIT) { # ou alors on est en nosplit
+	foreach $node (@{$tabnodes_a_traiter}) {
+	    if (NbFils($node) != 0) {
+		$val=1;
+		foreach $child ($node->GetChildrenList()) {
+		    push (@tab_noeuds_suivants, $child);
+		}
+	    } else {
+		if ($prolonge == 1) {
+		    push (@tab_noeuds_suivants, $node);
+		}
+	    }
+	}
+	if ($val==1) {
+	    parcours_nosplit_chi2split(\@tab_noeuds_suivants, 
+				       $prolonge, $splitmode, $node_ecriture, $sign_util);
+	} else {
+	    return;
+	}
+    }
+}
+
+sub parcours2  #Fonction écrite pour apprendre
+{
+    my($present_node)=shift;
+    my($child);
+    my($i);
+    my($nb_fils);
+    $nb_fils=NbFils($present_node);
+    #if ($present_node->{"id"} =~ /^H/)  { 
+    if ($nb_fils == 0) {
+	print "node:",$present_node->{"id"}, " "; #123456
+#	#my($clefs);
+#	#foreach $clefs (keys %{$present_node->{"apo"}}) {
+#	   # print "apo:",$clefs, " ";
+#	#}
+    } else {
+	# print $present_node->{"id"}, " "; #123456
+	
+	#for $child (@{$present_node->{"children"}}) { si pas besoin du
+	# parcours($child);                         $i...    
+	#}
+	$i=0;
+	parcours2($present_node->GetChild(0));
+	if ($nb_fils>=2) {
+	    for ($i=1; $i<$nb_fils; $i++) {
+		print "node:",$present_node->GetId(), " ";
+#		#my($clefs);
+#		#foreach $clefs (keys %{$present_node->{"apo"}}) {
+#		#    print "apo:",$clefs, " ";
+#		#}
+#		#print "--";
+		parcours2($present_node->GetChild($i));
+	    }
+	}
+	#print $present_node->{"id"}, " " ;#343651
+    }
+}
+
+
+sub parcours # Fonction ecrite pour apprendre
+{
+    my($present_node)=shift;
+    my($first)=shift;
+    my($child);
+   
+    my($nb_fils);
+    
+   # if ($present_node->{"id"} =~ /^H/)  { 
+   # 	print $present_node->{"id"}, " "; #123456
+   # } else {
+	#print $present_node->{"id"}, " "; #123456
+	
+	foreach $child ($present_node->GetChildrenList()) { 
+	    parcours($child);                            
+	}
+	print $present_node->GetId(), ":",$present_node->{"height"}, " " ;#343651
+   # }
+    if (defined($first)) {    
+	print " [FIN]\n";
+    }
+    
+}
+
+sub FillCaseControl
+{
+    my($present_node)=shift;
+    my($correspondance)=shift;
+    if ($present_node->{"id"} =~ /^H/)  {
+	my($id);
+	$id=$present_node->{"id"};
+	if (not defined $present_node->{"case"}) {# car sinon, pb pour H000
+	    $present_node->{"case"} = $correspondance->{$id}->{"case"};
+	}
+	if (not defined $present_node->{"control"}) {
+	   $present_node->{"control"} = $correspondance->{$id}->{"control"};
+	}
+	#print $present_node->{"id"}, " m:", $present_node->{"case"}, " c:", $present_node->{"control"}, " ";
+    } else {
+	my($child);
+	# print $present_node->{"id"}, " "; #123456
+	for $child ($present_node->GetChildrenList()) { 
+	    FillCaseControl($child, $correspondance);
+	    $present_node->{"case"}+=$child->{"case"};
+	    $present_node->{"control"}+=$child->{"control"};
+	}
+	#print $present_node->{"id"}, " m:", $present_node->{"case"}," c:", $present_node->{"control"}," ";
+    }
+    
+}
+
+
+sub FillLevel
+{
+    my($present_node)=shift;
+    my($level)=shift;
+    my($child);
+        
+    $present_node->{"level"}=$level;
+    $level+=1;
+    foreach $child (@{$present_node->{"children"}}) { 
+	FillLevel($child, $level);
+    }
+}
+
+sub FillHeight
+{
+    my($present_node)=shift;
+    my($height)=shift;
+    my($child);
+    $height+=1;
+    foreach $child (@{$present_node->{"children"}}) { 
+	FillHeight($child, $height);
+    }
+    $present_node->{"height"}=$height;
+    #$height+=1; # Demander à Vince
+}
+
+
+##################################################
+######## AFFICHAGE DE L' ARBRE  ##################
+##################################################
+sub LongueurTrait
+{
+    my($node)=shift;
+    my($level)=shift;
+    return("      "x$level."------");
+}
+
+sub AffichageParLevel # Ne prend pas une fonction pour l'affichage
+{
+    my ($racine)=shift;
+    my ($len)=6;
+    my $AffichageInterne;
+
+    $AffichageInterne= sub
+    {
+	my ($node) = shift;
+	my ($start) = shift; # début commun à tout ce noeud (et descendants)
+	my ($up) = shift; # quand on est au dessus de ce noeud
+	my ($here) =shift; # quand on affiche ce noeud
+	my ($down) =shift; # quand on est au dessous de ce noeud
+	
+	my($nb_fils)=NbFils($node);
+	my($i);
+	
+	if ($nb_fils >= 1) {
+	    $AffichageInterne->($node->GetChild(0),
+				$start.$up.(" "x$len), " ", "/", "|");
+	}
+	for ($i=1; $i<$nb_fils/2; $i++) {
+	    $AffichageInterne->($node->GetChild($i),
+				$start.$up.(" "x$len), "|", "|", "|");
+	}
+	print $start.$here.("-"x$len)."* ", Name($node), "\n";
+	for ( ;$i < $nb_fils-1; $i++) {
+	    $AffichageInterne->($node->GetChild($i),
+				$start.$down.(" "x$len), "|", "|", " ");
+	}
+	if ($nb_fils > 1) {
+	    $AffichageInterne->($node->GetChild($nb_fils-1),
+				$start.$down.(" "x$len), "|", "\\", " ");
+	}
+    };
+    $AffichageInterne->($racine, "", " ", "-", " ");
+}
+    
+sub AffichageArbre # Prend une fonction pour l'affichage
+{
+    my ($racine)=shift;
+    my ($function)=shift;
+    my ($len)=4;
+    my $AffichageInterne;
+   
+    
+    $AffichageInterne= sub
+    {
+	my ($node) = shift;
+	my ($start) = shift; # début commun à tout ce noeud (et descendants)
+	my ($up) = shift; # quand on est au dessus de ce noeud
+	my ($here) =shift; # quand on affiche ce noeud
+	my ($down) =shift; # quand on est au dessous de ce noeud
+	my ($at) =shift; # quand on les autres lignes de ce noeud
+	
+	my($nb_fils)=NbFils($node);
+	my($i, $j, $sep);
+	my (@tableau)=split (/\n/, $function->($node));
+	if ($nb_fils >= 1) {
+	    $AffichageInterne->($node->{"children"}->[0],
+				$start.$up.(" "x$len), " ", "/", "|", "|");
+	}
+	for ($i=1; $i<$nb_fils/2; $i++) {
+	    $AffichageInterne->($node->{"children"}->[$i],
+				$start.$up.(" "x$len), "|", "|", "|", "|");
+	}
+	print $start.$here.("-"x$len)."* ", $tableau[0], "\n";
+	if ($nb_fils > 1) {
+	    $sep="|";
+	} else {
+	    $sep=" ";
+	}
+	for ($j=1; $j<=$#tableau; $j++) {
+	    print $start.$at.(" "x$len).$sep." ", $tableau[$j], "\n";
+	}
+	#    print $start.$here.("-"x$len)."* ", $function->($node), "\n";
+	for ( ;$i < $nb_fils-1; $i++) {
+	    $AffichageInterne->($node->{"children"}->[$i],
+				$start.$down.(" "x$len), "|", "|", " ", "|");
+	}
+	if ($nb_fils > 1) {
+	    $AffichageInterne->($node->{"children"}->[$nb_fils-1],
+				$start.$down.(" "x$len), "|", "\\", " ", " ");
+	}
+    };
+    $AffichageInterne->($racine, "", " ", "-", " ", " ");
+}
+
+###############################################################
+## FONCTION DEFINISSANT LES INFOS QUI VONT ETRE AFFICHEES #####
+###############################################################
+
+# Return results of the test: ddl, p_value, significatif or not, texte and warning
+sub TestInfos
+{
+    my($node)=shift;
+    return InfosAffichees($node, 2);
+
+#    my($chaine)=Name($node)."\n";
+#    my($lbl_test)=0;
+#    my $test;
+#    if (defined $node->{"res_test"}) {
+#       	for $test (@{$node->{"res_test"}}) {
+#	    $chaine.="[".$test->{"level"}."]"." ddl= ".$test->{"ddl"}.
+#		" chi2= ".$test->{"chi2"}.
+#		" p_value_chi2= ".$test->{"p_val"}.
+#	}
+#    }
+#    return($chaine); 
+    
+}
+sub AssociationInfos
+{
+    my($node)=shift;
+    return InfosAffichees($node, 1);
+}
+
+sub TreeInfos
+{
+ my($node)=shift;
+    return InfosAffichees($node, 0);
+}
+
+#Return ddl, level, pvalues and chi2
+sub InfosAffichees
+{
+    my($node)=shift;
+    my($mode)=shift;
+    my($chaine)=Name($node);
+    my($lbl_test)=0;
+    my $test;
+    if ($mode==1 || $mode == 2) { # Affiche ou pas les case/control
+	$chaine.=" case/control:".$node->{"case"}."/".$node->{"control"};
+    }
+    if (1) { # affiche les apomorphies
+	$chaine.="\n";
+	foreach my $apo ($node->GetApoList()) {
+	    $chaine.= ("  Site: ".$apo->GetSiteNb." Sens: ".$apo->GetSensLabel()."\n");
+	}
+    }
+    $chaine.="\n";
+    if (1) { # affiche ou pas les ddl
+	if (defined $node->{"res_test"}) {
+	    for $test (@{$node->{"res_test"}}) {
+		$chaine.= sprintf "[%d] ddl=%d", 
+		$test->{"level"}, $test->{"ddl"};
+		if ($test->{"ddl"} > 0) {
+		    $chaine.= sprintf " chi2=%.2f p_value_chi2=%.3g",
+		    $test->{"chi2"}, $test->{"p_val"};
+		    # TODO : ça arrive quand on a que des malades ou témoins
+		    # dans les clades...
+		    if (not defined($test->{"chi2"})) {
+			print "chi2 for ", Name($node),
+			"(", $test->{"ddl"}, ")", "\n";
+		    }
+		    if (not defined($test->{"p_val"})) {
+			print "p_val for ", Name($node), 
+			"(", $test->{"ddl"}, ")", "\n";
+		    }
+		    if ($mode ==2) {
+			if (defined($test->{"sign"})) {
+			    if ($test->{"sign"} == chi2::NON_SIGNIFICATIF) {
+				$chaine .= " (non significatif)";
+			    } elsif ($test->{"sign"} == chi2::SIGNIFICATIF) {
+				$chaine .= " (significatif)";
+			    } else {
+				die "Internal error : unknown value ".
+				    $test->{"sign"}."\n";
+			    }
+			}		    
+			if (defined($test->{"texte"})) {
+			    $chaine .= "\n".$test->{"texte"};
+			}
+			if (defined($test->{"warning"})) {
+			    $chaine .= "\n".$test->{"warning"};
+			}
+		    }
+		}
+		$chaine.="\n";
+	    }
+	}
+    }
+    return($chaine); 
+    
+}
+##########################################################
+######## MODIFICATIONS/CALCULS SUR L'ARBRE ###############
+##########################################################
+
+sub FusionBrNulles
+{
+    my($present_node)=shift;
+    my($child);
+    my($nb_fils)=NbFils($present_node);
+    
+    $present_node->{"label"}=$present_node->{"id"};
+    if (defined $present_node->{"father"}) {
+	$present_node->{"oldfather"}=$present_node->{"father"};
+    }
+    if ($nb_fils != 0) { # on n'est pas dans une feuille
+	$present_node->AddOldChild($present_node->GetChildrenList());
+	$present_node->ForgetChildren();
+	foreach $child ($present_node->GetOldChildrenList()) {
+	    if (! FusionBrNulles($child)) {
+		$present_node->AddChild($child);
+	    }
+	}
+	if (not $present_node->HasFather()) {
+	    return 0;
+	}
+	if (not defined $present_node->{"br_len"}) {
+	    print STDERR "Branch lenght not defined for ", $present_node->{"id"}, "\n"; 
+	    exit 1;
+	} elsif ($present_node->{"br_len"} == 0) { # branche nulle
+	    #print "brnulle ", $present_node->{"id"}, " ";
+	    foreach $child  (@{$present_node->{"children"}}) {
+		$child->{"father"}=$present_node->{"father"}; #remplace father
+		$present_node->GetFather()->AddChild($child);
+	    }
+	    $present_node->{"father"}->{"label"}.="+(".$present_node->{"label"}.")";
+	    return 1;
+	}
+    }
+    return 0;
+}
+
+
+##########################################################
+################### CLEAN FUNCTION  ######################
+##########################################################
+
+sub CleanCaseControl
+{
+    my($tree)=shift;
+    
+    foreach my $node ($tree->GetNodesList()) {
+	$node->EraseCase();
+	$node->EraseControl();
+    }
+}
+
+sub CleanChi2
+{
+    my($tree)=shift;
+    
+    foreach my $node ($tree->GetNodesList()) {
+	delete $node->{"res_test"};
+    }
+}
+
+##########################################################
+########### FUNCTIONS FOR ASSOCIATION TEST ###############
+##########################################################
+
+# From the hash correspondance, fill the variables necessary for Resampling
+sub Correspond2Resampling
+{
+    my($correspondance)=shift;
+    my($haploID, $ref_effectif, $total_mal, $total_tem);
+    foreach $haploID (keys %{$correspondance}) {
+	$ref_effectif->{$haploID}=$correspondance->{$haploID}->{"case"}+
+	    $correspondance->{$haploID}->{"control"};
+	$total_mal+=$correspondance->{$haploID}->{"case"};
+	$total_tem+=$correspondance->{$haploID}->{"control"};
+    }
+   #  DEBUG print "total_mal=$total_mal total_tem=$total_tem\n";
+    return ($total_mal, $total_tem, $ref_effectif);
+}
+
+
+sub Resampling # repompée intégralement de tree_resampling puis modifiée....
+{
+    my($total_mal) = shift;
+    my($total_tem) = shift;
+    my($ref_effectif) = shift; # ref on a hash: keys=H002 value= nbmal+nb_tem
+    my($clefs, $alea, $i);
+    my($new_correspondance);
+    foreach $clefs (keys %{$ref_effectif}) { 
+	$new_correspondance->{$clefs}->{"case"}=0;
+	$new_correspondance->{$clefs}->{"control"}=0;
+	for ($i=0; $i<$ref_effectif->{$clefs}; $i++) {
+	    $alea=rand($total_mal+$total_tem);
+	    # print "alea=$alea";
+	    if ($alea < $total_mal) {
+		#	print "inf\n";
+		$total_mal--;
+		$new_correspondance->{$clefs}->{"case"}++;
+		$new_correspondance->{$clefs}->{"control"}+=0;
+	    } else {
+		#	    print "sup\n";
+		$total_tem--;
+		$new_correspondance->{$clefs}->{"control"}++;
+		$new_correspondance->{$clefs}->{"case"}+=0;
+	    }
+	}
+#	print "clefs:$clefs nb_mal=$nb_mal{$clefs}, nb_tem=$nb_tem{$clefs}\n";
+    }
+    return ($new_correspondance);
+}
+
+sub StockeChi2
+
+{
+    my($ligne_chi2)=shift;
+    my $racine=shift;
+    my $test_res;
+    foreach $test_res (@{$racine->{"res_test"}}) {
+	# Si on n'a qu'une seule branche, la p-value n'est pas définie
+	if ($test_res->{"ddl"} > 0) {
+	    push @{$ligne_chi2}, $test_res->{"chi2"};
+	}
+    }
+    # Fill a 2*n table: each line containig chi2 and each columns
+    # corresponding to one repetition
+    #push (@{$table_of_line}, \@ligne_chi2);
+}
+
+
+sub Association 
+{
+    my($racine)=shift;
+    my($correspondance)=shift;
+    my($prolonge)=shift;
+    my($sign_util)=shift;
+    my($total_mal, $total_tem, $effectif, $new_correspondance);
+    ($total_mal, $total_tem, $effectif)=Correspond2Resampling($correspondance);
+    ($new_correspondance)=Resampling($total_mal, $total_tem, $effectif);
+
+    # DEBUG  my($haploID);
+    #foreach $haploID (keys %{$new_correspondance}) {
+    #	print "Haplo: $haploID mal= ",$new_correspondance->{$haploID}->{"case"}, " tem=", $new_correspondance->{$haploID}->{"control"},"\n";
+    #}  
+    #print "\n";
+    
+    FillCaseControl($racine,$new_correspondance);
+    parcours_nosplit_chi2split($racine->{"children"}, $prolonge, 
+			       SplitMode::NOSPLIT, $racine, $sign_util);
+} 
+
+sub RepeatAssociation
+{
+    my($tree)=shift;
+    my($correspondance)=shift;
+    my($prolonge)=shift;
+    my($nb_permutation)= shift;
+    my($sign_util)=shift;
+
+    my($racine)=$tree->GetRoot();
+
+    my($ligne_chi2)=[]; 
+    print "\n Number of permutation: $nb_permutation\n";
+    
+    my($value_per_line, $test_res);
+    foreach $test_res (@{$racine->{"res_test"}}) {
+	# Si on n'a qu'une seule branche, la p-value n'est pas définie
+	if ($test_res->{"ddl"} > 0) {
+	    $value_per_line++;
+	}
+    }
+
+    # !!! Est_ce que ça serait bien de passer value_per_mine en parametre de stocke_chi2 et de vérifier qu'on a bien le bon nb de valeur par ligne? !!!
+
+    
+    StockeChi2($ligne_chi2, $racine); # Chi2 values corresponding to the real data are put to @{$ligne_chi2}
+    my($i, $j);
+    for ($i=0; $i<$nb_permutation; $i++) {
+	CleanCaseControl($tree);
+	CleanChi2($tree);
+	Association($racine, $correspondance, $prolonge, $sign_util);
+	StockeChi2($ligne_chi2, $racine);
+    }
+    
+    #for (my($i)=0; $i<scalar @{$ligne_chi2}; $i++) {
+#	print $ligne_chi2->[$i], " ";
+#    }
+
+    return($value_per_line, $ligne_chi2);
+}
+
+##########################################################
+################# LOCALISATION ###########################
+##########################################################
+
+sub CalculateRit 
+{
+    my($tree)=shift;
+    my($s_site_nb)=shift;
+    my($s_state)=shift;
+    my($co_evo)=shift;
+    my($clef);
+    my($info_mutation); 
+    my($s_t, $s_t_rev)=(0,0);
+    
+    my($s_sitesens_per_tree)=$tree->GetSite($s_site_nb)
+	->GetSens($s_state);
+
+    if (not defined($s_sitesens_per_tree)) {
+	warning("No S site (number $s_site_nb)".
+		" with sens '$s_state' found\n");
+    }
+    # Calcul du Rit
+    # Notation des commentaires: le s_site mute de T->M
+    foreach my $node ($s_sitesens_per_tree->GetNodesList()) {
+	foreach my $sitesens_per_tree ($node->GetApoList()) {
+	    if ($sitesens_per_tree == $s_sitesens_per_tree) {
+		# on profite du fait pour incrémenter le nombre de
+		# mutation de s_site
+		# (On aurait aussi pu globalement incrémenter s_t
+		#  de la taille du tableau du premier foreach :
+		#  en effet, on passe ici une fois pour chaque
+		#  foreach du second niveau)
+		$s_t++;
+	    } else {
+		# le sitesens co-mute par ex de 1->2
+		$sitesens_per_tree->IncRit();
+	    }
+	}
+    }
+
+    if ($co_evo == CoEvo::DOUBLE){
+	# On 'retourne' le sens s_state
+	$s_state->Switch();
+	my $s_sitesens_per_tree_rev=$tree->GetSite($s_site_nb)
+	    ->GetSens($s_state);
+	# On le remet dans le bon sens après l'avoir tout tourneboulé
+	$s_state->Switch();
+	
+	if (defined($s_sitesens_per_tree_rev)) {
+	    # Calcul du Rit
+	    foreach my $node ($s_sitesens_per_tree_rev->GetNodesList()) {
+		foreach my $sitesens_per_tree ($node->GetApoList()) {
+		    if ($sitesens_per_tree == $s_sitesens_per_tree_rev) {
+			# nombre de mutation inverse du s_site (M->T)
+			# (même remarque que précédemment)
+			$s_t_rev++;
+		    } else {
+			# le sitesens co-mute de 2->1 avec s_site M->T
+			# donc on incrémente Rit pour sitesens 1->2
+			$sitesens_per_tree->GetSensRev()->IncRit();
+		    }
+		}
+	    }
+	}
+    } elsif ($co_evo == CoEvo::SIMPLE){
+    } else {
+	die "Invalid value for co_evo: $co_evo - should be 0 or 1\n";
+    }
+    return($s_t, $s_t_rev);
+}
+
+sub CalculateEit
+{ 
+    my($tree)=shift; # Comme d'hab
+    my($s_site_nb)=shift; # Pas utile ici !
+    my($s_t)=shift; # nombre de fois où S mute T->M
+    my($s_t_rev)=shift; # nombre de fois où S mute M->T
+    my($b_t)=shift; # nombre de branches au total dans l'arbre 
+                    # (après fusion des branches nulles)
+
+    # Calcul du Eit (et implicitement le Mit)
+    foreach my $site_per_tree ($tree->GetSitesList()) {
+	foreach my $sitesens_per_tree ($site_per_tree->GetSensList()) {
+	    $sitesens_per_tree->
+		SetEit(($sitesens_per_tree->GetMit()*$s_t+
+			$sitesens_per_tree->GetSensRev()->GetMit()*$s_t_rev)
+		       /$b_t);
+	}
+    }
+}
+
+sub PrintAllVit
+{
+    my($tree)=shift;
+    my($s_site_nb)=shift;
+    my($mutation , $sens); 
+    foreach my $site_per_tree ($tree->GetSitesList()) {
+	if ($site_per_tree->GetSiteNb() == $s_site_nb) {
+	    next;
+	}
+	foreach my $sitesens_per_tree ($site_per_tree->GetSensList()) {
+	    print "mutation= ",$site_per_tree->GetSiteNb(), "\t";
+	    print "sens= ", $sitesens_per_tree->GetSensLabel(),"\n";
+	    print "  m_it= ", $sitesens_per_tree->GetMit(),
+	    " R_it= ", $sitesens_per_tree->GetRit(), 
+	    " E_it= ", $sitesens_per_tree->GetEit(),
+	    " V_it= ", $sitesens_per_tree->GetVit(),"\n";
+	}
+    }
+
+}
+
+sub PrintAllVi
+{
+    my($foret)=shift;
+    my($s_site_nb)=shift;
+    my($mutation , $sens); 
+    foreach my $site_per_foret ($foret->GetSitesList()) {
+	if ($site_per_foret->GetSiteNb() == $s_site_nb) {
+	    next;
+	}
+	foreach my $sitesens_per_foret ($site_per_foret->GetSensList()) {
+	    print "mutation= ",$site_per_foret->GetSiteNb(), "\t";
+	    print "sens= ", $sitesens_per_foret->GetSensLabel(),"\t";
+	    print "  V_i= ", $sitesens_per_foret->GetVi(),"\n";
+	}
+    }
+
+}
+
+# Pour chaque site, on a choisi un sens en fonction du Vi (max) et on
+# affiche le tableau des Vi pour tous les sites et pour le sens choisi
+sub PrintViMax
+{
+    my($foret)=shift;
+    my($s_site_nb)=shift;
+    foreach my $site ($foret->GetViMaxSiteList()) {
+	if ($site->GetSiteNb() == $s_site_nb) {
+	    next;
+	}
+	print "site number ", $site->GetSiteNb(), "\n";
+	foreach my $sens ($site->GetViMaxSensList()) {
+	    print "\tsens ", $sens->GetSensLabel(), "\t";
+	    print "V_i = ", $sens->GetVi(), "\n";
+	}
+    }
+}
+
+# Affiche le tableau de tous les Vi, pour tes les sites et pour tous
+# les sens (triés par ordre décroissant)
+sub PrintViMaxSens
+{
+    my($foret)=shift;
+    my($s_site_nb)=shift;
+    foreach my $sens ($foret->GetViMaxSensList()) {
+	if ($sens->GetSiteNb() == $s_site_nb) {
+	    next;
+	}
+	print "site number ", $sens->GetSiteNb(), "\t";
+	print "\tsens ", $sens->GetSensLabel(), "\t";
+	print "V_i = ", $sens->GetVi(), "\n";
+    }
+}
+
+###########################################################
+sub readTree {
+    my $phylo_program=shift;
+    my $tab_arbres=shift;
+    my $datatype=shift;
+    my $print_tree=shift;
+    my $tree;
+    my($tab_longbranche, $tab_infoapo, $ancetre_seq);
+    my($alea_arbre);
+
+    if (($phylo_program == PhylProg::PAUP) ||  ($phylo_program == PhylProg::PHYLIP)) {
+	$alea_arbre=TireArbre($tab_arbres);
+    }
+    
+    my($nb_br_non_nulle);
+    if ($phylo_program == PhylProg::PAUP) {
+	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
+	    =ReadPAUP($tab_arbres, $alea_arbre);
+    } elsif ($phylo_program == PhylProg::PHYLIP) {
+	($tab_longbranche, $ancetre_seq)
+	    =ReadPHYLIP($tab_arbres, $alea_arbre, $datatype);
+    } elsif ($phylo_program == PhylProg::PAML) {
+	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
+	    =ReadPAML($tab_arbres);
+    } else {
+	die "Phylogeny program not supported";
+    }
+    $tree=TreeBuilding($tab_longbranche);
+    
+    #print Dumper($tree);
+    if ($phylo_program == PhylProg::PAUP ||
+	$phylo_program == PhylProg::PAML) {
+	$tree->SetNbBrNonNulle($nb_br_non_nulle);
+	FillTreeApoInfoPAUP($tree, $tab_infoapo);
+    } elsif ($phylo_program == PhylProg::PHYLIP) {
+	my $racine=$tree->GetRoot();
+	FillTreeApo1Phylip($tree, $tab_longbranche, $ancetre_seq);
+	FillTreeApo2Phylip($racine, $racine, $ancetre_seq, $tree);
+    } else {
+	die "Phylogeny program not supported";
+    }
+    CheckApoBrlen($tree);
+    if ($print_tree==1) {
+	my ($racine)=$tree->GetRoot();
+	AffichageArbre($racine, \&TreeInfos);
+	print "\n\n";
+    }
+    return $tree;
+}
+
+###########################################################
+
+sub erreur
+{
+    my $msg=shift;
+    my $use_pod=shift;
+
+    if (not defined($use_pod) or $use_pod) {
+	pod2usage("Error: ".$msg);
+    } else {
+	print STDERR "Error: ".$msg;
+	exit 1;
+    }
+}
+
+sub internal_error
+{
+    my $msg=shift;
+
+    die("Internal error: $msg\n".
+	"Please, report this bug (with all is needed to reproduce it) to:\n".
+	"bardel\@vjf.inserm.fr\n");
+}
+
+sub manage_options
+{
+    my %options;
+    my $result;
+
+    my $choix={ "data-type" => 
+		{ "snp" => DataType::SNP,
+		  "dna" => DataType::DNA,
+		  },
+		"tree-building-program" =>
+		{ "phylip" => PhylProg::PHYLIP,
+		  "paup" => PhylProg::PAUP,
+		  "paml" => PhylProg::PAML,
+		  },
+		"splitmode" =>
+		{ "chi2split" => SplitMode::CHI2SPLIT,
+		  "nosplit" => SplitMode::NOSPLIT,
+		  },
+		"co-evo" =>
+		{ "simple" => CoEvo::SIMPLE,
+		  "double" => CoEvo::DOUBLE,
+		  },
+		};
+
+    my $handle_choix = sub {
+	my $option=shift;
+	my $value=shift;
+
+	foreach my $key (keys %{$choix->{$option}}) {
+	    if ($key=~/^$value/i) {
+		$options{$option."-value"}=$choix->{$option}->{$key};
+		return;
+	    }
+	}
+	die "Option '$option': unauthorized value '$value'\n";
+    };
+    my $handle_args = sub {
+	my $name=shift;
+	die "What about '$name' ?\n";
+    };
+    my $handle_progname = sub {
+	my $name=shift;
+	die "What about '$name' ?\n";
+    };
+	
+
+    %options=("<>" => $handle_args);
+
+    foreach my $option (keys %{$choix}) {
+	$options{$option}=$handle_choix;
+    }
+
+    GetOptions (\%options,
+		"version",
+		"short-help|h",
+		"help",
+		"man",
+		"association|a!", # !!! demander pour le ! à Vince
+		"s-localisation|l!",	
+		"first-input-file|i=s",
+                "second-input-file|j=s",
+                "output-file|o=s",
+                "data-type|t=s",
+                "tree-building-program|p=s",
+                "splitmode|s=s",
+		"prolongation|b!",
+		"chi2-threshold|n=f",
+		"permutations|r=i",
+		"trees-to-analyse=i",
+		"s-site-number=i",
+		"s-site-characters=s",
+		"co-evo|e=s",
+		"print-tree!",
+		"<>",
+		) or pod2usage(2);
+    if (defined($options{"version"})) {
+	print $0, " version ", $VERSION, "\n";
+	print "(CUtils version ", $CUtils::VERSION, 
+	"; chi2.pm version ", $chi2::VERSION,
+	"; Perl version ", $], ")\n";
+	exit 0;
+    }
+    if (defined($options{"short-help"})) {
+	pod2usage(-exitstatus => 0, -verbose => 0);
+    }
+    if (defined($options{"help"})) {
+	pod2usage(-exitstatus => 0, -verbose => 1);
+    }
+    if (defined($options{"man"})) {
+	pod2usage(-exitstatus => 0, -verbose => 2);
+    }
+
+    delete($options{"<>"});
+    foreach my $option (keys %{$choix}) {
+	delete($options{$option});
+	if (exists($options{$option."-value"})) {
+	    $options{$option}=$options{$option."-value"};
+	    delete($options{$option."-value"});
+	}
+    }
+
+    return \%options;
+}
+
+sub main
+{
+    my($rec_program);
+    my $result;
+    my $options;
+
+    my $option_require = sub {
+	my $option=shift;
+	my $texte=shift;
+	if (not exists($options->{$option})) {
+	    my $msg="Error: option '$option' needed";
+	    if (defined($texte)) {
+		$msg.="\n".$texte;
+	    }		
+	    pod2usage("Error: option '$option' needed");
+	}
+    };
+    my $option_value = sub {
+	my $option=shift;
+	my $default=shift;
+	my $msg=shift;
+	if (not exists($options->{$option})) {
+	    if (defined $msg) {
+		print STDERR $msg, "\n";
+	    }
+	    return $default;
+	}
+	return $options->{$option};
+    };
+    
+    $options=manage_options();
+    
+    my($prolonge)=$option_value->("prolongation", 0);
+    my($print_tree)=$option_value->("print-tree", 0);
+    print "printtree=$print_tree\n";
+
+    $option_require->("tree-building-program");
+    my($phylo_program)=$option_value->("tree-building-program");
+
+    
+       
+   
+    
+    $option_require->("first-input-file");
+    my $input_file=$option_value->("first-input-file");
+
+    my($association)=$option_value->("association", 0);
+    my($s_loc)=$option_value->("s-localisation", 0);
+    
+    my($tab_arbres)=ReadInputFile1($input_file, $phylo_program);
+       
+    my $datatype;
+    if ($phylo_program == PhylProg::PHYLIP) {
+	$option_require->("data-type");
+	$datatype=$option_value->("data-type");
+    }
+
+    if ($association == 1) { 
+	my($splitmode)=SplitMode::NOSPLIT; # nosplit est imposé
+
+	# name of the file containing haploID, nb case and nb control
+	my($name_corres)=$option_value->("second-input-file", "correspond.txt");
+	my($correspondance); # ref on a hash containing haploID refferring to
+	                     # a hash containing nb case and nb control
+	$correspondance=ReadCorrespond($name_corres);
+
+	my($tree)=readTree($phylo_program, $tab_arbres, $datatype, $print_tree);
+
+	###############################
+	# DEBUG A VIRER #
+	###############################
+
+      NODE: for (;;) {
+	    print "Noeud à rooter ? (-1 pour finir) ";
+	    my $nb=<>;
+	    chomp $nb;
+	    if ($nb eq "-1") {
+		last;
+	    }
+	    my $newroot;
+	    foreach my $node ($tree->GetNodesList()) {
+		if ($node->Name() eq $nb) {
+		    print "rooting node $node\n";
+
+		    $tree->ChangeRoot($node);
+
+		    my $newracine=$tree->GetRoot();
+		    AffichageArbre($newracine, \&TreeInfos);
+		    print "\n\n";
+		    next NODE;
+		}
+	    }
+	    print "Node $nb not found\n";
+	    next NODE;
+	}
+	exit 0;
+	###############################
+	# FIN DEBUG A VIRER #
+	###############################
+
+	CheckCorrespondance($tree, $correspondance, $name_corres); 
+	
+	#print "\n";
+	
+	EliminateNode($tree->GetOutgroup());
+
+	FusionBrNulles($tree->GetRoot());
+	# Structure changée, on recalcul...
+	FillHeight($tree->GetRoot(), 0);
+	FillLevel($tree->GetRoot(), 0);
+	FillCaseControl($tree->GetRoot(),$correspondance); 
+
+	print "\n";
+	
+	my $racine=$tree->GetRoot();
+	my @children=$racine->GetChildrenList();
+	
+	$option_require->("permutations", 
+			  "The number of permutations used to calculate".
+			  " exact p-values must be specified or set to 0\n");
+	
+	my $permutation=$option_value->("permutations");
+	my($sign_util);
+	if ($permutation==0) {
+	    my($seuil_chi2)=$option_value->("chi2-threshold", 0.01, 
+					    "Using default chi2 threshold 0.01");
+	    chi2::definition_p_chi2($seuil_chi2, 0.01); # mettre une option 
+	                                                # pour seuil test_prop
+	    $sign_util = SignUtil::YES # on a besoin de la significativité
+	    } elsif ($permutation>0) {
+		$sign_util = SignUtil::NO; # on n'a pas besoin de la sign
+	    } else {
+		die "invalid value for the number of permutation: $permutation\n";
+	    }
+	parcours_nosplit_chi2split(\@children, $prolonge, $splitmode, $racine, $sign_util );
+       	
+	{
+	    if ($permutation==0) {
+		AffichageArbre($racine, \&TestInfos);
+	    } elsif ($permutation>0) {
+		AffichageArbre($racine, \&AssociationInfos);
+		my($value_per_line, $ligne_chi2);
+		($value_per_line, $ligne_chi2)=RepeatAssociation
+		    ($tree, $correspondance, $prolonge,$permutation, $sign_util);
+		my($corrected_values);
+		$corrected_values=CUtils::double_permutation
+		    ($permutation+1, $value_per_line, $ligne_chi2);
+		
+		print "\n";
+		print "p_val for each level:\n";
+		my($i);
+		for ($i=0; $i<$value_per_line; $i++) {
+		    print "level ", $i+1, " p-value (non corrected) ",
+		    $corrected_values->{"chi2"}->[$i], "\n";
+		}
+		print "corrected minimal p_value in the tree: ", 
+		$corrected_values->{"pmin"}, " at level TODO\n";
+	    } else {
+		die "invalid value for the number of permutation: $permutation\n";
+	    }
+	}
+    } 
+
+#####################Localisation #############
+
+    if ($s_loc==1) {
+	#$option_require->("splitmode");
+	#my($splitmode)=$option_value->("splitmode");
+	print "Localisation method using S-character\n";
+	$option_require->("trees-to-analyse");
+	my($trees_to_analyse)=$option_value->("trees-to-analyse");
+	my($nb_trees_max)=scalar(@{$tab_arbres})-1;
+	if ($trees_to_analyse>$nb_trees_max) {
+	    erreur("Invalid number of trees to analyse : your file contains only $nb_trees_max trees\n", 0);
+	    }
+	$option_require->("s-site-number");
+	my($s_site_nb)=$option_value->("s-site-number");
+	$option_require->("s-site-characters");
+	my($s_char_state)=$option_value->("s-site-characters");
+	$option_require->("co-evo");
+	my($co_evo_type)=$option_value->("co-evo");
+#	print "co_evo_type=$co_evo_type\n";
+
+#DEBUG	print "s_char_state=$s_char_state\n";
+	if (not ($s_char_state =~ m/([A-Za-z0-9]+)\s*[-=_]*[>]\s*([A-Za-z0-9]+)/)) {
+	    erreur("Invalid character change for character S. It should be Anc -> Der\n", 0);
+	}
+	my($s_anc)=$1;
+	my($s_der)=$2;
+	my($s_state)= Sens->New($s_anc." --> ".$s_der);
+	my($foret)=Foret->New();
+	
+	#$Data::Dumper::Indent = 0;
+	for (my($i)=0; $i<$trees_to_analyse; $i++) {
+	#for (my($i)=0; $i<=0; $i++) {
+	    #open(STDOUT, "> out.".$i);
+
+	    my ($tree)=readTree($phylo_program, $tab_arbres, $datatype, $print_tree);
+
+	    my ($b_t)=$tree->GetNbBrNonNulle();
+
+	    my $site=$tree->GetSite($s_site_nb);
+	    if (not defined($site)) {
+		erreur("Invalid value ($s_site_nb) for --s-site-number\n", 0);
+	    }
+	    #print Dumper($tree);
+	    #print "nb_br_non_nulle=$b_t ($s_site_nb, ",Dumper($s_state),", $co_evo_type)\n";
+	    #print "nb_br_non_nulle=$b_t\n";
+	    # s_t correspond to the number of time S mutates in the s_state sens
+	    my($s_t, $s_t_rev)=CalculateRit($tree, $s_site_nb, $s_state, 
+					    $co_evo_type); 
+	    #print Dumper($tree);
+	    CalculateEit($tree, $s_site_nb, $s_t, $s_t_rev, $b_t);
+	   
+	   # PrintAllVit($tree, $s_site_nb);
+
+	    $foret->AddTree($tree);
+	    #my($worksite)=19;
+	    #my($ref_sitesens)=BuildTabRefSiteSens($sites, $worksite);
+	    #my(@ref_sitesens_trie)=sort{$b->GetVit() <=> $a->GetVit()} @{$ref_sitesens};
+	    #print "ttt=", $ref_sitesens_trie[0]->GetVit(),"\n";
+	}
+	#exit 0;
+	$foret->CalculVi();
+	#PrintAllVi($foret, $s_site_nb);# Non trié
+	PrintViMax($foret, $s_site_nb);
+	print "\n";
+	PrintViMaxSens($foret, $s_site_nb);
+	
+    }
+}
+
+
+sub PleinInfos {
+    my $node=shift;
+    
+    my $suite=""; #"\nligne suivante\net encore après\n ";
+    if (defined ($node->{"father"})) {
+	return Name($node). "\nFrom: ". Name($node->{"father"}).$suite;
+    } else {
+	return Name($node).$suite;
+    }
+}
+
+use FileHandle;
+use IPC::Open2;
+sub my_test {
+    my $pid;
+    
+    $pid = open2(*Reader, *Writer, "phylip mix" );
+    print Writer "r\no\n6\nw\na\n5\ny\nweight\nr\n";
+    while (<Reader>) {
+	print "PHYL: ", $_;
+    }
+    
+}
+
+#my_test;
+#exit 0;
+
+main;
+
+#man perlpod
+
+__END__
+    
+=head1 NAME
+
+alphy - Analysing phylogeny trees
+
+=head1 SYNOPSIS
+
+alphy [options]
+
+ Options:
+    --version        program version
+    --short-help|h   brief help message
+    --help           help message with options descriptions
+    --man            full documentation
+    --association|a  perform the association test
+    --s-localisation|l   perform the localisation using the S character
+    --first-input-file|i result_file
+    --second-input-file|j correspond_file
+    --output-file|o outfile
+    --data-type|t DNA|SNP
+    --tree-building-program|p phylip|paup|paml
+    --splitmode|s nosplit|chi2split
+    --prolongation|b
+    --chi2-threshold|n value
+    --permutations|r number
+    --trees-to-analyse number
+    --s-site-number number
+    --s-site-characters ancestral state -> derived state
+    --co-evo|e simple|double
+    --print-tree 
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--version>
+
+Print the program version and exits.
+
+=item B<--short-help>
+
+Print a brief help message and exits.
+
+=item B<--help>
+
+Print a help message with options descriptions and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=item B<--association|a>
+
+Perform the association test
+
+=item B<--s-localisation|l>
+
+Localise the susceptibility locus using the "S-character method"
+
+=item B<--first-input-file|i> F<result_file>
+
+Input file 1 (paup, phylip or paml results file)
+
+=item B<--second-input-file|j> F<correspond_file>
+
+Input file 2, default F<correspond.txt>
+
+=item B<--output-file|o> outfile
+
+Output file
+
+=item B<--data-type|t> C<DNA>|C<SNP>
+
+Type of data: DNA (ATGCU) or SNP (0-1)
+
+=item B<--tree-building-program|p> C<phylip>|C<paup>|C<paml>
+
+Phylogeny reconstruction program
+
+=item B<--splitmode|s> C<nosplit>|C<chi2split>
+    
+how tests are performed from a level to another
+
+=item B<--prolongation|b>
+
+Prolongation of branches in the tree
+
+=item B<--chi2-threshold|n> value
+
+Significance threshold for chi2 (default value 0.01)
+
+=item B<--permutations|r> number
+
+Number of permutations used to calculate exact p_values
+(Only for association test)
+
+=item B<--trees-to-analyse> number
+
+Number of trees to analyse in the localisation analysis 
+(only for localisation method using S-character)
+
+=item B<--s-site-number number>
+
+Number of the S character site in the sequence
+(only for localisation method using S-character)
+
+=item B<s-site-characters>
+
+Character states for the S character: ancestral state -> derived state
+ex: G->C or 0->1  (only for localisation method using S-character)
+
+=item B<co-evo|e>
+
+Type of co-evolution indice 
+  simple: only the anc -> der transition of S is used 
+  double: the two possible transitions are used
+
+=item B<print-tree>
+
+If this option is selected, the tree will be printed to the output
+
+=back
+
+=head1 DESCRIPTION
+
+B<This program> will read the given input file(s) and do someting
+useful with the contents thereof.
+
+=cut
