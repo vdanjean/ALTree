@@ -39,6 +39,7 @@
 \newcommand{\paup}{\texttt{paup}\xspace}
 \newcommand{\phylip}{\texttt{phylip}\xspace}
 \newcommand{\paml}{\texttt{paml}\xspace}
+\newcommand{\ALPhy}{\texttt{ALPhy}\xspace}
 \renewcommand{\thetable} {\rm\Roman{table}}
 \renewcommand{\thefigure} {\rm\Roman{figure}}
 \newcommand{\newchitree}{\texttt{NewChi2tree.pl}\xspace}
@@ -61,7 +62,7 @@
 \chapter{Overview of the software}
 \section{Introduction}
 
-This software was designed to perform two phylogeny based analysis: first, it allows the detection of an association between a candidate gene and a disease, and second, it enables to make hypothesis about the susceptibility loci. 
+This software was designed to perform phylogeny based analysis: first, it allows the detection of an association between a candidate gene and a disease, and second, it enables to make hypothesis about the susceptibility loci. 
 
 \subsection{Copyright}
 This software is copyright (c) by Claire Bardel and Vincent Danjean
@@ -76,34 +77,74 @@ Before using the program, you must build a phylogeny of the haplotypes. Three ph
 \begin{itemize}
 \item \paup~\cite{Swofford02}: available at \url{http://paup.csit.fsu.edu/}. This software is not free software and can be purchased (100\$ for the unix version). 
 \item \phylip~\cite{Felsenstein04}: freely available at \url{http://evolution.genetics.washington.edu/phylip.html}
-\item \paml~\cite{YangPAML}: freely available at \url{http://abacus.gene.ucl.ac.uk/software/paml.html}. As stated by its author, \paml is not good at tree making. So we advise you to use another software to build the tree and then to use paml to estimate the character states at each node.
-
+\item \paml~\cite{YangPAML}: freely available at
+  \url{http://abacus.gene.ucl.ac.uk/software/paml.html}. As stated by
+  its author, \paml is not good at tree making. So we advise you to
+  use another software to build the tree and then to use paml to
+  estimate the character states at each node.
 \end{itemize}
 
 Currently, only parsimony methods implemented in paup (command set, option criterion set to ``parsimony'') and in phylip (program mix and dnapars) have been tested. If you want to use maximum likelihood (ML), we suggest you to use your favorite software to compute the ML tree and then, to use \paml to estimate the character states at each node. 
 
-\subsection{A quick description of the method implemented in \newchitree}
-
-Présenter le but de ce logiciel. Association detection and localization of susceptibility loci using haplotype phylogenies. + Provide tools to facilitate this analysis. Blablater un peu plus sur le contexte peut-etre? Ou renvoyer aux articles.
-
-Expliquer vite le principe de la méthode, au moins pour pouvoir parler de caractere S par la suite!!
-
-\section{Installing the software}
-Inclure les differentes platformes sur lesquelles ça tourne.\\
-Voir avec Vince; installation des bibliothèques perl, installation de la bibliothèque C. Avec Linux, paquet debian dispo sur page Vince. Voir si on peut compiler le C pour windows et/ou macOSX.
-
-\section{The different programs available} 
-
+\section{Short description of the program available in \alphy}
 \subsection{\newchitree}
-Perform the association test and the localization analysis. 
+\subsubsection{Association test}
+The test consists in performing series of nested homogeneity tests (\chisquare)
+comparing the number of cases and controls in the different clades
+defined on the tree. A global p-value is calculated for the tree by
+using a double permutation procedure.
+\subsubsection{Localization of the susceptibility loci}
+To perform the localization analysis, for each haplotype $h$, the user
+must previously define a new character (called character $S$) whose
+state depends on the proportion of cases carrying haplotype $h$ and
+optimize it on the haplotype phylogeny.  The program \newchitree then
+looks for sites that co-mutates with the character S by calculating a
+co-mutation index called $V_{is}$ for each site$i$ and for each
+character state transition $s$. The highest the
+$V_{is}$ is, the highest the probability of $i$ being the susceptibility
+site is.
+
+\bigskip
+The method implemented in\newchitree has been fully described
+in~\cite{Bardel05}. Please refer to this article for a more complete
+description. 
 
 \subsection{\rechaplo}
-File conversion: from haplotype reconstruction programs to input fils for phylogenetic reconstruction... \\
-Works with two haplotye reconstruction program: phase and famhap (mettre les ref), and can produce files for two phylogenetic reconstruction program: paup et hylip (ref)\\
+Before running \newchitree, you will generally have to reconstruct
+haplotypes. The output of the haplotype reconstruction programs are
+totally different from the input files necessary for the phylogenetuc
+reconstruction programs. This program was then written to convert the
+outputs of haplotype reconstruction programs to input files for
+phylogenetic reconstruction programs. It may be particularly useful if
+you want to use \paup because it has a very high number of options. If
+you use \rechaplo, an input file with all the options
+necessary to further run \newchitree is produced. 
+
+Currently, \rechaplo can deal with two haplotype reconstruction
+programs: \phase~\cite{Stephens01, Stephens03}  and
+\famhap~\cite{Becker04} and can produce files for three phylogeny
+reconstruction program: \paup~\cite{Swofford02}, \phylip~\cite{Felsenstein04} and \paml~\cite{YangPAML}\\
 
 \subsection{\etHT}
-Performs the addition of the character S to the set of haplotypes. If you don't want to add the S character manually, you must use this program before running \newchitree. 
+To perform the localization analysis, a new character $S$ must be
+added to each haplotype $h$. The state of $S$ depends on the proportion of
+cases carrying haplotype $h$. You can use your own criterion to
+determine the state of $S$ and add it manually to the input file of
+the phylogeny reconstruction program that will optimize the character
+states changes on the tree.
 
+If you don't want to add the S character manually, you can use
+\etHT. The state of the character $S$ is allocated depending on the proportion
+($p_h$) of cases carrying the haplotype $h$ compared to the proportion $p_0$ of cases in the whole sample. 
+
+\begin{itemize}
+\item if $p_h < p_0-\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$ is coded
+  ``C'' (high number of controls);
+\item if $p_h > p_0+\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$ is coded
+  ``G'' (high number of cases);
+\item else, $S$ is coded ``?'' (missing data).
+\end{itemize}
+with $n_h$ being the number of individuals carrying the haplotype $h$.
 
 \section{Description of the other files}
 Les fichiers d'exemple...
@@ -118,15 +159,27 @@ Avoir un fichier apres passage par \etHT.
 
 Avoir fichier de sortie de localisation et d'association
 
-
+\chapter{Installing the software}
+Inclure les differentes platformes sur lesquelles ça tourne.\\
+Voir avec Vince; installation des bibliothèques perl, installation de la bibliothèque C. Avec Linux, paquet debian dispo sur page Vince. Voir si on peut compiler le C pour windows et/ou macOSX.
 
 \chapter{Running the program \rechaplo }
-\section{Description}
+
+\section{Summary of the different options}
+\begin{tabular}{ll}
+  -i &Input file 1 \\
+  [-j] & Input file 2 (not mandatory, see explanations below) \\
+  -o & Output file \\
+  -r & Name of the haplotype reconstruction program\\
+  -p & Name of the phylogeny reconstruction program \\
+  -t & Type of data: DNA (ATGCU) or NUM (0-9) \\
+  -h & help \\
+\end{tabular}
+
 \section{Input files}
-Input files: the output files of the haplotype recontruction programs. Currently, only \phase (for case/control data) and \famhap (for family data) output files are allowed, but we plan to extend the number of haplotype recontruction programs usable. The haplotype reconstruction program used to generate the input file must be specified after the -r option.
+This program takes as input files the output files of the haplotype recontruction programs. Currently, only \phase (for case/control data) and \famhap (for family data) output files are allowed, but we plan to extend the number of haplotype recontruction programs usable. The haplotype reconstruction program used to generate the input file must be specified after the -r option.
 
 \subsection{Using \phase output file}
-
 Two different cases must be considered:
 \begin{itemize} 
 \item The case-control status of each individual has been specified in the input file for phase and phase has been run with the -c-1 option. In this case only one input file is necessary for \rechaplo: the phase output file (let's call it out.phase). In this case, the program must be run like this: \\
@@ -139,10 +192,24 @@ Two different cases must be considered:
 Verifier les options de famhap necessaires\\
 Two input files are necessary: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called H1\_MOSTLIKELI (or H0\_MOSTLIKELI). In this case, the program must be run like this: \\
   \rechaplo -r famhap -i out.famhap -j H1\_MOSTLIKELI -other\_options 
+
 \section{Output files}
-Two kind of output files can be generated depending on the phylogeny reconstruction program you want to use. The name of the phylogeny reconstruction program should follow the -p option.
+Two kinds of output files can be generated depending on the phylogeny
+reconstruction program you want to use (\paml and \phylip use the same
+type of input files). The name of the phylogeny reconstruction program should follow the -p option.
+
 \subsection{Generating \paup input files (out.paup)}
-The file generated contains the options necessary to run \newchitree after paup (some informations must be in the paup log file to run \newchitree). Different options must be specified by the user: 
+The file generated is a nexus file containing the options for \paup
+necessary to run \newchitree after \paup (some informations must be in
+the paup log file to run \newchitree). The name of each haplotype is
+formed by the concatenation of an haplotype number (Hxxx), and of the
+number of controls (cxxx) and cases (mxxx) carrying this haplotype. A
+character is added to each haplotype: its state is 2 or C for all the
+haplotypes and must be set to 1 or G for the ancestral sequence.
+
+
+Some options are indicated within square brackets and must be
+specified by the user:
 \begin{itemize}
 \item the sequence of the ancestral haplotype
 \item the maximum number of trees inferred(!! trouver autre terme) by \paup
@@ -150,9 +217,28 @@ The file generated contains the options necessary to run \newchitree after paup 
 \item the name of the different files generated
 \item the number of trees described by paup in the log file
 \end{itemize}
-These options are indicated within square brackets. The chosen option must be put out of the square brackets because \paup ignores what is written within square brackets.
-\subsection{Generating \phylip  input files (out.phylip)}
-The user must either add the sequence of the ancestral haplotype in the file out.phylip and prepare a file named ancestor, containing this sequence (don't forget to add the character 1 at the end of the sequence, or eliminate this sequence (and modify the number of sequences accordingly) !!Revoir ce paragraphe en faisant les manips en meme temps: il est probable qu'il faille detailler en fonction du type de donnees. !!
+The chosen option must be put out of the square brackets because \paup
+ignores what is written within square brackets. 
+
+
+
+\subsection{Generating \phylip or \paml input files (out.phylip)}
+The file generated is the simplest phylip (also used by \paml) format.
+The first line contains the number of haplotypes and the number of
+sites and the following lines contains an identifier for the haplotype
+(Hxxx) and the haplotype sequence.
+
+!!! REVOIR seulement pour phylip!!! 
+The user must either add the sequence of the ancestral haplotype in
+the file out.phylip and prepare a file named ancestor, containing this
+sequence (don't forget to add the character 1 at the end of the
+sequence, or eliminate this sequence (and modify the number of
+sequences accordingly) !!Revoir ce paragraphe en faisant les manips en
+meme temps: il est probable qu'il faille detailler en fonction du type
+de donnees. !!
+
+\subsection{Generating \paml input files (out.phylip)}
+
 
 \subsection{The output file correspond.txt} 
 This file is automatically generated and the user cannot change it's
@@ -162,13 +248,14 @@ tabulations. The number of cases carrying a given haplotype is
 preceded by the letter ``m'' and the number of controls is preceded
 by the letter ``c''.
 
-Example of a file: \\
+Example of a correspond.txt file: \\
 \begin{tabular}{ccc}
 H002 &   m015 &   c001\\
 H003 &   m000 &   c001\\
 H001 &   m000 &   c002\\
 H000\_anc & m000 & c000\\
 \end{tabular}
+
 \section{Other options}
 
 \subsection{The -h option: help}
@@ -179,19 +266,6 @@ The user must specify if the data are of type DNA (ATGC) or NUM (number from 0 t
 
 \subsection{The -o option: name of the main output file}
 With this option, the user choose the name of the output file. If -o is omitted, the standard output will be used.
-
-\section{Summary of the different options}
-!!Peut-etre à mettre au debut??!!
-
-\begin{tabular}{ll}
-  -r & Haplotype reconstruction program\\
-        -i &Input file 1 \\
-        -j & Input file 2 (not mandatory, see above) \\
-        -o & Output file \\
-        -t & Type of data: DNA (ATGCU) or NUM (0-9) \\
-        -p & Phylogeny reconstruction program \\
-        -h & this help \\
-\end{tabular}
 
 \section{Example files}
 A faire... et mettre des exemples de ligne de commande.
@@ -361,6 +435,21 @@ use in the localization test.
 
 \subsection{Description of the output file}
 
+\chapter{Bilan des url ou télécharger les programs}
+\section{Haplotype reconstruction programs}
+\famhap \url{http://www.uni-bonn.de/%7Eumt70e/becker.html}
+
+\phase \url{http://www.stat.washington.edu/stephens/software.html}
+
+\section{Phylogeny reconstruction program}
+\paup  \url{http://paup.csit.fsu.edu/}
+
+\phylip \url{http://evolution.genetics.washington.edu/phylip.html}
+
+\paml  \url{http://abacus.gene.ucl.ac.uk/software/paml.html}
+\bibliographystyle{plain}
+\bibliography{stage}
+\end{document}
 \annexe 
 \chapter{GNU GENERAL PUBLIC LICENSE}
 \label{GPL}
@@ -646,9 +735,9 @@ YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
 PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+                     END OF TERMS AND CONDITIONS
 
-	    How to Apply These Terms to Your New Programs
+            How to Apply These Terms to Your New Programs
 
   If you develop a new program, and you want it to be of the greatest
 possible use to the public, the best way to achieve this is to make it
