@@ -63,3 +63,4 @@ sub Switch {
     $self->{'switch'} = 1-$self->{'switch'};
 }
 
+1;

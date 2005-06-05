@@ -26,6 +26,7 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 # perl, c'est inutile
 
 use Alphy::Chi2 ();
+use Alphy::Import;
 #use Newchi2treeUtils;
 
 ###########################################
@@ -256,7 +257,7 @@ sub ReadPAUP
 	    }
 	    if ($has_sens) {
 		$sens_chgt =~ s/=/-/g;
-		$tab_infoapo[$j]->[5]=Sens->New($sens_chgt); # direction of the change 
+		$tab_infoapo[$j]->[5]=Alphy::Sens->New($sens_chgt); # direction of the change 
 		$j++;
 	    }
 	}
@@ -395,7 +396,7 @@ sub ReadPAML
 sub TreeBuilding{
     my($tab_longbranche)=shift;
     my($i);
-    my($tree)=Tree->New();
+    my($tree)=Alphy::Tree->New();
 
     #print "TreeBuilding\n";
     for ($i=0;$i<=$#$tab_longbranche;$i++) {

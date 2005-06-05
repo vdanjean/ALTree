@@ -18,3 +18,4 @@ sub Debug {
     #print STDERR @_;
 }
 
+1;
