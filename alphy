@@ -25,8 +25,8 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 # Si les modules sont installés dans les emplacements standard de
 # perl, c'est inutile
 
-use chi2 ();
-use Newchi2treeUtils;
+use Alphy::Chi2 ();
+#use Newchi2treeUtils;
 
 ###########################################
 ########  GLOBAL VARIABLES        #########

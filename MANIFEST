@@ -7,6 +7,7 @@ alphy
 alphy-add-S
 alphy-convert
 Alphy/Base.pm
+Alphy/Chi2.pm
 Alphy/Foret.pm
 Alphy/Node.pm
 Alphy/Sens.pm
@@ -28,6 +29,8 @@ CUtils/c_sources/Makefile.PL
 CUtils/c_sources/z.c
 CUtils/c_sources/z.h
 CUtils/CUtils.xs
+CUtils/const-c.inc
+CUtils/const-xs.inc
 CUtils/fallback/const-c.inc
 CUtils/fallback/const-xs.inc
 CUtils/lib/Alphy/CUtils.pm
@@ -35,3 +38,7 @@ CUtils/Makefile.PL
 CUtils/ppport.h
 CUtils/t/Alphy-CUtils.t
 CUtils/t/double_permutation.t
+Documentation/fig/option_b.fig
+Documentation/fig/option_b.subfig
+Documentation/manual.tex
+Documentation/stage.bib
