@@ -38,3 +38,4 @@ sub GetSitesList {
     my $self=shift;
     return values(%{$self->{"sites"}});
 }
+1;

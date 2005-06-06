@@ -34,3 +34,4 @@ sub GetVi {
     return $self->{"V_i"};
 }    
 
+1;

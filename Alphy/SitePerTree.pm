@@ -7,6 +7,7 @@ package Alphy::SitePerTree;
 ################################################################
 
 use base qw(Alphy::Base Alphy::Site);
+use Alphy::SiteSensPerTree;
 
 # Structure SitePerTree
 #   "site_nb" -> Integer
@@ -57,3 +58,4 @@ sub IncNbMut {
     $self->{"nb_mut"}++;
 }
 
+1;

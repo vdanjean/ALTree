@@ -377,7 +377,7 @@ sub ReadPAML
       		#$tab_infoapo[$j]->[3]=; # CI
 		$tab_infoapo[$j]->[4]=1; # nb steps =1 for SNPs 
 		my($sens_chgt)=$2."->".$3;
-		$tab_infoapo[$j]->[5]=Sens->New($sens_chgt); # direction of the change 
+		$tab_infoapo[$j]->[5]=Alphy::Sens->New($sens_chgt); # direction of the change 
 		$j++;
 	    }
 	}
@@ -411,13 +411,13 @@ sub TreeBuilding{
 	my $pere;
 	my $fils;
 	if (not $tree->HasNodeIndex($fils_id)) {
-	    $fils=Node->New($fils_id); #creation de la structure Node
+	    $fils=Alphy::Node->New($fils_id); #creation de la structure Node
 	    $tree->AddNode($fils);     # puis, on la met dans tree
 	} else {
 	    $fils=$tree->GetNode($fils_id);
 	}
 	if (not $tree->HasNodeIndex($pere_id)) {
-	    $pere=Node->New($pere_id); #creation de la structure Node
+	    $pere=Alphy::Node->New($pere_id); #creation de la structure Node
 	    $tree->AddNode($pere);     # puis, on la met dans tree
 	} else {
 	    $pere=$tree->GetNode($pere_id);
@@ -464,7 +464,7 @@ sub FillTreeApoInfoPAUP
 	
 	my $site;
 	if (not $tree->HasSiteIndex($apo_num)) { 
-	    $site=SitePerTree->New($apo_num);
+	    $site=Alphy::SitePerTree->New($apo_num);
 	    $tree->AddSite($site);
 	    if (defined $apo_CI) { # For PAML trees, CI is not defined
 		$site->SetCI($apo_CI);
@@ -531,11 +531,11 @@ sub FillTreeApo2Phylip
 	elsif ($fathersite ne $childsite) {
 	    $br_len++;
 	    my($apo_num)=$i+1;
-	    my($apo_sens)=Sens->New($fathersite."->".$childsite);
+	    my($apo_sens)=Alphy::Sens->New($fathersite."->".$childsite);
 
 	    my $site;
 	    if (not $tree->HasSite($apo_num)) { 
-		my $site=SitePerTree->New($apo_num);
+		my $site=Alphy::SitePerTree->New($apo_num);
 		$tree->AddSite($site);
 	    } else {
 		$site=$tree->GetSite($apo_num);
@@ -1911,8 +1911,8 @@ sub main
 	}
 	my($s_anc)=$1;
 	my($s_der)=$2;
-	my($s_state)= Sens->New($s_anc." --> ".$s_der);
-	my($foret)=Foret->New();
+	my($s_state)= Alphy::Sens->New($s_anc." --> ".$s_der);
+	my($foret)=Alphy::Foret->New();
 	
 	#$Data::Dumper::Indent = 0;
 	for (my($i)=0; $i<$trees_to_analyse; $i++) {

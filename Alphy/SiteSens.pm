@@ -59,3 +59,4 @@ sub GetSensRev {
     return $self->{'rev'};
 }    
 
+1;

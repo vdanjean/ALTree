@@ -9,6 +9,7 @@ alphy-convert
 Alphy/Base.pm
 Alphy/Chi2.pm
 Alphy/Foret.pm
+Alphy/Import.pm
 Alphy/Node.pm
 Alphy/Sens.pm
 Alphy/Site.pm

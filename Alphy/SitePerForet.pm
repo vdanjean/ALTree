@@ -147,3 +147,4 @@ sub GetViMaxSensList {
     return @{$self->{"V_i_max_tab"}}; # Comment ça marche ce truc?
 }
  
+1;

@@ -117,3 +117,4 @@ sub NbViMaxSens {
     return (scalar @{$self->{"V_i_max_sens_tab"}});
 }
 
+1;

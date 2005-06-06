@@ -7,6 +7,7 @@ package Alphy::Site;
 ################################################################
 
 use base 'Alphy::Base';
+use Alphy::Sens;
 
 # Structure Site
 #   "site_nb" -> Integer
@@ -36,7 +37,7 @@ sub AddSens {
 
     my($ref_site_sens)=$self->NewSens($sens);
     $self->{"sens_struct"}->{$sens->GetLabel()}=$ref_site_sens;
-    my $sensRev=Sens->NewRev($sens);
+    my $sensRev=Alphy::Sens->NewRev($sens);
     my($ref_site_sens_rev)=$self->NewSens($sensRev);
     $self->{"sens_struct"}->{$sensRev->GetLabel()}=$ref_site_sens_rev;
     Alphy::SiteSens::LinkRev($ref_site_sens, $ref_site_sens_rev);
@@ -71,3 +72,4 @@ sub NewSens {
     die "This method needs to be overwriten\n";
 }
 
+1;
