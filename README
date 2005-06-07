@@ -1,5 +1,5 @@
-Alphy-Utils version 0.01
-========================
+Alphy version 0.01
+==================
 
 The README is used to introduce the module and provide instructions on
 how to install the module, any machine dependencies it may have (for
@@ -21,6 +21,15 @@ To install this module type the following:
    make test
    make install
 
+If you prefer to install it in your home directory,
+then type the following:
+   perl Makefile.PL PREFIX=~
+   make
+   make test
+   make install
+In this case, do not forget to add ~/bin in your PATH and
+~/lib/perl/"perl_version"/ in PERL5LIB if they are not already present.
+
 DEPENDENCIES
 
 This module requires these other modules and libraries:
@@ -31,7 +40,7 @@ COPYRIGHT AND LICENCE
 
 Put the correct copyright and licence information here.
 
-Copyright (C) 2005 by Vincent Danjean
+Copyright (C) 2005 by Claire Bardel
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.4 or,

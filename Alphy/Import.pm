@@ -3,6 +3,7 @@ package Alphy::Import;
 use strict;
 use Alphy::Sens;
 use Alphy::Tree;
+use Alphy::Foret;
 use Alphy::Node;
 use Alphy::SitePerTree;
 use Alphy::SitePerForet;
