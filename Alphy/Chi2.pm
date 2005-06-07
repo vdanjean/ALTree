@@ -1,4 +1,4 @@
-package chi2;
+package Alphy::Chi2;
 
 use strict;
 use Alphy::CUtils;
