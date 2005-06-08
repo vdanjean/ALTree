@@ -134,7 +134,7 @@ sub ReadInputFile1
     } elsif  ($phylo_program == PhylProg::PHYLIP) { 
 	$identifiant="requires a total of";
     } else {
-	$identifiant = "Supplemental results for BASEML";
+	$identifiant = "TREE # ";
     }
     open (INPUT, '<', $input_file) || die "Unable to open file $input_file: $!\n";
     my($indice)=0;
@@ -1893,7 +1893,7 @@ sub main
 	print "Localisation method using S-character\n";
 	$option_require->("trees-to-analyse");
 	my($trees_to_analyse)=$option_value->("trees-to-analyse");
-	my($nb_trees_max)=scalar(@{$tab_arbres})-1;
+	my($nb_trees_max)=scalar(@{$tab_arbres});
 	if ($trees_to_analyse>$nb_trees_max) {
 	    erreur("Invalid number of trees to analyse : your file contains only $nb_trees_max trees\n", 0);
 	    }
@@ -1949,6 +1949,7 @@ sub main
 	#PrintAllVi($foret, $s_site_nb);# Non trié
 	PrintViMax($foret, $s_site_nb);
 	print "\n";
+	print "Results Sens\n";
 	PrintViMaxSens($foret, $s_site_nb);
 	
     }
