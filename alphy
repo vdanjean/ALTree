@@ -1398,8 +1398,8 @@ sub CalculateRit
 	->GetSens($s_state);
 
     if (not defined($s_sitesens_per_tree)) {
-	warning("No S site (number $s_site_nb)".
-		" with sens '$s_state' found\n");
+	warn("No S site (number $s_site_nb)".
+		" with sens '".$s_state->GetLabel()."' found\n");
     }
     # Calcul du Rit
     # Notation des commentaires: le s_site mute de T->M
