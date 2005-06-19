@@ -230,10 +230,20 @@ sub ReadPAUP
 	    if ($ligne =~ /^\s+node_/) {
 		$ligne =~ s/^\s+//;
 		@tableau=split(/\s+/, $ligne);
+		my $size=-1;
 		if ($tableau[2] =~ /node_[0-9]+/) {
-		    $modificateur=0;;
-		} elsif ($tableau[2] =~ /H[0-9]+/) {
+		    $modificateur=0;
+		    $size=9;
+		} elsif ($tableau[2] =~ /H000/) {
+		    $modificateur=1;
+		    $size=10;
+		}elsif ($tableau[2] =~ /(H[0-9][0-9][1-9])|(H[0-9][1-9][0-9])|(H[1-9][0-9][0-9])/) {
 		    $modificateur=2;
+		    $size=11;
+		} 
+		if (scalar (@tableau) != $size) {
+		    #print Dumper(@tableau);
+		    erreur ("Cannot parse line '$ligne'\n", 0);
 		}
 		$tableau[2]=~ s/node_//g;
 		$tableau[0]=~ s/node_//g;
@@ -1794,30 +1804,30 @@ sub main
 	# DEBUG A VIRER #
 	###############################
 
-      NODE: for (;;) {
-	    print "Noeud à rooter ? (-1 pour finir) ";
-	    my $nb=<>;
-	    chomp $nb;
-	    if ($nb eq "-1") {
-		last;
-	    }
-	    my $newroot;
-	    foreach my $node ($tree->GetNodesList()) {
-		if ($node->Name() eq $nb) {
-		    print "rooting node $node\n";
-
-		    $tree->ChangeRoot($node);
-
-		    my $newracine=$tree->GetRoot();
-		    AffichageArbre($newracine, \&TreeInfos);
-		    print "\n\n";
-		    next NODE;
-		}
-	    }
-	    print "Node $nb not found\n";
-	    next NODE;
-	}
-	exit 0;
+#      NODE: for (;;) {
+#	    print "Noeud à rooter ? (-1 pour finir) ";
+#	    my $nb=<>;
+#	    chomp $nb;
+#	    if ($nb eq "-1") {
+#		last;
+#	    }
+#	    my $newroot;
+#	    foreach my $node ($tree->GetNodesList()) {
+#		if ($node->Name() eq $nb) {
+#		    print "rooting node $node\n";
+#
+#		    $tree->ChangeRoot($node);
+#
+#		    my $newracine=$tree->GetRoot();
+#		    AffichageArbre($newracine, \&TreeInfos);
+#		    print "\n\n";
+##		    next NODE;
+#		}
+#	    }
+#	    print "Node $nb not found\n";
+#	    next NODE;
+#	}
+#	exit 0;
 	###############################
 	# FIN DEBUG A VIRER #
 	###############################
@@ -1849,7 +1859,7 @@ sub main
 	    my($seuil_chi2)=$option_value->("chi2-threshold", 0.01, 
 					    "Using default chi2 threshold 0.01");
 	    Alphy::Chi2::definition_p_chi2($seuil_chi2, 0.01); # mettre une option 
-	                                                # pour seuil test_prop
+	    # pour seuil test_prop
 	    $sign_util = SignUtil::YES # on a besoin de la significativité
 	    } elsif ($permutation>0) {
 		$sign_util = SignUtil::NO; # on n'a pas besoin de la sign
@@ -1867,7 +1877,7 @@ sub main
 		($value_per_line, $ligne_chi2)=RepeatAssociation
 		    ($tree, $correspondance, $prolonge,$permutation, $sign_util);
 		my($corrected_values);
-		$corrected_values=CUtils::double_permutation
+		$corrected_values=Alphy::CUtils::double_permutation
 		    ($permutation+1, $value_per_line, $ligne_chi2);
 		
 		print "\n";
