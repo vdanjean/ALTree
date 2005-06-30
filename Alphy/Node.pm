@@ -52,7 +52,7 @@ sub GetFather {
 }
 sub HasFather {
     my $self=shift;
-    return exists($self->{"father"});
+    return defined($self->{"father"});
 }
 sub Father {
     my $self=shift;
@@ -61,6 +61,21 @@ sub Father {
 	$self->SetFather($newfather);
     }
     return $self->GetFather();
+}
+sub RecordOrigFather {
+    my $self=shift;
+    my $father=shift;
+    if ($self->HasFather()) {
+    	$self->{"orig_father"}=$self->GetFather();
+    }
+}
+sub GetOrigFather {
+    my $self=shift;
+    if (exists($self->{"orig_father"})) {
+    	return $self->{"orig_father"};
+    } else {
+    	return $self->GetFather();
+    }
 }
 
 sub SetCase {

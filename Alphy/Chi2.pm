@@ -88,7 +88,7 @@ sub chi2_significatif {
 
     if (not defined($chi2_seuil->[$ddl])) {
 	#my $c=`critchi2 $chi2_p $ddl`+0; # Verif que les 2 appels sont équivalents
-	$chi2_seuil->[$ddl]=CUtils::critchi($chi2_p, $ddl);
+	$chi2_seuil->[$ddl]=Alphy::CUtils::critchi($chi2_p, $ddl);
 	#if ($c != $$chi2_seuil[$ddl]) {
 	  # print STDERR "Critchi2 : $c != $$chi2_seuil[$ddl]\n";
 	#}

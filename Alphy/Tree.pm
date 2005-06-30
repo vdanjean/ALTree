@@ -31,7 +31,11 @@ sub AddNode {
 sub GetNode {
     my $self=shift;
     my $id=shift;
-    return $self->{"nodes"}->{$id};
+    if (defined ($self->{"nodes"}->{$id})) {
+	return $self->{"nodes"}->{$id};
+    } else {
+	return undef;
+    }
 }    
 sub HasNodeIndex {
     my $self=shift;
@@ -119,11 +123,17 @@ sub ChangeRoot {
     if ($oldfather->NbApo() != 0) {
 	die "Root has apomorphies !";
     }
+    if ($oldfather->GetBrLen() != 0) {
+	die "Root has non null BrLen !";
+    }
     
     foreach my $apo ($newroot->GetApoList()) {
 	$oldfather->AddApo($apo->GetSensRev());
     }
     $newroot->DeleteAllApo();
+    #print "Setting BRLen to ",$newroot->GetBrLen()," for ", $oldfather->Name()," from ", $newroot->Name(),"\n";
+    $oldfather->SetBrLen($newroot->GetBrLen());
+    $newroot->SetBrLen(0);
 
     $oldfather->SetFather($newroot);
     $newroot->SetFather(undef);

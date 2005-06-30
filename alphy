@@ -53,6 +53,10 @@ package CoEvo;
 use constant SIMPLE   => 0;
 use constant DOUBLE => 1;
 
+package RootMeth;
+use constant OUTG  => 0;
+use constant ANC   => 1;
+
 package SignUtil;
 use constant NO   => 0;
 use constant YES  => 1;
@@ -173,6 +177,7 @@ sub ReadPAUP
     my($j)=0;
     my($nb_br_non_nulle)=0;
     foreach $ligne (@{$tab_arbres->[$num_arbre]}) {
+	
 	if ($ligne =~ /^\s+Node\s+to node/) {
 	    $marqueur=1;
 	}
@@ -186,6 +191,9 @@ sub ReadPAUP
 	
 	if ($marqueur==1) {
 	    $ligne =~ s/^\s+//;
+	    if ($ligne =~ /root/) {
+		next;
+	    }
 	    if ($ligne =~ /^[0-9]+/) {
 		@tableau=split(/\s+/, $ligne);
 		if ($#tableau != 4) {
@@ -557,7 +565,7 @@ sub FillTreeApo2Phylip
 	    $present_node->AddApo($ref_site_sens); # lie arbre et hash_site_sens
 	}
     }
-    $present_node->{"br_len"}=$br_len;
+    $present_node->SetBrLen($br_len);
     foreach $child ($present_node->GetChildrenList()) { 
 	FillTreeApo2Phylip($child, $racine, $ancetre_seq, $tree);
     }
@@ -626,10 +634,14 @@ sub CheckCorrespondance
 	    die "indefined node detected in $name_corres: $clef. Check the input file\n";
 	}
 	if ($clef=~ /^H/) {
-	    my($nb_fils)=$tree->GetNode($clef)->NbChildren();
-	    
-	    if ($nb_fils!=0) {
-		print STDERR "$clef, defined as a leaf in $name_corres is defined as a node in the tree\n";
+	    if ($tree->GetRoot()->Name() eq $clef) {
+		next;
+	    } else {
+		my($nb_fils)=$tree->GetNode($clef)->NbChildren();
+		
+		if ($nb_fils!=0) {
+		    print STDERR "$clef, defined as a leaf in $name_corres is defined as a node in the tree\n";
+		}
 	    }
 	}
     }    
@@ -689,6 +701,9 @@ sub ClassicalChi2
     my($chi2)=0;
     my($chi2invalid)=0;
     foreach $node (@{$tabnodes_a_traiter}) {
+        if (not defined($node->{"control"})) {
+           die "arg for ".$node->Name();
+	}
         $sum_control+=$node->{"control"};
         $sum_case+=$node->{"case"};
     }
@@ -711,7 +726,8 @@ sub ClassicalChi2
                 $c=$node->{"control"};
                 $t_m=(($m+$c)*$sum_case)/$sum_total;
                         #print STDERR "m=$m, t_m=$t_m, c=$c\n";
-                $chi2 += (($m-$t_m)*($m-$t_m))/$t_m;
+		$chi2 += (($m-$t_m)*($m-$t_m))/$t_m;
+		
                 $t_c=(($m+$c)*$sum_control)/$sum_total;
                 $chi2 += (($c-$t_c)*($c-$t_c))/$t_c;
                 if (($t_m <= Seuil::SAMPLESIZE) ||
@@ -950,7 +966,7 @@ sub FillCaseControl
 {
     my($present_node)=shift;
     my($correspondance)=shift;
-    if ($present_node->{"id"} =~ /^H/)  {
+    if ($present_node->NbChildren()==0)  {
 	my($id);
 	$id=$present_node->{"id"};
 	if (not defined $present_node->{"case"}) {# car sinon, pb pour H000
@@ -1089,7 +1105,7 @@ sub AffichageArbre # Prend une fonction pour l'affichage
 	#    print $start.$here.("-"x$len)."* ", $function->($node), "\n";
 	for ( ;$i < $nb_fils-1; $i++) {
 	    $AffichageInterne->($node->{"children"}->[$i],
-				$start.$down.(" "x$len), "|", "|", " ", "|");
+				$start.$down.(" "x$len), "|", "|", "|", "|");
 	}
 	if ($nb_fils > 1) {
 	    $AffichageInterne->($node->{"children"}->[$nb_fils-1],
@@ -1207,9 +1223,7 @@ sub FusionBrNulles
     my($nb_fils)=NbFils($present_node);
     
     $present_node->{"label"}=$present_node->{"id"};
-    if (defined $present_node->{"father"}) {
-	$present_node->{"oldfather"}=$present_node->{"father"};
-    }
+    $present_node->RecordOrigFather();
     if ($nb_fils != 0) { # on n'est pas dans une feuille
 	$present_node->AddOldChild($present_node->GetChildrenList());
 	$present_node->ForgetChildren();
@@ -1224,10 +1238,11 @@ sub FusionBrNulles
 	if (not defined $present_node->{"br_len"}) {
 	    print STDERR "Branch lenght not defined for ", $present_node->{"id"}, "\n"; 
 	    exit 1;
-	} elsif ($present_node->{"br_len"} == 0) { # branche nulle
+	} elsif ($present_node->GetBrLen() == 0) { # branche nulle
 	    #print "brnulle ", $present_node->{"id"}, " ";
 	    foreach $child  (@{$present_node->{"children"}}) {
 		$child->{"father"}=$present_node->{"father"}; #remplace father
+		#print "father's name ", $present_node->GetFather()->Name(),"\n"; 
 		$present_node->GetFather()->AddChild($child);
 	    }
 	    $present_node->{"father"}->{"label"}.="+(".$present_node->{"label"}.")";
@@ -1555,11 +1570,14 @@ sub PrintViMaxSens
 }
 
 ###########################################################
+# Fonctions du prog principal #############################
+###########################################################
+
 sub readTree {
     my $phylo_program=shift;
     my $tab_arbres=shift;
     my $datatype=shift;
-    my $print_tree=shift;
+   
     my $tree;
     my($tab_longbranche, $tab_infoapo, $ancetre_seq);
     my($alea_arbre);
@@ -1596,12 +1614,43 @@ sub readTree {
 	die "Phylogeny program not supported";
     }
     CheckApoBrlen($tree);
+    
+    return $tree;
+}
+
+sub PrintTree { 
+    my $tree=shift;
+    my $print_tree=shift;
     if ($print_tree==1) {
 	my ($racine)=$tree->GetRoot();
 	AffichageArbre($racine, \&TreeInfos);
 	print "\n\n";
     }
-    return $tree;
+}
+sub ManageRoot {
+    my $tree= shift;
+    my $root_id=shift;
+    my $rootmeth =shift;
+    
+    my $root=$tree->GetNode($root_id);
+    if (not defined($root)) {
+	erreur ("The name you enter for option root does not correspond to any node!", 1);
+    }
+    if ($rootmeth == RootMeth::ANC) {
+	$tree->ChangeRoot($root);
+	my $newracine=$tree->GetRoot();
+	# print "Newracine name",$newracine->Name(), "\n";
+	# AffichageArbre($newracine, \&TreeInfos);
+	# print "Newracine name",$newracine->Name(), "\n";
+    } elsif ($rootmeth == RootMeth::OUTG) {
+	my  $ancestor=$root->GetFather();
+	$tree->ChangeRoot($ancestor);
+	EliminateNode($root);
+	my $newracine=$tree->GetRoot();
+	#AffichageArbre($newracine, \&TreeInfos);
+    } else {
+	erreur("unauthorized value for rootmeth", 1);
+    }
 }
 
 ###########################################################
@@ -1632,11 +1681,15 @@ sub manage_options
 {
     my %options;
     my $result;
-
+    
     my $choix={ "data-type" => 
 		{ "snp" => DataType::SNP,
 		  "dna" => DataType::DNA,
-		  },
+	        },
+		"rootmeth" => 
+		{ "outgroup" => RootMeth::OUTG,
+		  "ancestor" => RootMeth::ANC,
+	        },  
 		"tree-building-program" =>
 		{ "phylip" => PhylProg::PHYLIP,
 		  "paup" => PhylProg::PAUP,
@@ -1691,6 +1744,8 @@ sub manage_options
                 "second-input-file|j=s",
                 "output-file|o=s",
                 "data-type|t=s",
+		"rootmeth=s",
+		"root=s",
                 "tree-building-program|p=s",
                 "splitmode|s=s",
 		"prolongation|b!",
@@ -1728,7 +1783,7 @@ sub manage_options
 	    delete($options{$option."-value"});
 	}
     }
-
+    
     return \%options;
 }
 
@@ -1737,7 +1792,7 @@ sub main
     my($rec_program);
     my $result;
     my $options;
-
+    
     my $option_require = sub {
 	my $option=shift;
 	my $texte=shift;
@@ -1761,19 +1816,28 @@ sub main
 	}
 	return $options->{$option};
     };
-    
+    my $option_selected = sub {
+	my $option=shift;
+	my $texte=shift;
+	if (not exists($options->{$option})) {
+	    my $msg="option '$option' not selected";
+	    if (defined($texte)) {
+		$msg.="\n".$texte;
+	    }		
+	    return 0;
+	} else {
+	    return 1;
+	}
+    };
+
     $options=manage_options();
     
     my($prolonge)=$option_value->("prolongation", 0);
     my($print_tree)=$option_value->("print-tree", 0);
-    print "printtree=$print_tree\n";
+   # print "printtree=$print_tree\n";
 
     $option_require->("tree-building-program");
-    my($phylo_program)=$option_value->("tree-building-program");
-
-    
-       
-   
+    my($phylo_program)=$option_value->("tree-building-program");  
     
     $option_require->("first-input-file");
     my $input_file=$option_value->("first-input-file");
@@ -1791,16 +1855,23 @@ sub main
 
     if ($association == 1) { 
 	my($splitmode)=SplitMode::NOSPLIT; # nosplit est imposé
-
+	
 	# name of the file containing haploID, nb case and nb control
 	my($name_corres)=$option_value->("second-input-file", "correspond.txt");
 	my($correspondance); # ref on a hash containing haploID refferring to
-	                     # a hash containing nb case and nb control
+	# a hash containing nb case and nb control
 	$correspondance=ReadCorrespond($name_corres);
-
-	my($tree)=readTree($phylo_program, $tab_arbres, $datatype, $print_tree);
-
-	###############################
+	
+	my($tree)=readTree($phylo_program, $tab_arbres, $datatype);
+	$option_require->("root");
+	$option_require->("rootmeth");
+	
+	my $root_id=$option_value->("root");
+	my $rootmeth=$option_value->("rootmeth");
+	ManageRoot($tree, $root_id, $rootmeth); 
+	PrintTree($tree, $print_tree);
+	
+       	###############################
 	# DEBUG A VIRER #
 	###############################
 
@@ -1836,8 +1907,6 @@ sub main
 	
 	#print "\n";
 	
-	EliminateNode($tree->GetOutgroup());
-
 	FusionBrNulles($tree->GetRoot());
 	# Structure changée, on recalcul...
 	FillHeight($tree->GetRoot(), 0);
@@ -1929,7 +1998,14 @@ sub main
 	#for (my($i)=0; $i<=0; $i++) {
 	    #open(STDOUT, "> out.".$i);
 
-	    my ($tree)=readTree($phylo_program, $tab_arbres, $datatype, $print_tree);
+	    my ($tree)=readTree($phylo_program, $tab_arbres, $datatype);
+	   if ($option_selected->("root")) {
+	       $option_require->("rootmeth");
+	       my $root_id=$option_value->("root");
+	       my $rootmeth=$option_value->("rootmeth");
+	       ManageRoot($tree, $root_id, $rootmeth);
+	   } 
+	    PrintTree($tree, $print_tree);
 
 	    my ($b_t)=$tree->GetNbBrNonNulle();
 
@@ -2018,6 +2094,8 @@ alphy [options]
     --second-input-file|j correspond_file
     --output-file|o outfile
     --data-type|t DNA|SNP
+    --rootmeth outgroup|ancestor
+    --root name of the ancestral sequence
     --tree-building-program|p phylip|paup|paml
     --splitmode|s nosplit|chi2split
     --prolongation|b
@@ -2072,6 +2150,14 @@ Output file
 =item B<--data-type|t> C<DNA>|C<SNP>
 
 Type of data: DNA (ATGCU) or SNP (0-1)
+
+=item B<--rootmeth>  C<outgroup|ancestor>
+
+Root the tree either on ancestor or on outgroup
+
+=item B<--root number>
+
+Name of the root sequence (ancestor or outgroup), used for association test
 
 =item B<--tree-building-program|p> C<phylip>|C<paup>|C<paml>
 
