@@ -11,11 +11,24 @@ use Getopt::Std;
 our($opt_h,$opt_i, $opt_o, $opt_s, $opt_p, $opt_t);
 
 
+sub DefineAncDer {
+    my $data_type=shift;
+    if ($data_type == 0) {
+	 my $tem=0;
+	 my $mal=1;
+    } elsif ($data_type == 1) {
+	my $tem=C;
+	my $mal=G;
+    }
+    return ($tem, $mal);
+}
+
+
 sub travail
 {
     
     my($seuil)=shift;
-    my($test)=shift;
+    my($data_type)=shift;
     my($proportion_malades)=shift;
     my($ligne);
     my($temoin, $malade, $sequence, $nom, $debut, $ancetre);
@@ -96,7 +109,18 @@ sub travail
     }
 }
 
-
+sub usage {
+    my $msg =shift;
+    print STDERR "Error".$msg;
+    print STDERR "usage :$progname [options]\n";
+    print STDERR " Options :\n";
+    print STDERR "    [-h]  this help\n";
+    print STDERR "    [-i]  input file\n";
+    print STDERR "    [-o]  output file\n";
+    print STDERR "    [-t]  data type: SNP or DNA\n";
+# ancienne option -t test: 0= mal-tem>seuil 1= seuil proportion0+/-sqr(pq/n)]
+    print STDERR "    [-p]  proportion of cases in the whole data set\n";
+}
 
 sub main
 {
@@ -108,8 +132,7 @@ sub main
     
     if ($opt_h) {
 	($progname = $0) =~ s|^.*/([^/]*)$|$1|;
-	print STDERR "usage : $progname [-h] [-i input] [-o output_file]  [-t test: 0= mal-tem>seuil 1= seuil proportion0+/-sqr(pq/n)] [-p proportion initiale de malades]  \n";
-	print STDERR "\t-h: this help\n";
+	usage("");
 	exit (1);
     }
     
@@ -123,26 +146,34 @@ sub main
     if ($opt_s) {
 	$seuil=$opt_s;
     } else {
-	die "manque le seuil pour étiquetter M ou T!!\n";
-    }    
+	erreur "The sigma parameter is not defined!!\n";
+    } 
     if (defined($opt_t)) {
-	if ($opt_t==0) {
-	    $test=0;
-	} elsif ($opt_t==1) {
-	    $test=1;
+	if ($opt_t =~ /[Dd][Nn][Aa]/) {
+	    $data_type=1;
+	} elsif ($opt_t =~ /[Ss][Nn][Ps]/) {
+	    $data_type=0;
 	} else {
-	    $test=-999;
-	    print STDERR "illegal value of opt_t\n";
+	    erreur "The data type (SNP or DNA) is missing\n";
 	}
-    } else {
-	die "manque le numero du test: 0: mal-tem=seuil  1: seuil=P0+/-sqr(pq/n)!!\n";
-    }    
-    if ($opt_p) {
+   # if (defined($opt_t)) {
+   #	if ($opt_t==0) {
+   #	    $test=0;
+   #	} elsif ($opt_t==1) {
+   #	    $test=1;
+   #	} else {
+   #	    $test=-999;
+   #	    print STDERR "illegal value of opt_t\n";
+   #	}
+   #  } else {
+   #	die "manque le numero du test: 0: mal-tem=seuil  1: seuil=P0+/-sqr(pq/n)!!\n";
+   # }    
+	    if ($opt_p) {
 	$proportion=$opt_p;
     } else {
-	die "manque la proportion initiale de malades dans la population!!\n";
+	erreur "The proportion of cases in the sample is missing!\n";
     }
-    travail($seuil, $test, $proportion);
+    travail($seuil, $data_type,  $proportion);
     
 }
 

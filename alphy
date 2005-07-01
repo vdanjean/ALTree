@@ -2033,9 +2033,9 @@ sub main
 	#exit 0;
 	$foret->CalculVi();
 	#PrintAllVi($foret, $s_site_nb);# Non trié
-	PrintViMax($foret, $s_site_nb);
+	#PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant pour chaque sit, juste le meilleur sens
 	print "\n";
-	print "Results Sens\n";
+	print "Results:\n";
 	PrintViMaxSens($foret, $s_site_nb);
 	
     }
