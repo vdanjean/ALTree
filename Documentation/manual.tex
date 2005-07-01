@@ -123,7 +123,7 @@ necessary to further run \newchitree is produced.
 Currently, \rechaplo can deal with two haplotype reconstruction
 programs: \phase~\cite{Stephens01, Stephens03}  and
 \famhap~\cite{Becker04} and can produce files for three phylogeny
-reconstruction program: \paup~\cite{Swofford02}, \phylip~\cite{Felsenstein04} and \paml~\cite{YangPAML}\\
+reconstruction programs: \paup~\cite{Swofford02}, \phylip~\cite{Felsenstein04} and \paml~\cite{YangPAML}\\
 
 \subsection{\etHT}
 To perform the localization analysis, a new character $S$ must be
@@ -133,7 +133,7 @@ determine the state of $S$ and add it manually to the input file of
 the phylogeny reconstruction program that will optimize the character
 states changes on the tree.
 
-If you don't want to add the S character manually, you can use
+If you do not want to add the S character manually, you can use
 \etHT. The state of the character $S$ is allocated depending on the proportion
 ($p_h$) of cases carrying the haplotype $h$ compared to the proportion $p_0$ of cases in the whole sample. 
 
@@ -168,7 +168,7 @@ Voir avec Vince; installation des bibliothèques perl, installation de la bibliot
 \section{Summary of the different options}
 \begin{tabular}{ll}
   -i &Input file 1 \\
-  [-j] & Input file 2 (not mandatory, see explanations below) \\
+  -j & Input file 2 (not mandatory, see explanations below) \\
   -o & Output file \\
   -r & Name of the haplotype reconstruction program\\
   -p & Name of the phylogeny reconstruction program \\
@@ -184,7 +184,7 @@ Two different cases must be considered:
 \begin{itemize} 
 \item The case-control status of each individual has been specified in the input file for phase and phase has been run with the -c-1 option. In this case only one input file is necessary for \rechaplo: the phase output file (let's call it out.phase). In this case, the program must be run like this: \\
   \rechaplo -r phase -i out.phase -other\_options   
-\item The case-control status of each individual has not been specified in the input file for phase. In this case, two input files are necessary: the phase output file (out.phase) and another file which specifies the disease status for each individual (status.phase). This file consists in twos rows: the first contains the individual's ID and the second, their disease status (0=control, 1=case). In this case, the program must be run like this: \\
+\item The case-control status of each individual has not been specified in the input file for phase. In this case, two input files are necessary: the phase output file (out.phase) and another file which specifies the disease status for each individual (status.phase). This file consists in two rows: the first contains the individual's ID and the second, their disease status (0=control, 1=case). In this case, the program must be run like this: \\
   \rechaplo -r phase -i out.phase -j status.phase -other\_options 
 \end{itemize}
 
@@ -200,22 +200,28 @@ type of input files). The name of the phylogeny reconstruction program should fo
 
 \subsection{Generating \paup input files (out.paup)}
 The file generated is a nexus file containing the options for \paup
-necessary to run \newchitree after \paup (some informations must be in
-the paup log file to run \newchitree). The name of each haplotype is
-formed by the concatenation of an haplotype number (Hxxx), and of the
-number of controls (cxxx) and cases (mxxx) carrying this haplotype. A
-character is added to each haplotype: its state is 2 or C for all the
-haplotypes and must be set to 1 or G for the ancestral sequence.
+necessary to run \newchitree after \paup. This is only an example of a
+paup file: we choose to root the tree using an ancestral sequence, but
+this is not necessary and this file should be modified according to
+your data.
+
+In the output file, the name of each haplotype is formed by the
+concatenation of an haplotype number (Hxxx), and of the number of
+controls (cxxx) and cases (mxxx) carrying this haplotype. A character
+is added to each haplotype: its state is 2 or C for all the haplotypes
+and must be set to 1 or G for the ancestral sequence.
 
 
 Some options are indicated within square brackets and must be
-specified by the user:
+added by the user before running \paup:
 \begin{itemize}
 \item the sequence of the ancestral haplotype
 \item the maximum number of trees inferred(!! trouver autre terme) by \paup
 \item the optimization of the character changes (\acctran/\deltran)
 \item the name of the different files generated
-\item the number of trees described by paup in the log file
+\item the number of trees described by paup in the log file (we advise
+  you to keep all the trees, and to limit the number of trees that are
+  analyzed later, when running \newchitree.
 \end{itemize}
 The chosen option must be put out of the square brackets because \paup
 ignores what is written within square brackets. 
@@ -236,9 +242,6 @@ sequence, or eliminate this sequence (and modify the number of
 sequences accordingly) !!Revoir ce paragraphe en faisant les manips en
 meme temps: il est probable qu'il faille detailler en fonction du type
 de donnees. !!
-
-\subsection{Generating \paml input files (out.phylip)}
-
 
 \subsection{The output file correspond.txt} 
 This file is automatically generated and the user cannot change it's
@@ -311,6 +314,32 @@ Corresponds to the parameter $\sigma$ (cf description)
 \chapter{Running the program \newchitree}
 The program can perform either an association test or a localization test. Each option has a long name (which must be preceded by --) and some of them also have a short name (which must be preceded by -).
 
+\section{Summary of the different options}
+\begin{tabular}{ll}
+  --version  &       program version\\
+        --short-help|h &   brief help message\\
+        --help         &  help message with options descriptions\\
+        --man          &  full documentation\\
+        --association|a &  perform the association test\\
+        --s-localisation|l&   perform the localisation using the S character\\
+        --first-input-file|i& result file from phylogeny program\\
+        --second-input-file|j& correspond file (see description below)\\
+        --output-file|o &  outfile\\
+        --data-type|t & type of data:  DNA or SNP\\
+        --rootmeth & rooting method:  outgroup|ancestor\\
+        --root &  name of the ancestral sequence\\
+        --tree-building-program|p &   phylip or paup or paml\\
+        --splitmode|s nosplit|chi2split & \\
+        --prolongation|b & prolongation of branches\\
+        --chi2-threshold|n &  threshold value \\
+        --permutations|r &  number of permutations to perform \\
+        --trees-to-analyse & number of trees to analyse\\
+        --s-site-number &  position of the $S$ character in the sequence\\
+        --s-site-characters  & ancestral state -> derived state\\
+        --co-evo|e  & simple or double\\
+        --print-tree & print the tree with the character state changes in the output file\\
+
+\end{tabular}
 \section{General options (to be used both for association and for localization)}
 
 \subsection{First input file (option --first-input-file or -i)}
@@ -354,11 +383,17 @@ program (\paup or \phylip) was used to generate the first input file.
 \subsection{Data type  (option --data-type or -t)}
 The -t must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
 should be used if you have numerical data (typically SNP data, but
-microsatellites are supported by the program in a lesser extend).
-Warning: \cmd{DNA} must be used if you have DNA data (A, T, G, C).
+microsatellites are supported by the program in a lesser extend!!! A VOIR).
+ \cmd{DNA} must be used if you have DNA data (A, T, G, C).
 Warning: only numbers from 0 to 9 are allowed for microsatellite data.
 DNA option currently does not work if you have used phylip to
 reconstruct the phylogenetic tree.
+
+\subsection{Print tree (option --print-tree)}
+With this option, the tree with the character state changes along the
+branches will be written in the output file. It may especially be
+useful when you are performing the localization analysis, because in this case,  the tree is not written in the output file by default. 
+
 
 \subsection{How to get help?}
 
@@ -384,10 +419,16 @@ and the number of cases and controls carrying it separeted by spaces
 or tabulations. For a complete description of this file, see !!!Vincesection 2.1.3!!! ``output file correspond.txt''.
 
 \subsubsection{Root method (--root-method)}
-To perform the association test, the tree must be rooted. Depending on your data, you may want to root either on an ancetral sequence (--root-method ancestor) or on an outgroup (--root-method outgroup). 
+To perform the association test, the tree must be rooted. Depending on your data, you may want to root either on an ancetral sequence (--root-method ancestor) or on an outgroup (--root-method outgroup).
 
+\begin{center}
+%\begin{boxedminipage}[width=0.5\linewidth]
+\includegraphics[width=0.45\linewidth]{anc_outg.fig}
+%\end{boxedminipage}
+\end{center}
 
 \subsubsection{Name of the root (--root)}
+This option must be followed by the name of the sequence you choose to root the tree (either the outgroup or the ancestor).
 
 
 \subsubsection{Number of permutations (option --permutations or -r)}
@@ -402,15 +443,20 @@ branches of the tree will be prolonged. (see
 figure~\ref{fig:option_b})
 
 \begin{figure}
-\begin{tabular}{ll}
-%\includegraphics[width=0.45\linewidth]{option_b_1.fig} &
-%\includegraphics[width=0.45\linewidth]{option_b_2.fig} \\
-Without the -b option & With the -b option \\
-\multicolumn{2}{c}{The \chisquares are calculated between\footnote{The
+\begin{tabular}{|l|c|c|}
+  \cline{2-3}
+\multicolumn{1}{c|}{}& \includegraphics[width=0.4\linewidth, subfig=1]{option_b.fig} &
+\includegraphics[width=0.4\linewidth, subfig=2]{option_b.fig} \\
+\cline{2-3}
+\multicolumn{1}{c|}{}& Without the -b option & With the -b option \\
+\cline{2-3}
+\multicolumn{1}{c|}{}&\multicolumn{2}{|c|}{The \chisquares are calculated between\footnote{The
     nosplit pattern of \chisquare is used}:} \\
-  Level 1: 1 - 2 and 3 & 1 2 and 3 \\
-  Level 2: 2.1 - 2.2 - 3.1 - 3.2 & 1 - 2.1 - 2.2 - 3.1 and 3.2 \\
-  Level 3: 3.2.1 and 3.2.2 & 1 - 2.1 - 2.2 - 3.1 - 3.2.1 and 3.2.2\\
+\hline
+  Level 1:& 1 - 2 and 3 & 1 2 and 3 \\
+  Level 2:& 2.1 - 2.2 - 3.1 - 3.2 & 1 - 2.1 - 2.2 - 3.1 and 3.2 \\
+  Level 3:& 3.2.1 and 3.2.2 & 1 - 2.1 - 2.2 - 3.1 - 3.2.1 and 3.2.2\\
+  \hline
 \end{tabular}
 
 \caption{Effect of the -b option}
@@ -428,15 +474,58 @@ The output file show the tree, with the number of cases an controls at each node
 
 \subsection{Options to specify}
 \subsubsection{Number of trees (option --trees-to-analyse)}
-With this option, you choose the number of equiparsimonious trees to
-use in the localization test.
+With this option, you choose the number of trees to
+use in the localization test. These trees are randomly sampled without replacement from the input file 1. 
+
+\subsubsection{--s-site-number }
+With this option, you specify the position of the S character in the haplotypes. The firt site is numbered 1.  
 
 \subsubsection{ --s-site-characters ancestral state -> derived state}
+With this option, you specify which state is the ancestral state and which state is the derived state for the S character. The two states must be separated by the symbol ``->''. For example, if the S character has two states 1 and 2, 1 being the ancestral state, you will use the option as follows: \\
+\newchitree [other options ] --s-site-characters 1->2\\
+Be careful: this option is case sensitive!
+
 \subsubsection{ --co-evo|e simple|double}
+This option allows to choose the way $V_{is}$ are calculated. 
+
+\paragraph{option ''simple''}
+This option corresponds to the calculation of $V_{is}$ described in \cite{Bardel05}. Please refer to this publication for more information.
+
+
+\paragraph{option ''double''} 
+This option correspond to a new method to calculate $V_{is}$. This method seems to be more appropriate because it takes into account the two senses of character state changes. \\
+Here is a short description of this new calculation method (one  studied tree):
+\begin{itemize}
+\item Let $E^{0 \rightarrow 1}_{i}$ be the number of expected co-mutations of $S$ (2 character states: T [control] and M [case]) and $i$ (2 character states 0 and 1)
+  $$E^{0 \rightarrow 1}_{i}=\frac{(m^{0 \rightarrow 1}_{i}\times
+    s^{T \rightarrow M})+(m^{1 \rightarrow 0}_{i}\times
+    s^{M \rightarrow T})}{b}$$  \\
+  where:
+  \begin{description}
+  \item[$m^{0 \rightarrow 1}_{i}$~:] nb transitions $0\rightarrow 1$ of $i$
+  \item[$s^{T \rightarrow M}$~:] nb transitions $T \rightarrow M$ of $S$  
+  \item[$b$~:] nb branches of tree $t$
+  \end{description}
+\item Let $R^{0 \rightarrow 1}_{i}$ be the number of observed co-mutations of $S$ and $i$ on tree $t$
+\item $V^{0 \rightarrow 1}_{i}=0$ is calculated as defined in \cite{Bardel05}:
+\end{itemize}
+
+$$\boxed{
+  \left\{\begin{array}{ll}
+      V^{0 \rightarrow 1}_{i}=0 & if\ E^{0 \rightarrow 1}_{i}=0 \\
+      V^{0 \rightarrow 1}_{i}=\frac{\displaystyle{R^{0 \rightarrow 1}_{i}-E^{0 \rightarrow 1}_{i}}}%
+      {\displaystyle{\sqrt{E^{0 \rightarrow 1}_{i}}}}
+      & if \ E^{0 \rightarrow 1}_{i} \ne 0
+    \end{array}
+  \right.
+}$$
+
+If more than one tree is studied, the $V^{0 \rightarrow 1}_{i}=0$ must be summed for all the trees.
 
 \subsection{Description of the output file}
+The output file contains only a list of the $V_i$ (on ascending order) for the different sites and the different character states transitions. 
 
-\chapter{Bilan des url ou télécharger les programs}
+\chapter{URLs where programs can be downloaded}
 \section{Haplotype reconstruction programs}
 \famhap \url{http://www.uni-bonn.de/%7Eumt70e/becker.html}
 
