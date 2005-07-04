@@ -274,7 +274,16 @@ With this option, the user choose the name of the output file. If -o is omitted,
 A faire... et mettre des exemples de ligne de commande.
 
 \chapter{Running the program \etHT}
-\section{Description}
+\section{Summary of the different options}
+\begin{tabular}{ll}
+  -r & Haplotype reconstruction program\\
+  -i &Input file 1 \\
+  -o & Output file \\
+  -p & proportion of cases in the sample \\
+  -s & $\sigma$ parameter \\
+  [-l] & forces the state of character S to be ``?'' for haplotypes carried by 1 individual\\
+  -h & this help \\
+\end{tabular}\section{Description}
 This program use a paup input file (input.paup) as input file, and generate a new paup input file (input\_et.paup) after having added a new character S to each haplotype. 
 
 S excluded from the reconstruction of the tree, but included for the apomorphy recontrsuction -> modif of the paup block
@@ -298,17 +307,7 @@ The proportion of cases in the sample must be specified after the -p option
 \subsection{The -s option}
 Corresponds to the parameter $\sigma$ (cf description)
 
-\section{Summary of the different options}
-!!Peut-etre à mettre au debut??!!
 
-\begin{tabular}{ll}
-  -r & Haplotype reconstruction program\\
-        -i &Input file 1 \\
-        -o & Output file \\
-        -p & proportion of cases in the sample \\
-        -s & $\sigma$ parameter \\
-        -h & this help \\
-\end{tabular}
 
 \section{Example files}
 \chapter{Running the program \newchitree}
@@ -520,7 +519,7 @@ $$\boxed{
   \right.
 }$$
 
-If more than one tree is studied, the $V^{0 \rightarrow 1}_{i}=0$ must be summed for all the trees.
+If more than one tree is studied, the $V^{0 \rightarrow 1}_{i}$ must be summed for all the trees.
 
 \subsection{Description of the output file}
 The output file contains only a list of the $V_i$ (on ascending order) for the different sites and the different character states transitions. 
