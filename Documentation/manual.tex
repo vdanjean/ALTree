@@ -50,6 +50,9 @@
 \newcommand{\chisquare}{chi-square\xspace}
 \newcommand{\chisquares}{chi-squares\xspace}
 \newcommand{\cmd}[1]{\textit{#1}}
+\newcommand{\fn}[1]{\textbf{#1}}
+
+\newcommand{\commande}[1]{\texttt{#1}}
 %%%%%%%%%%%%%%%%%
 \begin{document}
 \pagestyle{empty}
@@ -150,8 +153,15 @@ with $n_h$ being the number of individuals carrying the haplotype $h$.
 
 
 \section{Description of the other files}
-Les fichiers d'exemple...
+\subsection{Case/Control data}
+To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyze it using all the programs available in this software.
 
+Here is a short description of the different files.
+\begin{description}
+\item [caco.phase] The file caco.phase is an input file for \phase containing the disease status information for each individual. \phase should be run this way:\\
+\commande{phase -c-1 caco.phase caco.out 100 1 100}
+ \item [caco.phase.out] This file is the \phase output file obtained with the preceding command line.
+\end{description}
 Faire un fichier d'ex pour chaque prog: avoir un fichier \famhap, un fichier \phase et fabriquer les .paup et les .phylip
 
 Puis, montrer un vrai .paup tout complété qui marche. 
@@ -274,6 +284,14 @@ The user must specify if the data are of type DNA (ATGC) or NUM (number from 0 t
 With this option, the user choose the name of the output file. If -o is omitted, the standard output will be used.
 
 \section{Example files}
+\subsection{Case/Control data}
+The file \fn{caco.phase.out} is a \phase output file containing information on the disease status of each individual. This file can be converted to an input file for \paup by running this command line:\\
+\commande{\rechaplo -i caco.phase.out -t NUM -p paup -r phase -o caco.prepaup}\\The file \fn{caco.prepaup} is not a valid paup input file: you have to modify it slightly according to your data and your analysis. In this example, we want to root the tree, but we do not know the real ancestral sequence and we do not have an outgroup sequence. So, we choose to root the tree on a consensus ancestral sequence formed by the combination of all the most frequent alleles. \fn{caco.paup} is the resulting paup input file.
+
+ 
+
+
+
 A faire... et mettre des exemples de ligne de commande.
 
 \chapter{Running the program \etHT}
