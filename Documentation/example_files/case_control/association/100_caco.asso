@@ -1,0 +1,62 @@
+
+                              /----* H004 case/control:9/2
+                              |----* H013 case/control:10/4
+                              |        Site: 12 Sens: 2-->1
+                         /----* 18+(15) case/control:57/38
+                         |    |   Site: 9 Sens: 2-->1
+                         |    |    /----* H008 case/control:5/11
+                         |    |    |        Site: 12 Sens: 2-->1
+                         |    |    |----* H012 case/control:2/4
+                         |    |----* 17+(16) case/control:10/17
+                         |    |    |   Site: 1 Sens: 1-->2
+                         |    |    |   Site: 2 Sens: 1-->2
+                         |    |    \----* H014 case/control:3/2
+                         |    |             Site: 11 Sens: 2-->1
+                         |    \----* H007 case/control:28/15
+                         |             Site: 11 Sens: 2-->1
+                    /----* 19 case/control:67/42
+                    |    |   Site: 10 Sens: 2-->1
+                    |    \----* H005 case/control:10/4
+                    |             Site: 11 Sens: 2-->1
+               /----* 20 case/control:78/44
+               |    |   Site: 8 Sens: 2-->1
+               |    |   Site: 6 Sens: 2-->1
+               |    |   Site: 7 Sens: 2-->1
+               |    \----* H011 case/control:11/2
+          /----* 21 case/control:96/48
+          |    |   Site: 1 Sens: 2-->1
+          |    |   Site: 2 Sens: 2-->1
+          |    \----* H003 case/control:18/4
+          |----* H002 case/control:3/6
+          |        Site: 6 Sens: 2-->1
+          |        Site: 7 Sens: 2-->1
+     /----* 24+(22) case/control:105/76
+     |    |   Site: 13 Sens: 1-->2
+     |    |----* H006 case/control:1/3
+     |    |        Site: 5 Sens: 2-->1
+     |    |    /----* H010 case/control:2/13
+     |    |    |        Site: 4 Sens: 2-->1
+     |    \----* 23 case/control:5/19
+     |         |   Site: 3 Sens: 2-->1
+     |         \----* H009 case/control:3/6
+     |                  Site: 12 Sens: 2-->1
+-----* H000+(25) case/control:105/76
+       
+       [0] ddl=0
+       [1] ddl=3 chi2=22.09 p_value_chi2=0
+       [2] ddl=5 chi2=25.46 p_value_chi2=0
+       [3] ddl=6 chi2=28.01 p_value_chi2=0
+       [4] ddl=7 chi2=28.67 p_value_chi2=0
+       [5] ddl=10 chi2=37.87 p_value_chi2=0
+       [6] ddl=12 chi2=39.21 p_value_chi2=0
+
+ Number of permutation: 100
+
+p_val for each level:
+level 1 p-value (non corrected) 0
+level 2 p-value (non corrected) 0
+level 3 p-value (non corrected) 0
+level 4 p-value (non corrected) 0
+level 5 p-value (non corrected) 0
+level 6 p-value (non corrected) 0
+corrected minimal p_value in the tree: 0 at level TODO

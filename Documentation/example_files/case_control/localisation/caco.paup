@@ -1,0 +1,38 @@
+#Nexus
+Begin data;
+dimension ntax=14 nchar=13;
+format symbols="0123456789" missing=?;
+matrix
+H004_c002_m009	1122211111222
+H006_c003_m001	2222122222222
+H005_c004_m010	1122211121122
+H008_c011_m005	2222211111212
+H011_c002_m011	1122211122222
+H002_c006_m003	2222211222222
+H010_c013_m002	2211222222222
+H009_c006_m003	2212222222212
+[H001_c124_m095	2222222222222]
+H003_c004_m018	1122222222222
+H014_c002_m003	2222211111122
+H013_c004_m010	1122211111212
+H007_c015_m028	1122211111122
+H012_c004_m002	2222211111222
+H000_ancetre    2222222222221
+;
+end;
+begin assumptions;
+ancstates *anc vector = 2222222222221;
+end;
+begin paup;
+set nowarnreset autoclose maxtrees = 1000 increase=no[ - Auto AutoInc = 100] monitor = no taxlabels = full
+root=lundberg warnroot=no opt=deltran [- acctran] ancstates=anc;
+hsearch;
+savetrees from=1 to=1000 file=test.tree root=yes format=altnexus;
+cleartrees nowarn=yes;
+gettrees rooted=yes file=test.tree;
+log file = test.res.log replace=yes [- no];
+describetrees all /plot=cladogram [- phylogram] brlens=yes rootmethod=lundberg apolist=yes;
+log stop;
+end;
+quit;
+[WARNING, this file is designed for bi-allelic data. If it is not the case, you may have to modify this input file, for example by specifying the ordered option in the typeset command in the assumption block]
