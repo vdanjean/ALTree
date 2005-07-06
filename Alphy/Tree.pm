@@ -87,6 +87,7 @@ sub _SetRoot {
 
     my(@roots);
     foreach my $node ($self->GetNodesList()) {
+#	print"node: ", $node->Name(), " father ", $node->GetFather()->Name(), "\n";
 	if (not $node->HasFather()) {
 	    push @roots, $node;
 	}	    
