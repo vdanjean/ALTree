@@ -15,7 +15,7 @@ sub New { # [classe] sens
     my $sens=shift;
     bless($self, $class);
     
-    if ($sens !~ /^\s*([0-9a-zA-Z]+)\s*[-=_]*[>]\s*([0-9a-zA-Z]+)\s*$/) {
+    if ($sens !~ /^\s*([0-9a-zA-Z?]+)\s*[-=_]*[>]\s*([0-9a-zA-Z?]+)\s*$/) {
 	die "Invalid sens : $sens\n";
     }
 

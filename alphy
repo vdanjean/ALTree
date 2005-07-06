@@ -291,9 +291,9 @@ sub ReadPHYLIP
     my($tab_arbres)=shift; # Arbres commencent à indice 1
     my($num_arbre)=shift;
     my($data_type)=shift;
+    my $ancetre =shift;
     my($ligne, @tableau);
     my($marqueur)=0;
-    my($ancetre)="";
     my(@tab, $tabinfo, $j);
     
     foreach $ligne (@{$tab_arbres->[$num_arbre]}) {
@@ -301,24 +301,31 @@ sub ReadPHYLIP
     	if ($data_type == DataType::SNP) {
 	    if ($ligne =~ /best guesses of ancestral states:/) {
 		$marqueur=1;
+		if ($ancetre != "") {
+		    print("ancestor defined twice, the sequence entered with the -anc-seq option will be ignored\n");
+		$ancetre="";
+		}
 	    }
 	    if ($ligne =~ /^From\s+To\s+Any\s+Steps/) {
 		$marqueur=2;
 		$j=0;
 	    }
 	    if ($marqueur==1) {
-		if ($ligne =~ /0\!\s[01\?\s]./) {
+		if ($ligne =~ /.*0\!\s+[01\?\s]./) {
+		    
 		    @tab=split(/\s+/, $ligne);
 		    shift(@tab);
 		    my($i);
 		    for ($i=0; $i<=$#tab; $i++) {
 			$ancetre.=$tab[$i];
 		    }
-		    print "ancetre=$ancetre\n";
+		   #DEBUG print "ancetre=$ancetre\n";
 		}
 	    }
 	    if ($marqueur==2) {
-		if ($ligne =~ /^\s*(root|[0-9]+)\s+H?[0-9]+\s+(yes|no|maybe)\s+[01.? ]+\s*$/) {
+		if ($ligne =~ /root/) {
+		    next;
+		} elsif ($ligne =~ /^\s*([0-9a-zA-Z_]+)\s+H?[0-9a-zA-Z_]+\s+(yes|no|maybe)\s+[01.? ]+\s*$/) {
 		    #print "trouvé! $ligne\n";
 		    @tab=split(/\s+/, $ligne);
 		    $tabinfo->[$j]->[0]=shift(@tab);
@@ -329,8 +336,8 @@ sub ReadPHYLIP
 		}
 	    }
 	    
-	    if (not defined $ancetre) {
-		die "A changer, pb, sequ ancetrsale à trouver)\n";
+	    if ($ancetre eq "") {
+		erreur ("You have forgotten the option --anc-seq!\n", 0);
 	    }#Voire gestion ancetre avec Vince
 	   
 	} else { # $data_type == DataType::DNA
@@ -525,6 +532,7 @@ sub FillTreeApo2Phylip
     my($fatherseq);
     my($childseq);
     my($child);
+    my($newchildseq);
     
     #print "noeud: ", $present_node->{"id"}, "\n";
     if ($present_node eq $racine) {
@@ -545,15 +553,15 @@ sub FillTreeApo2Phylip
 	my($childsite)= substr($childseq, $i,1);
 	if ($childsite eq ".") {
 	    $childsite=$fathersite;
+	    
 	}
 	elsif ($fathersite ne $childsite) {
 	    $br_len++;
 	    my($apo_num)=$i+1;
 	    my($apo_sens)=Alphy::Sens->New($fathersite."->".$childsite);
-
 	    my $site;
-	    if (not $tree->HasSite($apo_num)) { 
-		my $site=Alphy::SitePerTree->New($apo_num);
+	    if (not $tree->HasSiteIndex($apo_num)) { 
+       		$site=Alphy::SitePerTree->New($apo_num);
 		$tree->AddSite($site);
 	    } else {
 		$site=$tree->GetSite($apo_num);
@@ -564,6 +572,8 @@ sub FillTreeApo2Phylip
 	    
 	    $present_node->AddApo($ref_site_sens); # lie arbre et hash_site_sens
 	}
+	$newchildseq.=$childsite; #rajoute
+	$present_node->SetSequence($newchildseq); # rjouté
     }
     $present_node->SetBrLen($br_len);
     foreach $child ($present_node->GetChildrenList()) { 
@@ -631,7 +641,7 @@ sub CheckCorrespondance
 
     foreach my $clef (keys %{$correspondance}) {
 	if (not $tree->HasNodeIndex($clef)) {
-	    die "indefined node detected in $name_corres: $clef. Check the input file\n";
+	    erreur("undefined node detected in $name_corres: $clef.  You have probably forgot to remove the haplotype corresponding to the ancestor. Check the input file correspond.txt.\n", 1);
 	}
 	if ($clef=~ /^H/) {
 	    if ($tree->GetRoot()->Name() eq $clef) {
@@ -724,8 +734,12 @@ sub ClassicalChi2
             foreach $node (@{$tabnodes_a_traiter}) {
                 $m=$node->{"case"};
                 $c=$node->{"control"};
+		if ($m==0 && $c==0) {
+		    my($name)=$node->Name();
+		    erreur("no case and no controls for node $name", 1);
+		}
                 $t_m=(($m+$c)*$sum_case)/$sum_total;
-                        #print STDERR "m=$m, t_m=$t_m, c=$c\n";
+                        #print STDERR $node->Name() ," m=$m, t_m=$t_m, c=$c\n";
 		$chi2 += (($m-$t_m)*($m-$t_m))/$t_m;
 		
                 $t_c=(($m+$c)*$sum_control)/$sum_total;
@@ -791,7 +805,7 @@ sub CalculChi2
 	    $test_results->{"warning"}="Small sample size correction used";   
 	    # J'ai pas compté dans combien de branches...
 	    if ($ddl == 1) {
-		$p_value=CUtils::bilateral($tabnodes_a_traiter->[0]->{"case"},
+		$p_value=Alphy::CUtils::bilateral($tabnodes_a_traiter->[0]->{"case"},
 					   $tabnodes_a_traiter->[0]->{"control"},
 					   $tabnodes_a_traiter->[1]->{"case"},
 					   $tabnodes_a_traiter->[1]->{"control"});
@@ -823,7 +837,7 @@ sub CalculChi2
 	    }
 	    #my $p=`pochisq $chi2 $ddl`+0; # Verif que les 2 appellent 
 	                                   #bien la même chose!
-	    $p_value=CUtils::pochisq($chi2,$ddl);
+	    $p_value=Alphy::CUtils::pochisq($chi2,$ddl);
 	    #if ($p != $p_value) {
 	    #print STDERR "pochisq: $p != $p_value !\n";
 	    #}
@@ -1577,7 +1591,7 @@ sub readTree {
     my $phylo_program=shift;
     my $tab_arbres=shift;
     my $datatype=shift;
-   
+    my $ancetre=shift;
     my $tree;
     my($tab_longbranche, $tab_infoapo, $ancetre_seq);
     my($alea_arbre);
@@ -1592,7 +1606,7 @@ sub readTree {
 	    =ReadPAUP($tab_arbres, $alea_arbre);
     } elsif ($phylo_program == PhylProg::PHYLIP) {
 	($tab_longbranche, $ancetre_seq)
-	    =ReadPHYLIP($tab_arbres, $alea_arbre, $datatype);
+	    =ReadPHYLIP($tab_arbres, $alea_arbre, $datatype, $ancetre);
     } elsif ($phylo_program == PhylProg::PAML) {
 	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
 	    =ReadPAML($tab_arbres);
@@ -1606,6 +1620,7 @@ sub readTree {
 	$phylo_program == PhylProg::PAML) {
 	$tree->SetNbBrNonNulle($nb_br_non_nulle);
 	FillTreeApoInfoPAUP($tree, $tab_infoapo);
+	CheckApoBrlen($tree);
     } elsif ($phylo_program == PhylProg::PHYLIP) {
 	my $racine=$tree->GetRoot();
 	FillTreeApo1Phylip($tree, $tab_longbranche, $ancetre_seq);
@@ -1613,7 +1628,7 @@ sub readTree {
     } else {
 	die "Phylogeny program not supported";
     }
-    CheckApoBrlen($tree);
+   # CheckApoBrlen($tree); Pb avec phylip..
     
     return $tree;
 }
@@ -1756,6 +1771,7 @@ sub manage_options
 		"s-site-characters=s",
 		"co-evo|e=s",
 		"print-tree!",
+		"anc-seq=s",
 		"<>",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
@@ -1852,6 +1868,12 @@ sub main
 	$option_require->("data-type");
 	$datatype=$option_value->("data-type");
     }
+    my $ancetre;
+    if ($option_selected->("anc-seq")) {
+	 $ancetre=$option_value->("anc-seq");
+    } else {
+	$ancetre="";
+    }
 
     if ($association == 1) { 
 	my($splitmode)=SplitMode::NOSPLIT; # nosplit est imposé
@@ -1862,7 +1884,10 @@ sub main
 	# a hash containing nb case and nb control
 	$correspondance=ReadCorrespond($name_corres);
 	
-	my($tree)=readTree($phylo_program, $tab_arbres, $datatype);
+	
+
+
+	my($tree)=readTree($phylo_program, $tab_arbres, $datatype, $ancetre);
 	$option_require->("root");
 	$option_require->("rootmeth");
 	
@@ -1998,7 +2023,7 @@ sub main
 	#for (my($i)=0; $i<=0; $i++) {
 	    #open(STDOUT, "> out.".$i);
 
-	    my ($tree)=readTree($phylo_program, $tab_arbres, $datatype);
+	    my ($tree)=readTree($phylo_program, $tab_arbres, $datatype, $ancetre);
 	   if ($option_selected->("root")) {
 	       $option_require->("rootmeth");
 	       my $root_id=$option_value->("root");
@@ -2106,6 +2131,7 @@ alphy [options]
     --s-site-characters ancestral state -> derived state
     --co-evo|e simple|double
     --print-tree 
+    --anc-seq sequence
 
 =head1 OPTIONS
 
@@ -2204,6 +2230,11 @@ Type of co-evolution indice
 =item B<print-tree>
 
 If this option is selected, the tree will be printed to the output
+
+=item B<anc-seq>
+
+With this option, you can specify the ancestral sequence.
+This option is only useful when the tree is reconstructed using the mix program of phylip with the ancestral states specified in the file "ancestors"
 
 =back
 

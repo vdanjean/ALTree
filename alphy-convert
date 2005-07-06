@@ -29,6 +29,7 @@ sub VerifyHashInd
     my($hash_ind)=shift;
     my($nb_loci)=shift;
     my($ind);
+    
     foreach $ind (keys %{$hash_ind}) {
 	if ((!exists $hash_ind->{$ind}->{"statut"}) && (!$opt_j)) {
 	    die "Statut are not available in the input file: You should either provide a second input file (option -j ) or add it in the input file of phase and use the -c-1 option of phase";
@@ -37,8 +38,8 @@ sub VerifyHashInd
 	    die "Undefined haplotypes for individual $ind\n";
 	} elsif ((length($hash_ind->{$ind}->{"haplo1"}) != $nb_loci) 
 		 || (length($hash_ind->{$ind}->{"haplo2"}) != $nb_loci)) {
-	    my($long)=length($hash_ind->{$ind}->{"haplo2"});
-	    die "Bad haplotype sequence length for individual: $ind\n";
+	    my($long)=length($hash_ind->{$ind}->{"haplo1"});
+	    die "$nb_loci, $long, Bad haplotype sequence length for individual: $ind\n";
 	}
     }
 }
@@ -182,11 +183,10 @@ sub ReadFAMHAPOutfile
     
     while ($ligne=<FAMHAPOUT>) {
 	chomp($ligne);
-	if ($ligne =~ /^Selected loci:$/) {
-	    $ligne2=<FAMHAPOUT>;
-	    chomp($ligne2);
-	    @tableau=split(/\s+/, $ligne2);
-	    $nb_loci=$#tableau+1; 
+	if ($ligne =~ /^Selected loci:/) {
+	    chomp($ligne);
+	    @tableau=split(/\s+/, $ligne);
+	    $nb_loci=$#tableau-1;
 	}
 	if ($ligne =~ /HaploiD: ([0-9]+)/) {
 	    $HaploID=$1;
@@ -223,25 +223,34 @@ sub ReadFAMHAPMostLikeli
     my($hashHaploID)=shift;
     my($ligne, $FT, $FID, $FNT, $MT, $MNT);
     my(%hash_ind);
-
+    
     open(OUTHAPLO, '<', $file2) || die "Unable to open '$file2': $!\n";
-
+    my($index)=0;
     while ($ligne=<OUTHAPLO>) {
 	chomp($ligne);
-	if ($ligne =~ /^\s*FID: ([0-9]+)\s+FT: ([0-9]+)\s+FNT: ([0-9]+)\s+MT: ([0-9]+)\s+MNT: ([0-9]+)/) {
-	    $FID=$1;
-	    $FT=$2;
-	    $FNT=$3;
-	    $MT=$4;
-	    $MNT=$5;
-	   # print "3=$3\n";
-	   # print "hashHaploID3= $hashHaploID->{$3}\n";
-	    $hash_ind{$FID."0"}->{"haplo1"}=$hashHaploID->{$FNT};
-	    $hash_ind{$FID."0"}->{"haplo2"}=$hashHaploID->{$MNT};
-	    $hash_ind{$FID."0"}->{"statut"}=0;
-	    $hash_ind{$FID."1"}->{"haplo1"}=$hashHaploID->{$FT};
-	    $hash_ind{$FID."1"}->{"haplo2"}=$hashHaploID->{$MT};
-	    $hash_ind{$FID."1"}->{"statut"}=1;
+	if ($ligne =~ /^\s*FID\s+PID\s+HAPLO1\s+HAPLO2\s+HAPLO3\s+HAPLO4\s+LIKELIHOOD_WEIGHT/) {
+	    $index=1;
+	    next;
+	}
+	if ($index==1) {
+	    if ($ligne =~ /^\s*(\d+)\s+(.+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(.+)/) { 
+		$FID=$1;
+		$FT=$3;
+		$FNT=$4;
+		$MT=$5;
+		$MNT=$6;
+		# print "hashHaploID3= $hashHaploID->{$3}\n";
+		$hash_ind{$FID."0"}->{"haplo1"}=$hashHaploID->{$FNT};
+		$hash_ind{$FID."0"}->{"haplo2"}=$hashHaploID->{$MNT};
+		$hash_ind{$FID."0"}->{"statut"}=0;
+		$hash_ind{$FID."1"}->{"haplo1"}=$hashHaploID->{$FT};
+		$hash_ind{$FID."1"}->{"haplo2"}=$hashHaploID->{$MT};
+		$hash_ind{$FID."1"}->{"statut"}=1;
+	    } elsif ($ligne =~ /^$/) {
+		next;
+	    } else {
+		print "strange line $ligne\n";
+	    }
 	}
     }
     close(OUTHAPLO);
@@ -325,7 +334,7 @@ sub MakeCorrespondanceFile
     my($haplo);
     open (CORRESP, '>', "correspond.txt") || die "Unable to open correspond.txt: $!\n";
     foreach $haplo (keys %{$hash_haplo}) {
-	printf CORRESP "H%.3i\tc%.3i\tm%.3i\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[0], $hash_haplo->{$haplo}->[1];
+	printf CORRESP "H%.3i\tm%.3i\tc%.3i\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0];
     }
     close(CORRESP);
 }
@@ -345,7 +354,7 @@ sub ReadDataType
     } elsif ($data_type eq "NUM") {
 	$write_data_type="0123456789";
 	$anc="1";
-	$der="2";
+	$der="0";
     } else {
 	die "Invalid data type specified in opt_t: $opt_t. You should use DNA or NUM\n";
     }
@@ -375,7 +384,7 @@ sub BuildPAUP
     print OUTPAUP "matrix\n";
     my($haplo);
     foreach $haplo (keys %{$hash_haplo}) {
-	printf OUTPAUP "H%.3i_c%.3i_m%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[0], $hash_haplo->{$haplo}->[1], $haplo, $der; # a modifier si je fais un deuxième fichier de sortie...
+	printf OUTPAUP "H%.3i_m%.3i_c%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0], $haplo, $der; # a modifier si je fais un deuxième fichier de sortie...
     }
     print OUTPAUP "H000_ancetre [add ancestral haplotype]$anc\n";
     print OUTPAUP ";\n";
@@ -424,7 +433,7 @@ sub BuildPHYLIP
     }
     print OUTPHYLIP "H000_anc  ", "\t", "[ancestral sequence]$anc\n";
     close(OUTPHYLIP);
-    print STDERR "Don't forget to prepare the ancestor file containing the ancestor sequence followed by the character $anc\n";
+   # print STDERR "Don't forget to prepare the ancestor file containing the ancestor sequence followed by the character $anc\n";
 }
 ############################################
 

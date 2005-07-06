@@ -67,6 +67,7 @@
 
 This software was designed to perform phylogeny based analysis: first, it allows the detection of an association between a candidate gene and a disease, and second, it enables to make hypothesis about the susceptibility loci. 
 
+
 \subsection{Copyright}
 This software is copyright (c) by Claire Bardel and Vincent Danjean
 You are free to distribute this software under the terms of
@@ -79,7 +80,7 @@ Public License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
 Before using the program, you must build a phylogeny of the haplotypes. Three phylogeny software are compatible with our program:
 \begin{itemize}
 \item \paup~\cite{Swofford02}: available at \url{http://paup.csit.fsu.edu/}. This software is not free software and can be purchased (100\$ for the unix version). 
-\item \phylip~\cite{Felsenstein04}: freely available at \url{http://evolution.genetics.washington.edu/phylip.html}
+\item \phylip~\cite{Felsenstein04}: freely available at \url{http://evolution.genetics.washington.edu/phylip.html} (only for association test)
 \item \paml~\cite{YangPAML}: freely available at
   \url{http://abacus.gene.ucl.ac.uk/software/paml.html}. As stated by
   its author, \paml is not good at tree making. So we advise you to
@@ -87,9 +88,9 @@ Before using the program, you must build a phylogeny of the haplotypes. Three ph
   estimate the character states at each node.
 \end{itemize}
 
-Currently, only parsimony methods implemented in paup (command set, option criterion set to ``parsimony'') and in phylip (program mix and dnapars) have been tested. If you want to use maximum likelihood (ML), we suggest you to use your favorite software to compute the ML tree and then, to use \paml to estimate the character states at each node. 
+Currently, only parsimony methods implemented in paup (command set, option criterion set to ``parsimony'') and in phylip (program mix) have been tested. If you want to use maximum likelihood (ML), we suggest you to use your favorite software to compute the ML tree and then, to use \paml to estimate the character states at each node. 
 
-\section{Short description of the program available in \alphy}
+\section{Short description of the programs available in \alphy}
 \subsection{\newchitree}
 \subsubsection{Association test}
 The test consists in performing series of nested homogeneity tests (\chisquare)
@@ -152,32 +153,13 @@ with $n_h$ being the number of individuals carrying the haplotype $h$.
 
 
 
-\section{Description of the other files}
-\subsection{Case/Control data}
-To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyze it using all the programs available in this software.
-
-Here is a short description of the different files.
-\begin{description}
-\item [caco.phase] The file caco.phase is an input file for \phase containing the disease status information for each individual. \phase should be run this way:\\
-\commande{phase -c-1 caco.phase caco.out 100 1 100}
- \item [caco.phase.out] This file is the \phase output file obtained with the preceding command line.
-\end{description}
-Faire un fichier d'ex pour chaque prog: avoir un fichier \famhap, un fichier \phase et fabriquer les .paup et les .phylip
-
-Puis, montrer un vrai .paup tout complété qui marche. 
-
-avoir aussi les fichiers de sortie de \paup et de \phylip.
-
-Avoir un fichier apres passage par \etHT. 
-
-Avoir fichier de sortie de localisation et d'association
 
 \chapter{Installing the software}
 Inclure les differentes platformes sur lesquelles ça tourne.\\
 Voir avec Vince; installation des bibliothèques perl, installation de la bibliothèque C. Avec Linux, paquet debian dispo sur page Vince. Voir si on peut compiler le C pour windows et/ou macOSX.
 
 \chapter{Running the program \rechaplo }
-
+This program converts the output of the haplotype reconstruction programs to input for phylogeny reconstruction programs.
 \section{Summary of the different options}
 \begin{tabular}{ll}
   -i &Input file 1 \\
@@ -202,9 +184,14 @@ Two different cases must be considered:
 \end{itemize}
 
 \subsection{Using \famhap output files}
-Verifier les options de famhap necessaires\\
-Two input files are necessary: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called H1\_MOSTLIKELI (or H0\_MOSTLIKELI). In this case, the program must be run like this: \\
-  \rechaplo -r famhap -i out.famhap -j H1\_MOSTLIKELI -other\_options 
+The program \rechaplo is designed to use files generated with \famhap15 (and not with \famhap12!). Two options are necessary: 
+\begin{description}
+\item [dp] : to take the disease status into account in the haplotype recconstruction
+\item [P] : to make sure that all the haplotypes are present in the output file
+\end{description}
+
+Two input files are necessary: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called input\_name\_H1\_HAPLOTYPES (or input\_name\_H0\_HAPLOTYPES if the option dp is not used). In this case, the program must be run like this: \\
+  \rechaplo -r famhap -i out.famhap -j H1\_HAPLOTYPES -other\_options 
 
 \section{Output files}
 Two kinds of output files can be generated depending on the phylogeny
@@ -222,7 +209,7 @@ In the output file, the name of each haplotype is formed by the
 concatenation of an haplotype number (Hxxx), and of the number of
 controls (cxxx) and cases (mxxx) carrying this haplotype. A character
 is added to each haplotype: its state is 2 or C for all the haplotypes
-and must be set to 1 or G for the ancestral sequence.
+and must be set to 1 or G for the ancestral sequence. This character is set only to be sure that the phylogeny reconstruction program correctly draw the tree. It does not change the results of the analysis, and it can be removed from the file. 
 
 
 Some options are indicated within square brackets and must be
@@ -245,16 +232,16 @@ ignores what is written within square brackets.
 The file generated is the simplest phylip (also used by \paml) format.
 The first line contains the number of haplotypes and the number of
 sites and the following lines contains an identifier for the haplotype
-(Hxxx) and the haplotype sequence.
+(Hxxx) and the haplotype sequence. A character is added to each
+haplotype: its state is 0 or C for all the haplotypes and must be set
+to 1 or G for the ancestral sequence. This character is set only to be sure that the phylogeny reconstruction program correctly draw the tree. It does not change the results of the analysis, and it can be removed from the file. 
 
-!!! REVOIR seulement pour phylip!!! 
-The user must either add the sequence of the ancestral haplotype in
-the file out.phylip and prepare a file named ancestor, containing this
+
+In this file, you must either add the sequence of the ancestral haplotype in
+the file out.phylip and prepare a file named ``ancestors'' containing this
 sequence (don't forget to add the character 1 at the end of the
-sequence, or eliminate this sequence (and modify the number of
-sequences accordingly) !!Revoir ce paragraphe en faisant les manips en
-meme temps: il est probable qu'il faille detailler en fonction du type
-de donnees. !!
+sequence), or eliminate this sequence and modify the number of
+sequences accordingly if you want to use an outgroup to root the tree.
 
 \subsection{The output file correspond.txt}\label{description_correspond} 
 This file is automatically generated and the user cannot change it's
@@ -283,23 +270,15 @@ The user must specify if the data are of type DNA (ATGC) or NUM (number from 0 t
 \subsection{The -o option: name of the main output file}
 With this option, the user choose the name of the output file. If -o is omitted, the standard output will be used.
 
-\section{Example files}
-\subsection{Case/Control data}
-The file \fn{caco.phase.out} is a \phase output file containing information on the disease status of each individual. This file can be converted to an input file for \paup by running this command line:\\
-\commande{\rechaplo -i caco.phase.out -t NUM -p paup -r phase -o caco.prepaup}\\The file \fn{caco.prepaup} is not a valid paup input file: you have to modify it slightly according to your data and your analysis. In this example, we want to root the tree, but we do not know the real ancestral sequence and we do not have an outgroup sequence. So, we choose to root the tree on a consensus ancestral sequence formed by the combination of all the most frequent alleles. \fn{caco.paup} is the resulting paup input file.
 
  
-
-
-
-A faire... et mettre des exemples de ligne de commande.
-
 \chapter{Running the program \etHT}
+This program adds a new character S to each haplotype corresponding to its disease status.
 \section{Summary of the different options}
 \begin{tabular}{ll}
-  -r & Haplotype reconstruction program\\
   -i &Input file 1 \\
   -o & Output file \\
+  -r & Haplotype reconstruction program\\
   -p & proportion of cases in the sample \\
   -s & $\sigma$ parameter \\
   -t &  data type: SNP or DNA\\
@@ -343,7 +322,6 @@ Warning: only numbers from 0 to 9 are allowed for microsatellite data.
  \subsection{The -l option}
 This option is not mandatory: if it is present, S is coded ``?'' for all the haplotypes present only once, whatever the disease status of the individual carrying it. If it is not present, the state of S will be chosen according to the formula (see section \ref{description_etiquette}). 
 
-\section{Example files}
 \chapter{Running the program \newchitree}
 The program can perform either an association test or a localization test. Each option has a long name (which must be preceded by --) and some of them also have a short name (which must be preceded by -).
 
@@ -377,7 +355,7 @@ The program can perform either an association test or a localization test. Each 
 
 \subsection{First input file (option --first-input-file or -i)}
  This file is the output file of the phylogeny reconstruction
- program. 
+ program.  
 
 \subsubsection{If \paup is used}
 To run \newchitree, some informations must be present in the input
@@ -395,16 +373,16 @@ The input file for \newchitree is the output file named ``outfile'' by
 \phylip. Currently, \newchitree only works with output data from
 \texttt{MIX} (0/1 data). We plan to adapt it to other reconstruction
 program soon. To generate a correct input file for \newchitree, you must
-use some options:
+use some options depending on your rooting method:
 \begin{itemize}
-\item The tree must be rooted (option \cmd{o}). For the moment,
-  \newchitree does not run if the ancetral state option is used in
-  phylip; % !!! pb: pas la seq ancetre dans le fichier de sortie...
-  \item The states at all nodes of tree must appear in the output file
-  (option \cmd{5} set to \cmd{yes}).
+\item If you want to root the tree using an outgroup: in this case, you must root the tree on the chosen outgroup by using the option \cmd{o}.
+\item If you want to root the tree using the ancestral character states: you have to prepare an file named \fn{ancestors} containing the ancestral sequence. Then, when running \phylip, you must use the option \cmd{a} (see the \phylip manual for more information).\\
+  To run \newchitree, the ancestral sequence must be present in the sample, so we advise you to root the tree using this ancestral sequence as outgroup by using the option \cmd{o}. \\
+  In this case, you will have to use the option ``--anc-seq'' when running \newchitree.
 \end{itemize}
 
-Exemples of \newchitree input files are provided. %!!!  ou???
+Moreover, the states at all nodes of the tree must appear in the output file, so you must set the option \cmd{5} to \cmd{yes}.
+
 
 \subsection{Name of the output file (option --output-file or -o)}
 This user can choose the name of the output file by using the --output-file or -o option. If this option is not used, the standard output is used. 
@@ -495,6 +473,10 @@ figure~\ref{fig:option_b})
 \caption{Effect of the -b option}
 \label{fig:option_b}
 \end{figure}
+
+\subsubsection{Ancestral sequence (option --anc-seq)}
+This option is only necessary when the tree is rooted using an ancestral sequencce with \phylip (option \cmd{a}). In this case, the ancestral sequence  not being in the output file of \phylip, \newchitree cannot read it directly. So, you have to enter it manually after the --anc-seq option. 
+
 \subsubsection{--splitmode|s nosplit|chi2split}
 Option à supprimer car complique beaucoup, non?
 
@@ -502,6 +484,7 @@ Option à supprimer car complique beaucoup, non?
 \subsection{Description of the output file}
 See exemple: \\
 The output file show the tree, with the number of cases an controls at each nodes. At the root of the tree, there is a list of the different tests performed on the tree: the level of the test is indicated within square brackets, followed by the number of degrees of freedom is indicated (df=), the value of the \chisquare test and the corresponding p-value. In a second part of the file, a list of the p-values estimated by permutations (but non corrected for multiple testing) for each level of the tree is provided. Then, the last line gives the corrected p-value for the test.
+
 
 \section{Localization test (option --s-localization or -l)}
 
@@ -557,6 +540,99 @@ If more than one tree is studied, the $V^{0 \rightarrow 1}_{i}$ must be summed f
 
 \subsection{Description of the output file}
 The output file contains only a list of the $V_i$ (on ascending order) for the different sites and the different character states transitions. 
+
+
+\chapter{Examples of use}
+
+
+\section{Case/Control data, analyzed using \paup}
+To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyze it using all the programs available in this software.
+
+\subsection{Description of the example files}
+\paragraph{short description of the different files in the general directory:}
+\begin{description}
+\item [caco.phase] The file caco.phase is an input file for \phase containing the disease status information for each individual. \phase should be run this way:\\
+  \commande{phase -c-1 caco.phase caco.out 100 1 100}
+\item [caco.phase.out] This file is the \phase output file obtained with the preceding command line.
+\item [caco.phase.out\_*] These file are all the other \phase output file
+\item [caco.prepaup] This file is the output file of \rechaplo. It must be modified to become a valid \paup input file
+\item [caco.paup] This file is the valid \paup input file
+\item [caco.phy] This file is a \phylip format file that can be used by various phylogeny reconstruction program
+\end{description}
+
+\paragraph{short description of the different files in the association directory:}
+\begin{description}
+\item [100\_caco.asso] This file contains the results of the association analysis 
+\item  [caco.paup]  This file is the valid \paup input file
+\item [correspond.txt] This file contains the number of cases and controls carrying each haplotype (for a more detailed description see section~\ref{description_correspond} 
+\item [test.res.log]  This file contains the equipasimonious trees, the table containing the branch length and the apomorphie list. This is the input file for \newchitree
+\item [test.tree] This file contains the list of the equiparsimonious trees reconstructed by \paup
+
+\end{description}
+
+\paragraph{short description of the different files in the localization directory:}
+\begin{description}
+\item [caco.paup] This file is the valid \paup input file
+\item [et\_caco.paup] This file is the \paup input file with the new character S, obtained with \etHT 
+\item [caco.tree] This file contains the list of the equiparsimonious trees reconstructed by \paup
+\item [caco.res.log] This file contains the equipasimonious trees, the table containing the branch length and the apomorphie list. This is the input file for \newchitree
+\item [correspond.txt] This file contains the number of cases and controls carrying each haplotype (for a more detailed description see section~\ref{description_correspond} 
+\item [caco.loc]  This file contains the results of the localization analysis
+\end{description}
+
+The file \fn{caco.phase.out} is a \phase output file containing information on the disease status of each individual.
+
+\subsection{Generating  \paup input file and running \paup}\label{description_paup}
+\fn{caco.phase.out} can be converted to an input file for \paup by running this command line:\\
+\commande{\rechaplo -i caco.phase.out -t NUM -p paup -r phase -o caco.prepaup}
+
+This command generates the file \fn{correspond.txt} and \fn{caco.prepaup}. The latter is not a valid paup input file: you have to modify it slightly according to your data and your analysis. In this example, we want to root the tree, but we do not know the real ancestral sequence and we do not have an outgroup sequence. So, we choose to root the tree on a consensus ancestral sequence formed by the combination of all the most frequent alleles. \fn{caco.paup} is the resulting paup input file. \paup should then be run like that:\\
+\commande{paup caco.paup}
+
+\subsection{Association analysis}
+The example files are in the directory /example\_file/case\_control/association/.In this example, we choose to root the tree using the consensus ancestor previously defined and we choose to perform 100 repetitions to estimate the p\_value (100 is too few for a correct estimate of the p\_value, but thus, the computation time is not too long). The program can be run using the following command line:
+
+\commande{\newchitree -i test.res.log -j correspond.txt  -a -t SNP --root H000 --rootmeth ancestor -p paup -b -r 100 > 100\_caco.asso}
+
+In this example, the simulated effect of the disease is very high, so the p\_value is very small and thus, set to 0. As the analyze is only performed on one tree randomly chosen, you will probably not obtain exactly the same output file even if you use the same options.
+
+\subsection{Localization analysis}
+\subsubsection{Addition of the character S}
+The file \fn{caco.paup} is  used as input file. The proportion of cases haplotypes remaining in the sample is $\frac{105}{181}=0.58$. The program is run using the following command line:\\
+\commande{\etHT -i caco.paup -o et\_caco.paup -t SNP -p 0.58 -s 1}
+
+\paup must then be run on the file \fn{et\_caco.paup} (see the directory /examplefiles/case\_control/localization) 
+
+\subsubsection{Localization with \newchitree}
+The example files are in the directory /example\_file/case\_control/localization/. In this example, the character S is the site 14, and its ancestral state is 0. We choose to use the option ``double''.
+
+\commande{\newchitree -l -i test.res.log  -t SNP -p paup --trees-to-analyse 89 --s-site-number 14 --s-site-characters "0->1" --co-evo double > caco.loc}
+
+The 2 sites with the highest $V_i$ are site 1 (changing from allele 2 to allele 1)  which is the simulated susceptibility site and site 2 (changing from allele 2 to allele 1)  which is in complete linkage disequilibrium with site 1. 
+
+\section{Trio data, analyzed with  \phylip}
+We simulate 100 trios (2 parents and one affected child) genotyped for 10 SNPs. The allele 1 of SNP5 (f=0.2?) is chosen to be the disease susceptibility (DS) allele. The penetrance of the disease is  0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). The haplotypes for all the individuals are reconstructed using \famhap (options dp and P). Two output files: trio.fmh and fam19\_0\_H1\_HAPLOTYPES are obtained
+
+\subsubsection{Generating phylip format file and running \phylip}
+The \phylip format file can be obtained by running the following command line:\\
+\commande{\rechaplo -i trio.fmh -j fam19\_0\_H1\_HAPLOTYPES -t NUM -p phylip -r famhap -o trio.prephy}
+
+This command generates the file \fn{correspond.txt} and \fn{trio.prephy}. The latter is not a valid phylip format file: you have to modify it slightly according to your data and your analysis. In this example, we choose to root the tree on a consensus ancestral sequence (see~\ref{description_paup}). So, we add this ancestral sequence in \fn{trio.prephy} to form the \fn{trio.phy} file and we build an \fn{ancestors} file, containing this sequence. \phylip is then run on \fn{trio.phy} with the options \cmd{0,37} (tree rooting), \cmd{5} (states at each node are written in the output file) and \cmd{a} (ancestral states must be used). We obtain two files: \fn{outtree} containing all the trees and \fn{outfile} containing the trees and the states at each nodes.  
+
+\subsection{Association analysis}
+alphy -i outfile  -j correspond.txt  -a -t SNP --root H000\_anc --rootmeth ancestor -p phylip -b -r 100 --anc-seq 11000100010 >100\_trio\_phy.asso
+
+
+
+Faire un fichier d'ex pour chaque prog: avoir un fichier \famhap, un fichier \phase et fabriquer les .paup et les .phylip
+
+Puis, montrer un vrai .paup tout complété qui marche. 
+
+avoir aussi les fichiers de sortie de \paup et de \phylip.
+
+Avoir un fichier apres passage par \etHT. 
+
+Avoir fichier de sortie de localisation et d'association
 
 \chapter{URLs where programs can be downloaded}
 \section{Haplotype reconstruction programs}
