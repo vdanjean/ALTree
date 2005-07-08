@@ -8,7 +8,7 @@ use diagnostics;
 use warnings;
 use Getopt::Std;
 
-our($opt_h,$opt_i, $opt_o, $opt_s, $opt_p, $opt_t, $opt_l);
+our($opt_h,$opt_i, $opt_o, $opt_s, $opt_p, $opt_t, $opt_l, $opt_j);
 
 
 sub DefineAncDer {
@@ -24,6 +24,38 @@ sub DefineAncDer {
     }
 }
 
+sub ReadCorrespond 
+{
+    my($name_correspond) =shift;
+    my($ligne, @tableau);
+    my(%correspondance);
+    open (CORRESP, '<', $name_correspond) || die "Unable to open file $name_correspond: $!\n";
+    while ($ligne=<CORRESP>) {
+	chomp($ligne);
+	if ($ligne =~ /^$/) {
+	    next;
+	}
+	@tableau=split(/\s+/, $ligne);
+	if ($#tableau != 2) {
+	    die "error in $name_correspond: not 3 columns at line '$ligne'\n";
+	} else {
+	    $tableau[2]=~ s/c//;
+	    $tableau[1]=~ s/m//;
+	    if ($tableau[1] =~ /c/ || $tableau[2] =~ /m/) {
+		die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
+		}
+	    $correspondance{$tableau[0]}->{"case"}=$tableau[1]+0;
+	    $correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;	
+	}
+    }
+    my($clefs);
+    #DEBUG
+   # foreach $clefs (keys %correspondance) {
+   # print "$clefs case: ", $correspondance{$clefs}->{"case"}, "\n";
+   # 	print "$clefs, control: ",$correspondance{$clefs}->{"control"}, "\n";
+   # }
+    return(\%correspondance);
+}
 
 sub travail
 {
@@ -32,48 +64,60 @@ sub travail
     my($data_type)=shift;
     my($proportion_malades)=shift;
     my $low =shift;
+    my $name_correspond=shift;
     my($ligne);
     my($temoin, $malade, $sequence, $nom, $debut, $ancetre);
     my($anc, $num_car, $prop_mal, $prop_tem);
     my(@tableau, @tab2);
     my($tem, $mal)=DefineAncDer($data_type);
+    my($correspondance)=ReadCorrespond($name_correspond);
+
+   #foreach my $clefs (keys %{$correspondance}) {
+#	print "$clefs case ", $correspondance->{$clefs}->{"case"}, "\n";
+#    	print "$clefs, control ",$correspondance->{$clefs}->{"control"}, "\n";
+#    }
+
     while ($ligne=<STDIN>){
 	chomp($ligne);
 	if ($ligne =~ /^\s*H/) {
 	    @tableau=split(/\s+/, $ligne);
 	    $sequence=$tableau[1];
 	    $debut=$tableau[0];
-	    @tab2=split(/_/,$debut);
-	   # print $tab2[0],"\n";
-	    if ($tab2[0] =~ /^s*H000/){
+	    if ($debut =~ /^s*H000/){
 		$ancetre=$sequence.$tem;
-		print "$tab2[0]_$tab2[1] $ancetre\n";
+		print "$debut  $ancetre\n";
 		next;
 	    } else {
-		$temoin=$tab2[1];
-		$temoin =~ s/c//;
-		 # print STDERR "temoin=$temoin\n";
-		$malade=$tab2[2];
-		$malade =~ s/m//;
-		if ($malade =~ /c/ || $temoin =~ /m/) {
-		    die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
-		}
-		$nom=$tab2[0];
+		#if ($debut =~ /^\s*H[0-9]{3}_m[0-9]{3}_c[0-9]{3}/) {
+		 #   @tab2=split(/_/,$debut);
+		    # print $tab2[0],"\n";
+		  #  $temoin=$tab2[2];
+		   # $temoin =~ s/c//;
+		    # print STDERR "temoin=$temoin\n";
+		   # $malade=$tab2[1];
+		   # $malade =~ s/m//;
+		   # if ($malade =~ /c/ || $temoin =~ /m/) {
+		#	die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
+		 #   }
+		$nom=$tableau[0];
+		$malade=$correspondance->{$nom}->{"case"};
+		$temoin=$correspondance->{$nom}->{"control"};
+	#	print " $nom mal=$malade\n";   
 		$prop_mal=$malade/($malade+$temoin);
 		$prop_tem=$temoin/($malade+$temoin);
 		#	print "M=$malade T=$temoin\n";
 		#print "test=$test\n";
-	#	if ($test==0) { # test: difference |mal-tem| >=seuil 
+		#	if ($test==0) { # test: difference |mal-tem| >=seuil 
 		#    if ($malade > $temoin && $malade-$temoin>=$seuil) {
-			#$sequence.="G";
+		#$sequence.="G";
 		#    } elsif ($malade < $temoin && $temoin-$malade>=$seuil) {
 		#	$sequence.="C";
 		#    } else {
 		#	$sequence.="?";
 		#    }
 		#} elsif ($test==1) {
-		    #  if ($malade+$temoin==1) {
-		    #$sequence.="?";
+		#  if ($malade+$temoin==1) {
+		#$sequence.="?";
 		if ($low !=0 && $malade+$temoin==1) {
 		    $sequence.="?";
 		}  else {
@@ -89,11 +133,12 @@ sub travail
 		}
 	    }
 	    
-	    print "$nom", "_m$malade", "_c$temoin\t", $sequence, "\n";
-	   	    
-	} elsif ($ligne =~ /dimension ntax=([0-9]*) nchar=([0-9]*);/) {
+	    print "$nom  ", $sequence, "\n";
+	    #"_m$malade", "_c$temoin\t", $sequence, "\n";
+	    
+	} elsif ($ligne =~ /dimension ntax=([0-9]+) nchar=([0-9]+);/) {
 	    $num_car=$2+1;
-	    print "dimension ntax=$1 nchar=", $2+1, ";\n";
+	    print "dimension ntax=$1 nchar=", $num_car, ";\n";
 	} elsif ($ligne =~ /format symbols=\"([0-9ATGCU]+)\"/) {
 	    my($format)=$1;
 	    my($format_old)=$1;
@@ -111,7 +156,7 @@ sub travail
 	} elsif ($ligne=~ /\s*describetrees/) {
 	    print "include $num_car;\n";
 	    print $ligne,"\n";
-	} elsif ($ligne =~ /^\s*([0-9]+)\s+([0-9])+$/) {
+	} elsif ($ligne =~ /^\s*([0-9]+)\s+([0-9]+)$/) {
 	    $num_car=$2+1;
 	    print "$1\t$num_car\n";
 	} else {
@@ -128,6 +173,7 @@ sub usage {
     print STDERR " Options :\n";
     print STDERR "    [-h]  this help\n";
     print STDERR "     -i   input file\n";
+    print STDERR "     -j   input2 file (correspond.txt)\n";
     print STDERR "     -o   output file\n";
     print STDERR "     -t   data type: SNP or DNA\n";
 # ancienne option -t test: 0= mal-tem>seuil 1= seuil proportion0+/-sqr(pq/n)]
@@ -140,7 +186,7 @@ sub main
     my($progname);
     my($seuil, $test, $proportion);
     
-    getopts('ho:i:s:t:p:l');
+    getopts('ho:i:j:s:t:p:l');
     
     
     if ($opt_h) {
@@ -153,6 +199,12 @@ sub main
 	open(STDIN, '<', $opt_i) or die "ouverture impossible de $opt_i : $!" ;
     }
     
+    my $correspond_name;
+    if ($opt_j) {
+	$correspond_name=$opt_j;
+    } else {
+	$correspond_name="correspond.txt"
+	}
     if ($opt_o) {
 	open(STDOUT, '>', $opt_o) or die "ouverture impossible de $opt_o : $!" ;
     }
@@ -195,7 +247,7 @@ sub main
 	} else {
 	    $low=0;
 	}
-	travail($seuil, $data_type,  $proportion, $low);
+	travail($seuil, $data_type,  $proportion, $low, $correspond_name);
 	
     }
 }

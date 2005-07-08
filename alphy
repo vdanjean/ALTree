@@ -90,6 +90,9 @@ sub ReadCorrespond
     open (CORRESP, '<', $name_correspond) || die "Unable to open file $name_correspond: $!\n";
     while ($ligne=<CORRESP>) {
 	chomp($ligne);
+	if ($ligne =~ /^$/) {
+	    next;
+	}
 	@tableau=split(/\s+/, $ligne);
 	if ($#tableau != 2) {
 	    die "error in $name_correspond: not 3 columns at line '$ligne'\n";
