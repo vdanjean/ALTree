@@ -1,4 +1,4 @@
-\documentclass[dvips, a4paper, 12pt,nocolor]{report}
+\documentclass[dvips, a4paper, 11pt,nocolor]{report}
 
 %%%%%%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -39,12 +39,13 @@
 \newcommand{\paup}{\texttt{paup}\xspace}
 \newcommand{\phylip}{\texttt{phylip}\xspace}
 \newcommand{\paml}{\texttt{paml}\xspace}
+\newcommand{\phyml}{\texttt{paml}\xspace}
 \newcommand{\alphy}{\texttt{ALPhy}\xspace}
 \renewcommand{\thetable} {\rm\Roman{table}}
 \renewcommand{\thefigure} {\rm\Roman{figure}}
-\newcommand{\newchitree}{\texttt{NewChi2tree.pl}\xspace}
-\newcommand{\etHT}{\texttt{Etiquette-HT.pl}\xspace}
-\newcommand{\rechaplo}{\texttt{Rechaplo2phylogeny.pl}\xspace}
+\newcommand{\newchitree}{\texttt{ALPhy}\xspace}
+\newcommand{\etHT}{\texttt{ALPhy-add-S}\xspace}
+\newcommand{\rechaplo}{\texttt{ALPhy-convert}\xspace}
 \newcommand{\acctran}{\texttt{acctran}\xspace}
 \newcommand{\deltran}{\texttt{deltran}\xspace}
 \newcommand{\chisquare}{chi-square\xspace}
@@ -61,6 +62,8 @@
 \author{Claire Bardel, Vincent Danjean, Pierre Darlu and Emmanuelle Génin}
 
 \maketitle
+
+\tableofcontents
 
 \chapter{Overview of the software}
 \section{Introduction}
@@ -84,8 +87,9 @@ Before using the program, you must build a phylogeny of the haplotypes. Three ph
 \item \paml~\cite{YangPAML}: freely available at
   \url{http://abacus.gene.ucl.ac.uk/software/paml.html}. As stated by
   its author, \paml is not good at tree making. So we advise you to
-  use another software to build the tree and then to use paml to
-  estimate the character states at each node.
+  use another software to build the tree (for example,
+  \phyml~\cite{Guindon03} and then to use paml to estimate the
+  character states at each node.
 \end{itemize}
 
 Currently, only parsimony methods implemented in paup (command set, option criterion set to ``parsimony'') and in phylip (program mix) have been tested. If you want to use maximum likelihood (ML), we suggest you to use your favorite software to compute the ML tree and then, to use \paml to estimate the character states at each node. 
@@ -103,7 +107,7 @@ must previously define a new character (called character $S$) whose
 state depends on the proportion of cases carrying haplotype $h$ and
 optimize it on the haplotype phylogeny.  The program \newchitree then
 looks for sites that co-mutates with the character S by calculating a
-co-mutation index called $V_{is}$ for each site$i$ and for each
+co-mutation index called $V_{is}$ for each site $i$ and for each
 character state transition $s$. The highest the
 $V_{is}$ is, the highest the probability of $i$ being the susceptibility
 site is.
@@ -155,6 +159,36 @@ with $n_h$ being the number of individuals carrying the haplotype $h$.
 
 
 \chapter{Installing the software}
+
+The software can run on various linux/Unix platform and on MacOS X (voir Vince)
+
+\section{Installation on a linux platform} 
+To install this module type the following:\\
+
+\begin{center}
+  \begin{minipage}{0.5\linewidth}
+    perl Makefile.PL\\
+    make\\
+    make test\\
+    make install\\
+  \end{minipage}
+\end{center}
+
+\noindent If you prefer to install it in your home directory, then type the following:
+\begin{center}
+  \begin{minipage}{0.5\linewidth}
+    perl Makefile.PL PREFIX=~
+    make
+    make test
+    make install
+  \end{minipage}
+\end{center}
+
+\noindent In this case, do not forget to add ~/bin in your PATH and
+~/lib/perl/"perl\_version"/ in PERL5LIB if they are not already present.
+
+\vspace{0.5cm}
+
 Inclure les differentes platformes sur lesquelles ça tourne.\\
 Voir avec Vince; installation des bibliothèques perl, installation de la bibliothèque C. Avec Linux, paquet debian dispo sur page Vince. Voir si on peut compiler le C pour windows et/ou macOSX.
 
@@ -646,6 +680,8 @@ Avoir fichier de sortie de localisation et d'association
 \phylip \url{http://evolution.genetics.washington.edu/phylip.html}
 
 \paml  \url{http://abacus.gene.ucl.ac.uk/software/paml.html}
+
+\phyml \url{http://atgc.lirmm.fr/phyml/}
 \bibliographystyle{plain}
 \bibliography{stage}
 \end{document}
