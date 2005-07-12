@@ -146,9 +146,9 @@ If you do not want to add the S character manually, you can use
 ($p_h$) of cases carrying the haplotype $h$ compared to the proportion $p_0$ of cases in the whole sample. 
 
 \begin{itemize}
-\item if $p_h < p_0-\sigma\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$ is coded
+\item if $p_h < p_0-\epsilon\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$ is coded
   ``C'' or ``0'' (high number of controls);
-\item if $p_h > p_0+\sigma\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$ is coded
+\item if $p_h > p_0+\epsilon\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$ is coded
   ``G'' or ``1'' (high number of cases);
 \item else, $S$ is coded ``?'' (missing data).
 \end{itemize}
