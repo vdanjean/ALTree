@@ -187,7 +187,7 @@ sub main
     my($progname);
     my($seuil, $test, $proportion);
     
-    getopts('ho:i:j:s:t:p:l');
+    getopts('ho:i:j:e:t:p:l');
     
     
     if ($opt_h) {
