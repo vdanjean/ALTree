@@ -27,6 +27,7 @@
 \usepackage{fancyhdr}
 \usepackage{url}
 \usepackage{setspace}
+\usepackage{alltt}
 
 %\doublespacing
 
@@ -39,7 +40,8 @@
 \newcommand{\paup}{\texttt{paup}\xspace}
 \newcommand{\phylip}{\texttt{phylip}\xspace}
 \newcommand{\paml}{\texttt{paml}\xspace}
-\newcommand{\phyml}{\texttt{paml}\xspace}
+%TODO est-ce que phyml s'écrit comme ça ?
+\newcommand{\phyml}{\texttt{phyml}\xspace}
 \newcommand{\alphy}{\texttt{ALPhy}\xspace}
 \renewcommand{\thetable} {\rm\Roman{table}}
 \renewcommand{\thefigure} {\rm\Roman{figure}}
@@ -52,8 +54,30 @@
 \newcommand{\chisquares}{chi-squares\xspace}
 \newcommand{\cmd}[1]{\textit{#1}}
 \newcommand{\fn}[1]{\textbf{#1}}
+\newcommand{\prog}[1]{\texttt{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\ucode}[1]{\code{\textit{#1}}}
+\newcommand{\ccode}[1]{\code{\textbf{#1}}}
 
 \newcommand{\commande}[1]{\texttt{#1}}
+
+\newenvironment{source}{%
+\begin{alltt}%
+}{%
+\end{alltt}%
+}
+
+\newenvironment{options}{%
+  \bgroup%
+  \newcommand{\option}[2]{%
+    \code{##1}& ##2 \\%
+  }
+  \begin{tabular}{ll}
+  }{%
+  \end{tabular}
+  \egroup%
+}
+
 %%%%%%%%%%%%%%%%%
 \begin{document}
 \pagestyle{empty}
@@ -66,90 +90,83 @@
 \tableofcontents
 
 \chapter{Overview of the software}
-\section{Introduction}
 
-This software was designed to perform phylogeny based analysis: first, it allows the detection of an association between a candidate gene and a disease, and second, it enables to make hypothesis about the susceptibility loci. 
+This software was designed to perform phylogeny based analysis: first,
+it allows the detection of an association between a candidate gene and
+a disease, and second, it enables to make hypothesis about the
+susceptibility loci.
 
 
-\subsection{Copyright}
+\section{Copyright}
 This software is copyright (c) by Claire Bardel and Vincent Danjean
-You are free to distribute this software under the terms of
-the GNU General Public License.
-The complete text of the GNU General
-Public License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
+You are free to distribute this software under the terms of the GNU
+General Public License.  The complete text of the GNU General Public
+License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
 
 
-\subsection{Phylogeny reconstruction programs}
-Before using the program, you must build a phylogeny of the haplotypes. Three phylogeny software are compatible with our program:
-\begin{itemize}
-\item \paup~\cite{Swofford02}: available at \url{http://paup.csit.fsu.edu/}. This software is not free software and can be purchased (100\$ for the unix version). 
-\item \phylip~\cite{Felsenstein04}: freely available at \url{http://evolution.genetics.washington.edu/phylip.html} (only for association test)
-\item \paml~\cite{YangPAML}: freely available at
-  \url{http://abacus.gene.ucl.ac.uk/software/paml.html}. As stated by
-  its author, \paml is not good at tree making. So we advise you to
-  use another software to build the tree (for example,
-  \phyml~\cite{Guindon03} and then to use paml to estimate the
-  character states at each node.
-\end{itemize}
-
-Currently, only parsimony methods implemented in paup (command set, option criterion set to ``parsimony'') and in phylip (program mix) have been tested. If you want to use maximum likelihood (ML), we suggest you to use your favorite software to compute the ML tree and then, to use \paml to estimate the character states at each node. 
-
-\section{Short description of the programs available in \alphy}
-\subsection{\newchitree}
-\subsubsection{Association test}
-The test consists in performing series of nested homogeneity tests (\chisquare)
-comparing the number of cases and controls in the different clades
-defined on the tree. A global p-value is calculated for the tree by
-using a double permutation procedure.
-\subsubsection{Localization of the susceptibility loci}
+%\section{Short description of the programs available in \alphy}
+\begin{figure}[htbp]
+  \includegraphics[width=\linewidth]{overview.fig}\centering
+  
+  \caption{\alphy softwares}
+  \label{fig:alphy}
+\end{figure}
+\section{\newchitree}
+\subsection{Association test}
+The test consists in performing series of nested homogeneity tests
+(\chisquare) comparing the number of cases and controls in the
+different clades defined on the tree. A global p-value is calculated
+for the tree by using a double permutation procedure.
+\subsection{Localization of the susceptibility loci}
 To perform the localization analysis, for each haplotype $h$, the user
 must previously define a new character (called character $S$) whose
 state depends on the proportion of cases carrying haplotype $h$ and
 optimize it on the haplotype phylogeny.  The program \newchitree then
 looks for sites that co-mutates with the character S by calculating a
 co-mutation index called $V_{is}$ for each site $i$ and for each
-character state transition $s$. The highest the
-$V_{is}$ is, the highest the probability of $i$ being the susceptibility
-site is.
+character state transition $s$. The highest the $V_{is}$ is, the
+highest the probability of $i$ being the susceptibility site is.
 
-\bigskip
-The method implemented in\newchitree has been fully described
-in~\cite{Bardel05}. Please refer to this article for a more complete
-description. 
+\bigskip The method implemented in \newchitree has been fully
+described in~\cite{Bardel05}. Please refer to this article for a more
+complete description.
 
-\subsection{\rechaplo}
+\section{\rechaplo}
 Before running \newchitree, you will generally have to reconstruct
-haplotypes. The output of the haplotype reconstruction programs are
+haplotypes (see section \ref{sec:require} for a description of usable
+programs). The output of the haplotype reconstruction programs are
 totally different from the input files necessary for the phylogenetuc
 reconstruction programs. This program was then written to convert the
 outputs of haplotype reconstruction programs to input files for
 phylogenetic reconstruction programs. It may be particularly useful if
-you want to use \paup because it has a very high number of options. If
-you use \rechaplo, an input file with all the options
-necessary to further run \newchitree is produced. 
+you want to use \paup because \paup has a very high number of options.
+If you use \rechaplo, an input file with all the options necessary to
+further run \newchitree is produced.
 
 Currently, \rechaplo can deal with two haplotype reconstruction
-programs: \phase~\cite{Stephens01, Stephens03}  and
+programs: \phase~\cite{Stephens01, Stephens03} and
 \famhap~\cite{Becker04} and can produce files for three phylogeny
-reconstruction programs: \paup~\cite{Swofford02}, \phylip~\cite{Felsenstein04} and \paml~\cite{YangPAML}\\
+reconstruction programs: \paup~\cite{Swofford02},
+\phylip~\cite{Felsenstein04} and \paml~\cite{YangPAML}.
 
-\subsection{\etHT}\label{description_etiquette}
+\section{\etHT}\label{description_etiquette}
 To perform the localization analysis, a new character $S$ must be
-added to each haplotype $h$. The state of $S$ depends on the proportion of
-cases carrying haplotype $h$. You can use your own criterion to
-determine the state of $S$ and add it manually to the input file of
-the phylogeny reconstruction program that will optimize the character
-states changes on the tree.
+added to each haplotype $h$. The state of $S$ depends on the
+proportion of cases carrying haplotype $h$. You can use your own
+criterion to determine the state of $S$ and add it manually to the
+input file of the phylogeny reconstruction program that will optimize
+the character states changes on the tree.
 
-If you do not want to add the S character manually, you can use
-\etHT. The state of the character $S$ is allocated depending on the proportion
-($p_h$) of cases carrying the haplotype $h$ compared to the proportion $p_0$ of cases in the whole sample. 
+If you do not want to add the S character manually, you can use \etHT.
+The state of the character $S$ is allocated depending on the
+proportion ($p_h$) of cases carrying the haplotype $h$ compared to the
+proportion $p_0$ of cases in the whole sample.
 
 \begin{itemize}
-\item if $p_h < p_0-\epsilon\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$ is coded
-  ``C'' or ``0'' (high number of controls);
-\item if $p_h > p_0+\epsilon\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$ is coded
-  ``G'' or ``1'' (high number of cases);
+\item if $p_h < p_0-\epsilon\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$
+  is coded ``C'' or ``0'' (high number of controls);
+\item if $p_h > p_0+\epsilon\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$
+  is coded ``G'' or ``1'' (high number of cases);
 \item else, $S$ is coded ``?'' (missing data).
 \end{itemize}
 with $n_h$ being the number of individuals carrying the haplotype $h$.
@@ -158,52 +175,98 @@ with $n_h$ being the number of individuals carrying the haplotype $h$.
 
 
 
+
 \chapter{Installing the software}
 
-The software can run on various linux/Unix platform and on MacOS X (voir Vince)
+The software can run on various linux/Unix platform and on MacOS X.
+
+\section{Requirements}
+\label{sec:require}
+
+\subsection{Phylogeny reconstruction programs}
+Before using \alphy, you must build a phylogeny of the haplotypes.
+Three phylogeny software are compatible with our program:
+\begin{itemize}
+\item \paup~\cite{Swofford02}: available at
+  \url{http://paup.csit.fsu.edu/}. This software is not free software
+  and must be purchased (100\$ for the unix version).
+\item \phylip~\cite{Felsenstein04}: freely available at
+  \url{http://evolution.genetics.washington.edu/phylip.html} (only for
+  association test)
+\item \paml~\cite{YangPAML}: freely available at
+  \url{http://abacus.gene.ucl.ac.uk/software/paml.html}. As stated by
+  its author, \paml is not good at tree making. So we advise you to
+  use another software to build the tree (for example,
+  \phyml~\cite{Guindon03} and then to use \paml to estimate the
+  character states at each node.
+\end{itemize}
+
+\paragraph{Note:}
+Currently, only parsimony methods implemented in \paup (command
+\texttt{set}, option \texttt{criterion} set to ``parsimony'') and in
+\phylip (program \texttt{mix}) have been tested. If you want to use
+maximum likelihood (ML), we suggest you to use your favorite software
+to compute the ML tree and then, to use \paml to estimate the
+character states at each node.
+
+\subsection{Required tools}
+\prog{perl} is required to run \alphy. \prog{perl} version 5.8.7 or
+higher should work. Lower version can work, but it has not been
+tested.
+
+If you want be build the program from sources, you will also need a
+C compiler such as \prog{gcc} and the GNU \prog{make} program. They
+are available on most Unix plateforms. For MacOS X, \prog{gcc} and
+\prog{make} are available with other tools on the development CD of
+the OS.
 
 \section{Installation on a linux platform} 
 To install this module type the following:\\
 
-\begin{center}
-  \begin{minipage}{0.5\linewidth}
-    perl Makefile.PL\\
-    make\\
-    make test\\
-    make install\\
-  \end{minipage}
-\end{center}
+\begin{source}
+perl Makefile.PL
+make
+make test
+make install
+\end{source}
 
-\noindent If you prefer to install it in your home directory, then type the following:
-\begin{center}
-  \begin{minipage}{0.5\linewidth}
-    perl Makefile.PL PREFIX=~
-    make
-    make test
-    make install
-  \end{minipage}
-\end{center}
+\noindent If you prefer to install it in your home directory, then
+type the following:
+\begin{source}
+perl Makefile.PL PREFIX=~ 
+make
+make test
+make install
+\end{source}
 
-\noindent In this case, do not forget to add ~/bin in your PATH and
-~/lib/perl/"perl\_version"/ in PERL5LIB if they are not already present.
+\noindent In this case, do not forget to add \verb+~+\prog{/bin} in your
+\prog{PATH} and \verb+~+\prog{/lib/perl/\textit{perl\_version}/} in
+\prog{PERL5LIB} if they are not already present. For example:
+\begin{source}
+PATH=~/bin:$PATH
+export PATH
+PERL5LIB=~/lib/perl/5.8.7/:$PERL5LIB
+export PERL5LIB
+\end{source}
 
 \vspace{0.5cm}
 
 Inclure les differentes platformes sur lesquelles ça tourne.\\
 Voir avec Vince; installation des bibliothèques perl, installation de la bibliothèque C. Avec Linux, paquet debian dispo sur page Vince. Voir si on peut compiler le C pour windows et/ou macOSX.
 
-\chapter{Running the program \rechaplo }
+\chapter{\rechaplo }
 This program converts the output of the haplotype reconstruction programs to input for phylogeny reconstruction programs.
 \section{Summary of the different options}
-\begin{tabular}{ll}
-  -i &Input file 1 \\
-  -j & Input file 2 (not mandatory, see explanations below) \\
-  -o & Output file \\
-  -r & Name of the haplotype reconstruction program\\
-  -p & Name of the phylogeny reconstruction program \\
-  -t & Type of data: DNA (ATGCU) or NUM (0-9) \\
-  -h & help \\
-\end{tabular}
+
+\begin{options}
+\option{-i \ucode{file}}{Input file 1}
+\option{-j \ucode{file}}{Input file 2 (not mandatory, see explanations below)}
+%  -o & Output file \\
+%  -r & Name of the haplotype reconstruction program\\
+%  -p & Name of the phylogeny reconstruction program \\
+%  -t & Type of data: DNA (ATGCU) or NUM (0-9) \\
+%  -h & help \\
+\end{options}
 
 \section{Input files}
 This program takes as input files the output files of the haplotype recontruction programs. Currently, only \phase (for case/control data) and \famhap (for family data) output files are allowed, but we plan to extend the number of haplotype recontruction programs usable. The haplotype reconstruction program used to generate the input file must be specified after the -r option.
@@ -306,7 +369,7 @@ With this option, the user choose the name of the output file. If -o is omitted,
 
 
  
-\chapter{Running the program \etHT}
+\chapter{\etHT}
 This program adds a new character S to each haplotype corresponding to its disease status.
 \section{Summary of the different options}
 \begin{tabular}{ll}
@@ -356,35 +419,35 @@ Warning: only numbers from 0 to 9 are allowed for microsatellite data.
  \subsection{The -l option}
 This option is not mandatory: if it is present, S is coded ``?'' for all the haplotypes present only once, whatever the disease status of the individual carrying it. If it is not present, the state of S will be chosen according to the formula (see section \ref{description_etiquette}). 
 
-\chapter{Running the program \newchitree}
+\chapter{\newchitree}
 The program can perform either an association test or a localization test. Each option has a long name (which must be preceded by --) and some of them also have a short name (which must be preceded by -).
 
 \section{Summary of the different options}
-\begin{tabular}{ll}
-  --version  &       program version\\
-        --short-help, -h &   brief help message\\
-        --help         &  help message with options descriptions\\
-        --man          &  full documentation\\
-        --association, -a &  perform the association test\\
-        --s-localisation, -l&   perform the localisation using the S character\\
-        --first-input-file, -i& result file from phylogeny program\\
-        --second-input-file, -j& correspond file (see description below)\\
-        --output-file, -o &  outfile\\
-        --data-type, -t & type of data:  DNA or SNP\\
-        --rootmeth & rooting method:  outgroup|ancestor\\
-        --root &  name of the ancestral sequence\\
-        --tree-building-program, -p &   phylip or paup or paml\\
-        --splitmode|s nosplit|chi2split & \\
-        --prolongation, -b & prolongation of branches\\
-        --chi2-threshold, -n &  threshold value \\
-        --permutations, -r &  number of permutations to perform \\
-        --trees-to-analyse & number of trees to analyse\\
-        --s-site-number &  position of the $S$ character in the sequence\\
-        --s-site-characters  & ancestral state -> derived state\\
-        --co-evo, -e  & simple or double\\
-        --print-tree & print the tree with the character state changes in the output file\\
+\begin{options}
+\option{--version}{program version}
+\option{--short-help|-h}{brief help message}
+\option{--help}{help message with options descriptions}
+\option{--man}{full documentation}
+\option{--association|-a}{perform the association test}
+\option{--s-localisation|-l}{perform the localisation using the S character}
+\option{--first-input-file|-i \ucode{file}}{result file from phylogeny program}
+\option{--second-input-file|-j \ucode{file}}{correspond file (see description below)}
+\option{--output-file|-o \ucode{file}}{outfile}
+\option{--data-type|-t \ccode{DNA}|\ccode{SNP}}{type of data}
+\option{--rootmeth \ccode{outgroup}|\ccode{ancestor}}{rooting method}
+\option{--root \ucode{sequence}}{name of the ancestral sequence}
+\option{--tree-building-program|-p \ccode{PHYLIP}|\ccode{PAUP}|\ccode{PAML}}{phylip or paup or paml}
+\option{--splitmode|-s \ccode{nosplit}|\ccode{chi2split}}{}
+\option{--prolongation|-b}{prolongation of branches}
+\option{--chi2-threshold|-n \ucode{value}}{threshold value}
+\option{--permutations|-r \ucode{number}}{number of permutations to perform}
+\option{--trees-to-analyse \ucode{number}}{number of trees to analyse}
+\option{--s-site-number \ucode{number}}{position of the $S$ character in the sequence}
+\option{--s-site-characters \ucode{anc\_state}->\ucode{der\_state}}{ancestral state -> derived state}
+\option{--co-evo|-e \ccode{simple}|\ccode{double}}{simple or double}
+\option{--print-tree}{print the tree with the character state changes in the output file}
 
-\end{tabular}
+\end{options}
 \section{General options (to be used both for association and for localization)}
 
 \subsection{First input file (option --first-input-file or -i)}
@@ -576,7 +639,7 @@ If more than one tree is studied, the $V^{0 \rightarrow 1}_{i}$ must be summed f
 The output file contains only a list of the $V_i$ (on ascending order) for the different sites and the different character states transitions. 
 
 
-\chapter{Examples of use}
+\chapter{Tutorials}
 
 
 \section{Case/Control data, analyzed using \paup}
