@@ -1,0 +1,28 @@
+# Version control files and dirs.
+\bRCS\b
+\bCVS\b
+,v$
+
+# Makemaker generated files and dirs.
+^MANIFEST\.
+^Makefile$
+^CUtils.*/Makefile$
+^blib/
+^MakeMaker-\d
+
+# Temp, old and emacs backup files.
+~$
+\.old$
+^#.*#$
+^\.#
+
+# Distributions
+^alphy-.*\.tar\.gz$
+
+# Documentation
+^Documentation/fig/.*\.pdftex(_t)?$
+^Documentation/fig/.*\.pstex(_t)?$
+^Documentation/fig/.*\.subfig\.mk$
+^Documentation/fig/.*_[0-9]+\.fig$
+
+# Other
