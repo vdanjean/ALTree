@@ -6,7 +6,7 @@ WriteMakefile(
     NAME              => 'alphy',
     PMLIBDIRS         => [ 'Alphy' ],
     DIR               => [ 'CUtils' ],
-    VERSION	      => '0.9.1b',
+    VERSION	      => '0.9.1c',
     PREREQ_PM         => {}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'alphy', # retrieve abstract from module

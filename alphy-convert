@@ -4,9 +4,14 @@
 use strict;
 use diagnostics;
 use warnings;
-use Getopt::Std;
+use Getopt::Long; # qw(:config permute);
+use Pod::Usage;
+#use Getopt::Std;
 
 our($opt_h, $opt_r, $opt_i, $opt_j, $opt_o, $opt_t, $opt_p);
+
+our $VERSION;
+$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 
 ##### FONCTIONS ANNEXES GLOBALES POUR TOUS LES INPUTS ####
@@ -441,20 +446,56 @@ sub BuildPHYLIP
 sub main
 {
     my($progname, $rec_program);
-    getopts('hr:i:j:o:t:p:');
-    
-    if ($opt_h) {
-	($progname = $0) =~ s|^.*/([^/]*)$|$1|;
-	print STDERR "usage : $progname \n";
-	print STDERR "\t-r Haplotype reconstruction program\n";
-	print STDERR "\t-i Input file 1\n";
-	print STDERR "\t[-j Input file 2]\n";
-	print STDERR "\t-o Output file  \n";
-	print STDERR "\t-t Type of data: DNA (ATGCU) or NUM (0-9)\n";
-	print STDERR "\t-p Phylogeny reconstruction program\n";
-	print STDERR "\t-h: this help\n";
-	exit (1);
+    my %options= (
+    	"first-input-file" => \$opt_i,
+	"second-input-file" => \$opt_j,
+	"output-file" => \$opt_o,
+	"data-type" => \$opt_t,
+	"phylo-prog" => \$opt_p,
+	"reconstruct-prog" => \$opt_r,
+	);
+    	
+    #getopts('hr:i:j:o:t:p:');
+    GetOptions (\%options,
+		"version",
+		"short-help|h",
+		"help",
+		"man",
+		"first-input-file|i=s",
+                "second-input-file|j=s",
+                "output-file|o=s",
+		"data-type|t=s",
+		"phylo-prog|p=s",
+		"reconstruct-prog|r=s",
+		) or pod2usage(2);
+    if (defined($options{"version"})) {
+	print $0, " version ", $VERSION, "\n";
+	print "(Perl version ", $], ")\n";
+	exit 0;
     }
+    if (defined($options{"short-help"})) {
+	pod2usage(-exitstatus => 0, -verbose => 0);
+    }
+    if (defined($options{"help"})) {
+	pod2usage(-exitstatus => 0, -verbose => 1);
+    }
+    if (defined($options{"man"})) {
+	pod2usage(-exitstatus => 0, -verbose => 2);
+    }
+    
+    
+#    if ($opt_h) {
+#	($progname = $0) =~ s|^.*/([^/]*)$|$1|;
+#	print STDERR "usage : $progname \n";
+#	print STDERR "\t-r Haplotype reconstruction program\n";
+#	print STDERR "\t-i Input file 1\n";
+#	print STDERR "\t[-j Input file 2]\n";
+#	print STDERR "\t-o Output file  \n";
+#	print STDERR "\t-t Type of data: DNA (ATGCU) or NUM (0-9)\n";
+#	print STDERR "\t-p Phylogeny reconstruction program\n";
+#	print STDERR "\t-h: this help\n";
+#	exit (1);
+#    }
     if ($opt_r){
 	$rec_program = $opt_r;
     } else {
@@ -512,3 +553,48 @@ sub main
 }
 
 main;
+
+__END__
+    
+=head1 NAME
+
+alphy-convert - Title...
+
+=head1 SYNOPSIS
+
+alphy-convert [options]
+
+ Options:
+    --version        program version
+    --short-help|h   brief help message
+    --help           help message with options descriptions
+    --man            full documentation
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--version>
+
+Print the program version and exits.
+
+=item B<--short-help>
+
+Print a brief help message and exits.
+
+=item B<--help>
+
+Print a help message with options descriptions and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=back
+
+=head1 DESCRIPTION
+
+B<This program> will read the given input file(s) and do someting
+useful with the contents thereof.
+
+=cut
