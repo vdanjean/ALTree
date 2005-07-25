@@ -46,7 +46,9 @@
 \renewcommand{\thetable} {\rm\Roman{table}}
 \renewcommand{\thefigure} {\rm\Roman{figure}}
 \newcommand{\newchitree}{\texttt{ALPhy}\xspace}
+\newcommand{\etHTname}{alphy-add-S}
 \newcommand{\etHT}{\texttt{ALPhy-add-S}\xspace}
+\newcommand{\rechaploname}{alphy-convert}
 \newcommand{\rechaplo}{\texttt{ALPhy-convert}\xspace}
 \newcommand{\acctran}{\texttt{acctran}\xspace}
 \newcommand{\deltran}{\texttt{deltran}\xspace}
@@ -214,7 +216,7 @@ character states at each node.
 higher should work. Lower version can work, but it has not been
 tested.
 
-If you want be build the program from sources, you will also need a
+If you want to build the program from sources, you will also need a
 C compiler such as \prog{gcc} and the GNU \prog{make} program. They
 are available on most Unix plateforms. For MacOS X, \prog{gcc} and
 \prog{make} are available with other tools on the development CD of
@@ -259,13 +261,18 @@ This program converts the output of the haplotype reconstruction programs to inp
 \section{Summary of the different options}
 
 \begin{options}
-\option{-i \ucode{file}}{Input file 1}
-\option{-j \ucode{file}}{Input file 2 (not mandatory, see explanations below)}
-%  -o & Output file \\
-%  -r & Name of the haplotype reconstruction program\\
-%  -p & Name of the phylogeny reconstruction program \\
-%  -t & Type of data: DNA (ATGCU) or NUM (0-9) \\
-%  -h & help \\
+  \option{--version}{program version}
+  \option{--short-help|-h}{brief help message}
+  \option{--help}{help message with options descriptions}
+  \option{--man}{full documentation}
+  \option{-i \ucode{file}}{Input file 1}
+  \option{-j \ucode{file}}{Input file 2 (not mandatory, see
+    explanations below)}
+  \option{-o \ucode{file}}{Output file} 
+  \option{-r \ccode{phase|famhap}}{Name of the haplotype
+    reconstruction program}
+  \option{-p \ccode{paup|phylip}}{Name of the phylogeny reconstruction program}
+  \option{-t \ccode{DNA|NUM}}{Type of data: DNA (ATGCU) or NUM (0-9)}
 \end{options}
 
 \section{Input files}
@@ -275,9 +282,14 @@ This program takes as input files the output files of the haplotype recontructio
 Two different cases must be considered:
 \begin{itemize} 
 \item The case-control status of each individual has been specified in the input file for phase and phase has been run with the -c-1 option. In this case only one input file is necessary for \rechaplo: the phase output file (let's call it out.phase). In this case, the program must be run like this: \\
-  \rechaplo -r phase -i out.phase -other\_options   
+\begin{source} 
+  \rechaploname -r \ccode{phase} -i \ucode{out.phase} -other\_options   
+\end{source}
 \item The case-control status of each individual has not been specified in the input file for phase. In this case, two input files are necessary: the phase output file (out.phase) and another file which specifies the disease status for each individual (status.phase). This file consists in two rows: the first contains the individual's ID and the second, their disease status (0=control, 1=case). In this case, the program must be run like this: \\
-  \rechaplo -r phase -i out.phase -j status.phase -other\_options 
+\begin{source}   
+  \rechaploname -r \ccode{phase} -i \ucode{out.phase} -j
+  \ucode{status.phase} -other\_options 
+\end{source}
 \end{itemize}
 
 \subsection{Using \famhap output files}
@@ -287,8 +299,10 @@ The program \rechaplo is designed to use files generated with \famhap15 (and not
 \item [P] : to make sure that all the haplotypes are present in the output file
 \end{description}
 
-Two input files are necessary: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called input\_name\_H1\_HAPLOTYPES (or input\_name\_H0\_HAPLOTYPES if the option dp is not used). In this case, the program must be run like this: \\
-  \rechaplo -r famhap -i out.famhap -j H1\_HAPLOTYPES -other\_options 
+Two input files are necessary: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called input\_name\_H1\_HAPLOTYPES. In this case, the program must be run like this: \\
+\begin{source} 
+  \rechaploname -r \ccode{famhap} -i \ucode{out.famhap} -j \ucode{H1\_HAPLOTYPES} -other\_options 
+\end{source}
 
 \section{Output files}
 Two kinds of output files can be generated depending on the phylogeny
@@ -302,6 +316,8 @@ paup file: we choose to root the tree using an ancestral sequence, but
 this is not necessary and this file should be modified according to
 your data.
 
+
+REVOIR FORMAT FICHIER
 In the output file, the name of each haplotype is formed by the
 concatenation of an haplotype number (Hxxx), and of the number of
 controls (cxxx) and cases (mxxx) carrying this haplotype. A character
@@ -361,27 +377,34 @@ H000\_anc & m000 & c000\\
 \subsection{The -h option: help}
 If the program is run with the option -h, a quick help is provided. In this help, the user will find summary of the different options.
 
-\subsection{The -r option: type of data}
-The user must specify if the data are of type DNA (ATGC) or NUM (number from 0 to 9, for the current version of the program, numbers superior to 9 cannot be used). 
+\subsection{Type of data}
+The user must specify if the data are of type DNA (ATGC) or NUM
+(number from 0 to 9, for the current version of the program, numbers
+superior to 9 cannot be used). It must be specified after the -r option. 
 
-\subsection{The -o option: name of the main output file}
-With this option, the user choose the name of the output file. If -o is omitted, the standard output will be used.
+\subsection{Name of the main output file}
+With the -o option, the user chooses the name of the output file. If -o is omitted, the standard output will be used.
 
 
  
 \chapter{\etHT}
 This program adds a new character S to each haplotype corresponding to its disease status.
 \section{Summary of the different options}
-\begin{tabular}{ll}
-  -i &Input file 1 \\
-  -o & Output file \\
-  -r & Haplotype reconstruction program\\
-  -p & proportion of cases in the sample \\
-  -s & $\sigma$ parameter \\
-  -t &  data type: SNP or DNA\\
-  -l & forces the state of character S to be ``?'' for haplotypes carried by 1 individual\\
-  -h & this help \\
-\end{tabular}
+
+\begin{options}
+  \option{--version}{program version}
+  \option{--short-help|-h}{brief help message}
+  \option{--help}{help message with options descriptions}
+  \option{--man}{full documentation}
+  \option{-i \ucode{file}}{Input file 1}
+  \option{-j \ccode{correspond.txt}}{Input file 2}
+  \option{-o \ucode{file}}{Output file} 
+  %-r & Haplotype reconstruction program\\
+  \option{-p \ucode{number}}{proportion of cases in the sample}
+  \option{-e \ucode{number}}{$\epsilon$ parameter}
+  \option{-t \ccode{DNA|SNP}}{data type: SNP or DNA}
+  \option{-l}{forces the state of character S to be ``?'' for haplotypes carried by 1 individual}
+\end{options}
 
 %\section{Description}
 %This program use a paup input file (input.paup) as input file, and generate a new paup input file (input\_et.paup) after having added a new character S to each haplotype. 
@@ -393,9 +416,9 @@ This program adds a new character S to each haplotype corresponding to its disea
 %Pb pour 1 ind.
 
 \section{Input file (-i option)}
-The input file must be a valid paup or paml input file. Mettre un exemple. The name of the input file must be specified after the -i option
+The input file must be a valid \paup or \paml input file. Mettre un exemple. The name of the input file must be specified after the -i option
 \section{Output file (-o option)}
-The output file is a paup or paml input file. The S character is coded ``G'' or ``1'' for cases and ``C'' or ``0'' for controls. The name of the output file can be specified after the -o option. If the -o option is not used, the standard output is used. 
+The output file is a \paup or \paml input file. The S character is coded ``G'' or ``1'' for cases and ``C'' or ``0'' for controls. The name of the output file can be specified after the -o option. If the -o option is not used, the standard output is used. 
 
 In the \paup input file generated, a new option is added, which excludes the character~S from the tree reconstruction process, and includes it in the table of apomorphies. If you want to use \paml, there is no such option. We advise you to reconstruct the phylogeny on the data set without the S-character by using your favorite phylogeny reconstruction program. Then, you give that tree and the data-set with the S-character to \paml to obtain the apomorphie list. 
 
@@ -404,20 +427,20 @@ In the \paup input file generated, a new option is added, which excludes the cha
 \subsection{The -h option: help}
 If the program is run with the option -h, a quick help is provided. In this help, the user will find summary of the different options.
 
-\subsection{The -p option}
+\subsection{Proportion of cases in the sample}
 The proportion of cases in the sample must be specified after the -p option
 
-\subsection{The -s option}
-Corresponds to the parameter $\sigma$ (see the description of the program in section \ref{description_etiquette}). If $\sigma$ is high, haplotypes will more often have a s-character coded ``?''. To give an idea, in our article~\cite{Bardel05}, $\sigma$ was set to 1.
+\subsection{The -e option}
+Corresponds to the parameter $\epsilon$ (see the description of the program in section \ref{description_etiquette}). If $\epsilon$ is high, haplotypes will more often have a s-character coded ``?''. To give an idea, in our article~\cite{Bardel05}, $\epsilon$ was set to 1.
 
-\subsection{The -t option}
-The -t must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
+\subsection{Data type}
+The -t option must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
 should be used if you have numerical data (typically SNP data).
  \cmd{DNA} must be used if you have DNA data (A, T, G, C).
 Warning: only numbers from 0 to 9 are allowed for microsatellite data.
 
- \subsection{The -l option}
-This option is not mandatory: if it is present, S is coded ``?'' for all the haplotypes present only once, whatever the disease status of the individual carrying it. If it is not present, the state of S will be chosen according to the formula (see section \ref{description_etiquette}). 
+ \subsection{Haplotypes carried by only 1 individual}
+This option -l is not mandatory: if it is present, S is coded ``?'' for all the haplotypes present only once, whatever the disease status of the individual carrying it. If it is not present, the state of S will be chosen according to the formula (see section \ref{description_etiquette}). 
 
 \chapter{\newchitree}
 The program can perform either an association test or a localization test. Each option has a long name (which must be preceded by --) and some of them also have a short name (which must be preceded by -).
