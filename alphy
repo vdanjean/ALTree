@@ -11,8 +11,7 @@ use Data::Dumper;
 srand;
 
 our $VERSION;
-# $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
-$VERSION = "0.9.1";
+$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 # Positionner la variable PERL5LIB si besoin
 
