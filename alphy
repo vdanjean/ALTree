@@ -228,7 +228,7 @@ sub ReadPAUP
 			$nb_br_non_nulle++;
 		    } 
 		} else {
-		    die "error in the number of columns for tab_longbranche\n";
+		    die "error in the number of columns for tab_longbranche\n $ligne\n";
 		    
 		}
 		$i++;
