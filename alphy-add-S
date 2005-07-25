@@ -6,10 +6,14 @@
 use strict;
 use diagnostics;
 use warnings;
-use Getopt::Std;
+use Getopt::Long; # qw(:config permute);
+use Pod::Usage;
+#use Getopt::Std;
 
 our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j);
 
+our $VERSION;
+$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 sub DefineAncDer {
     my $data_type=shift;
@@ -187,13 +191,43 @@ sub main
     my($progname);
     my($seuil, $test, $proportion);
     
-    getopts('ho:i:j:e:t:p:l');
-    
-    
-    if ($opt_h) {
-	($progname = $0) =~ s|^.*/([^/]*)$|$1|;
-	usage("",$progname);
-	exit (1);
+    my %options= (
+    	"first-input-file" => \$opt_i,
+	"second-input-file" => \$opt_j,
+	"output-file" => \$opt_o,
+	"epsilon" => \$opt_e,
+	"data-type" => \$opt_t,
+	"proportion" => \$opt_p,
+	"low" => \$opt_l,
+	);
+    	
+    #getopts('ho:i:j:e:t:p:l');
+    GetOptions (\%options,
+		"version",
+		"short-help|h",
+		"help",
+		"man",
+		"first-input-file|i=s",
+                "second-input-file|j=s",
+                "output-file|o=s",
+		"epsilon|e=s",
+		"data-type|t=s",
+		"proportion|p=s",
+		"low|l=s",
+		) or pod2usage(2);
+    if (defined($options{"version"})) {
+	print $0, " version ", $VERSION, "\n";
+	print "(Perl version ", $], ")\n";
+	exit 0;
+    }
+    if (defined($options{"short-help"})) {
+	pod2usage(-exitstatus => 0, -verbose => 0);
+    }
+    if (defined($options{"help"})) {
+	pod2usage(-exitstatus => 0, -verbose => 1);
+    }
+    if (defined($options{"man"})) {
+	pod2usage(-exitstatus => 0, -verbose => 2);
     }
     
     if ($opt_i) {
@@ -255,3 +289,48 @@ sub main
 
 
 main;
+
+__END__
+    
+=head1 NAME
+
+alphy-add-S - Title...
+
+=head1 SYNOPSIS
+
+alphy-add-S [options]
+
+ Options:
+    --version        program version
+    --short-help|h   brief help message
+    --help           help message with options descriptions
+    --man            full documentation
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--version>
+
+Print the program version and exits.
+
+=item B<--short-help>
+
+Print a brief help message and exits.
+
+=item B<--help>
+
+Print a help message with options descriptions and exits.
+
+=item B<--man>
+
+Prints the manual page and exits.
+
+=back
+
+=head1 DESCRIPTION
+
+B<This program> will read the given input file(s) and do someting
+useful with the contents thereof.
+
+=cut
