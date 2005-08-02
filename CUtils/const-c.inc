@@ -40,11 +40,11 @@ my $types = {map {($_, 1)} qw()};
 my @names = (qw());
 
 print constant_types(); # macro defs
-foreach (C_constant ("Alphy::CUtils", 'constant', 'IV', $types, undef, 3, @names) ) {
+foreach (C_constant ("ALTree::CUtils", 'constant', 'IV', $types, undef, 3, @names) ) {
     print $_, "\n"; # C constant subs
 }
 print "#### XS Section:\n";
-print XS_constant ("Alphy::CUtils", $types);
+print XS_constant ("ALTree::CUtils", $types);
 __END__
    */
 

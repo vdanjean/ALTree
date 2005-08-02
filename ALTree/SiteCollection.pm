@@ -1,4 +1,4 @@
-package Alphy::SiteCollection;
+package ALTree::SiteCollection;
 
 ################################################################
 ################################################################
@@ -6,7 +6,7 @@ package Alphy::SiteCollection;
 ################################################################
 ################################################################
 
-use base 'Alphy::Base';
+use base 'ALTree::Base';
 
 sub InitSiteCollection {
     my $self=shift;

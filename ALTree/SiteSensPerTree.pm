@@ -1,4 +1,4 @@
-package Alphy::SiteSensPerTree;
+package ALTree::SiteSensPerTree;
 
 ################################################################
 ################################################################
@@ -6,7 +6,7 @@ package Alphy::SiteSensPerTree;
 ################################################################
 ################################################################
 
-use base qw(Alphy::Base Alphy::SiteSens);
+use base qw(ALTree::Base ALTree::SiteSens);
 
 # Structure SiteSens
 #   "site_struct" -> Site

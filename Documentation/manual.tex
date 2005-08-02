@@ -42,14 +42,14 @@
 \newcommand{\paml}{\texttt{paml}\xspace}
 %TODO est-ce que phyml s'écrit comme ça ?
 \newcommand{\phyml}{\texttt{phyml}\xspace}
-\newcommand{\alphy}{\texttt{ALPhy}\xspace}
+\newcommand{\altree}{\texttt{ALTree}\xspace}
 \renewcommand{\thetable} {\rm\Roman{table}}
 \renewcommand{\thefigure} {\rm\Roman{figure}}
-\newcommand{\newchitree}{\texttt{ALPhy}\xspace}
-\newcommand{\etHTname}{alphy-add-S}
-\newcommand{\etHT}{\texttt{ALPhy-add-S}\xspace}
-\newcommand{\rechaploname}{alphy-convert}
-\newcommand{\rechaplo}{\texttt{ALPhy-convert}\xspace}
+\newcommand{\newchitree}{\texttt{ALTree}\xspace}
+\newcommand{\etHTname}{altree-add-S}
+\newcommand{\etHT}{\texttt{ALTree-add-S}\xspace}
+\newcommand{\rechaploname}{altree-convert}
+\newcommand{\rechaplo}{\texttt{ALTree-convert}\xspace}
 \newcommand{\acctran}{\texttt{acctran}\xspace}
 \newcommand{\deltran}{\texttt{deltran}\xspace}
 \newcommand{\chisquare}{chi-square\xspace}
@@ -106,12 +106,12 @@ General Public License.  The complete text of the GNU General Public
 License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
 
 
-%\section{Short description of the programs available in \alphy}
+%\section{Short description of the programs available in \altree}
 \begin{figure}[htbp]
   \includegraphics[width=\linewidth]{overview.fig}\centering
   
-  \caption{\alphy softwares}
-  \label{fig:alphy}
+  \caption{\altree softwares}
+  \label{fig:altree}
 \end{figure}
 \section{\newchitree}
 \subsection{Association test}
@@ -186,7 +186,7 @@ The software can run on various linux/Unix platform and on MacOS X.
 \label{sec:require}
 
 \subsection{Phylogeny reconstruction programs}
-Before using \alphy, you must build a phylogeny of the haplotypes.
+Before using \altree, you must build a phylogeny of the haplotypes.
 Three phylogeny software are compatible with our program:
 \begin{itemize}
 \item \paup~\cite{Swofford02}: available at
@@ -212,7 +212,7 @@ to compute the ML tree and then, to use \paml to estimate the
 character states at each node.
 
 \subsection{Required tools}
-\prog{perl} is required to run \alphy. \prog{perl} version 5.8.7 or
+\prog{perl} is required to run \altree. \prog{perl} version 5.8.7 or
 higher should work. Lower version can work, but it has not been
 tested.
 
@@ -740,7 +740,7 @@ The \phylip format file can be obtained by running the following command line:\\
 This command generates the file \fn{correspond.txt} and \fn{trio.prephy}. The latter is not a valid phylip format file: you have to modify it slightly according to your data and your analysis. In this example, we choose to root the tree on a consensus ancestral sequence (see~\ref{description_paup}). So, we add this ancestral sequence in \fn{trio.prephy} to form the \fn{trio.phy} file and we build an \fn{ancestors} file, containing this sequence. \phylip is then run on \fn{trio.phy} with the options \cmd{0,37} (tree rooting), \cmd{5} (states at each node are written in the output file) and \cmd{a} (ancestral states must be used). We obtain two files: \fn{outtree} containing all the trees and \fn{outfile} containing the trees and the states at each nodes.  
 
 \subsection{Association analysis}
-alphy -i outfile  -j correspond.txt  -a -t SNP --root H000\_anc --rootmeth ancestor -p phylip -b -r 100 --anc-seq 11000100010 >100\_trio\_phy.asso
+altree -i outfile  -j correspond.txt  -a -t SNP --root H000\_anc --rootmeth ancestor -p phylip -b -r 100 --anc-seq 11000100010 >100\_trio\_phy.asso
 
 
 

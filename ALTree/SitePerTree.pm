@@ -1,4 +1,4 @@
-package Alphy::SitePerTree;
+package ALTree::SitePerTree;
 
 ################################################################
 ################################################################
@@ -6,8 +6,8 @@ package Alphy::SitePerTree;
 ################################################################
 ################################################################
 
-use base qw(Alphy::Base Alphy::Site);
-use Alphy::SiteSensPerTree;
+use base qw(ALTree::Base ALTree::Site);
+use ALTree::SiteSensPerTree;
 
 # Structure SitePerTree
 #   "site_nb" -> Integer
@@ -28,7 +28,7 @@ sub New { # [classe] site_nb
 sub NewSens {
     my $self=shift;
     my $sens=shift;
-    return Alphy::SiteSensPerTree->New($sens, $self);
+    return ALTree::SiteSensPerTree->New($sens, $self);
 }
 
 sub SetCI {

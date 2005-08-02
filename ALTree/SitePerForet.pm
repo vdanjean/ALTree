@@ -1,4 +1,4 @@
-package Alphy::SitePerForet;
+package ALTree::SitePerForet;
 
 ################################################################
 ################################################################
@@ -6,7 +6,7 @@ package Alphy::SitePerForet;
 ################################################################
 ################################################################
 
-use base qw(Alphy::Base Alphy::Site);
+use base qw(ALTree::Base ALTree::Site);
 use sort '_quicksort';
 
 sub New { # [classe] site_nb
@@ -22,7 +22,7 @@ sub New { # [classe] site_nb
 sub NewSens {
     my $self=shift;
     my $sens=shift;
-    return Alphy::SiteSensPerForet->New($sens, $self);
+    return ALTree::SiteSensPerForet->New($sens, $self);
 }
 
 sub mysort {

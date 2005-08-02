@@ -1,4 +1,4 @@
-package Alphy::Foret;
+package ALTree::Foret;
 
 ################################################################
 ################################################################
@@ -6,7 +6,7 @@ package Alphy::Foret;
 ################################################################
 ################################################################
 
-use base qw(Alphy::Base Alphy::SiteCollection);
+use base qw(ALTree::Base ALTree::SiteCollection);
 
 sub New { # [classe]
     my $class=shift;
@@ -37,7 +37,7 @@ sub ProvideSite {
     my $site_nb=shift;
 
     if (not $self->HasSiteIndex($site_nb)) {
-	$self->AddSite(Alphy::SitePerForet->New($site_nb));
+	$self->AddSite(ALTree::SitePerForet->New($site_nb));
     }
     return $self->GetSite($site_nb);
 }

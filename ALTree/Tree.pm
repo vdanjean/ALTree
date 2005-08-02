@@ -1,4 +1,4 @@
-package Alphy::Tree;
+package ALTree::Tree;
 
 ################################################################
 ################################################################
@@ -6,7 +6,7 @@ package Alphy::Tree;
 ################################################################
 ################################################################
 
-use base qw(Alphy::Base Alphy::SiteCollection);
+use base qw(ALTree::Base ALTree::SiteCollection);
 
 # "nodes" -> Hash of ('id' -> Node)
 # "sites" -> Hash of ('site_nb' -> SitePerTree)

@@ -25,8 +25,8 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 # Si les modules sont installés dans les emplacements standard de
 # perl, c'est inutile
 
-use Alphy::Chi2 ();
-use Alphy::Import;
+use ALTree::Chi2 ();
+use ALTree::Import;
 #use Newchi2treeUtils;
 
 ###########################################
@@ -278,7 +278,7 @@ sub ReadPAUP
 	    }
 	    if ($has_sens) {
 		$sens_chgt =~ s/=/-/g;
-		$tab_infoapo[$j]->[5]=Alphy::Sens->New($sens_chgt); # direction of the change 
+		$tab_infoapo[$j]->[5]=ALTree::Sens->New($sens_chgt); # direction of the change 
 		$j++;
 	    }
 	}
@@ -405,7 +405,7 @@ sub ReadPAML
       		#$tab_infoapo[$j]->[3]=; # CI
 		$tab_infoapo[$j]->[4]=1; # nb steps =1 for SNPs 
 		my($sens_chgt)=$2."->".$3;
-		$tab_infoapo[$j]->[5]=Alphy::Sens->New($sens_chgt); # direction of the change 
+		$tab_infoapo[$j]->[5]=ALTree::Sens->New($sens_chgt); # direction of the change 
 		$j++;
 	    }
 	}
@@ -424,7 +424,7 @@ sub ReadPAML
 sub TreeBuilding{
     my($tab_longbranche)=shift;
     my($i);
-    my($tree)=Alphy::Tree->New();
+    my($tree)=ALTree::Tree->New();
 
     #print "TreeBuilding\n";
     for ($i=0;$i<=$#$tab_longbranche;$i++) {
@@ -439,13 +439,13 @@ sub TreeBuilding{
 	my $pere;
 	my $fils;
 	if (not $tree->HasNodeIndex($fils_id)) {
-	    $fils=Alphy::Node->New($fils_id); #creation de la structure Node
+	    $fils=ALTree::Node->New($fils_id); #creation de la structure Node
 	    $tree->AddNode($fils);     # puis, on la met dans tree
 	} else {
 	    $fils=$tree->GetNode($fils_id);
 	}
 	if (not $tree->HasNodeIndex($pere_id)) {
-	    $pere=Alphy::Node->New($pere_id); #creation de la structure Node
+	    $pere=ALTree::Node->New($pere_id); #creation de la structure Node
 	    $tree->AddNode($pere);     # puis, on la met dans tree
 	} else {
 	    $pere=$tree->GetNode($pere_id);
@@ -492,7 +492,7 @@ sub FillTreeApoInfoPAUP
 	
 	my $site;
 	if (not $tree->HasSiteIndex($apo_num)) { 
-	    $site=Alphy::SitePerTree->New($apo_num);
+	    $site=ALTree::SitePerTree->New($apo_num);
 	    $tree->AddSite($site);
 	    if (defined $apo_CI) { # For PAML trees, CI is not defined
 		$site->SetCI($apo_CI);
@@ -561,10 +561,10 @@ sub FillTreeApo2Phylip
 	elsif ($fathersite ne $childsite) {
 	    $br_len++;
 	    my($apo_num)=$i+1;
-	    my($apo_sens)=Alphy::Sens->New($fathersite."->".$childsite);
+	    my($apo_sens)=ALTree::Sens->New($fathersite."->".$childsite);
 	    my $site;
 	    if (not $tree->HasSiteIndex($apo_num)) { 
-       		$site=Alphy::SitePerTree->New($apo_num);
+       		$site=ALTree::SitePerTree->New($apo_num);
 		$tree->AddSite($site);
 	    } else {
 		$site=$tree->GetSite($apo_num);
@@ -777,27 +777,27 @@ sub CalculChi2
 	    $test_results->{"texte"}=
 		"No cases,  ($sum_control controls)";
 	    if ($sign_util==SignUtil::YES) {
-		$significatif=Alphy::Chi2::NON_SIGNIFICATIF;
+		$significatif=ALTree::Chi2::NON_SIGNIFICATIF;
 	    }
 	} elsif ($error == 2) {
 	    $test_results->{"texte"}="No controls: only $sum_case cases";
 	    if ($sum_case>=Seuil::ONLY_CASE) {
 		 if ($sign_util==SignUtil::YES) {
 		     $significatif=1;
-		     $test_results->{"sign"}=Alphy::Chi2::SIGNIFICATIF;
+		     $test_results->{"sign"}=ALTree::Chi2::SIGNIFICATIF;
 		 }
 	    } else {
 		if ($sign_util==SignUtil::YES) {
 		    $significatif=0;
-		    $test_results->{"sign"}=Alphy::Chi2::NON_SIGNIFICATIF;
+		    $test_results->{"sign"}=ALTree::Chi2::NON_SIGNIFICATIF;
 		}	
 	    }
-	    #$test_results->{"sign"}=Alphy::Chi2::NON_SIGNIFICATIF;
+	    #$test_results->{"sign"}=ALTree::Chi2::NON_SIGNIFICATIF;
 	} elsif ($error == 4) {
 	    $test_results->{"texte"}="Only one clade";
 	    if ($sign_util==SignUtil::YES) {		
 		$significatif=0;
-		$test_results->{"sign"}=Alphy::Chi2::NON_SIGNIFICATIF;
+		$test_results->{"sign"}=ALTree::Chi2::NON_SIGNIFICATIF;
 	    }
 	    # Manque plein de trucs par rapport à la fonction dans chi2tree...
 	} else {
@@ -808,12 +808,12 @@ sub CalculChi2
 	    $test_results->{"warning"}="Small sample size correction used";   
 	    # J'ai pas compté dans combien de branches...
 	    if ($ddl == 1) {
-		$p_value=Alphy::CUtils::bilateral($tabnodes_a_traiter->[0]->{"case"},
+		$p_value=ALTree::CUtils::bilateral($tabnodes_a_traiter->[0]->{"case"},
 					   $tabnodes_a_traiter->[0]->{"control"},
 					   $tabnodes_a_traiter->[1]->{"case"},
 					   $tabnodes_a_traiter->[1]->{"control"});
 		if ($sign_util==SignUtil::YES) {
-		    $significatif=Alphy::Chi2::chi2_fisher_significatif($p_value);
+		    $significatif=ALTree::Chi2::chi2_fisher_significatif($p_value);
 		}
 	    } else {
 		my(@clades, $node);
@@ -823,34 +823,34 @@ sub CalculChi2
 		    # totaux des différents clades à utiliser dans le
 		    # réechantillonnage
 		}
-		($p_value)= Alphy::Chi2::reech_chi2($sum_case, $sum_control,
+		($p_value)= ALTree::Chi2::reech_chi2($sum_case, $sum_control,
 					     $ddl+1, $chi2, \@clades);
 		$test_results->{"warning"}.=" ($p_value)";
 		if ($sign_util==SignUtil::YES) {
-		    $significatif= Alphy::Chi2::reech_significatif ($p_value);
+		    $significatif= ALTree::Chi2::reech_significatif ($p_value);
 		    if ($significatif != 
-			Alphy::Chi2::chi2_significatif($ddl, $chi2)) {
+			ALTree::Chi2::chi2_significatif($ddl, $chi2)) {
 			$test_results->{"warning"}.=" Result has changed !";
 		    }
 		}
 	    }
 	} else {
 	    if ($sign_util==SignUtil::YES) {
-		$significatif=Alphy::Chi2::chi2_significatif($ddl, $chi2);
+		$significatif=ALTree::Chi2::chi2_significatif($ddl, $chi2);
 	    }
 	    #my $p=`pochisq $chi2 $ddl`+0; # Verif que les 2 appellent 
 	                                   #bien la même chose!
-	    $p_value=Alphy::CUtils::pochisq($chi2,$ddl);
+	    $p_value=ALTree::CUtils::pochisq($chi2,$ddl);
 	    #if ($p != $p_value) {
 	    #print STDERR "pochisq: $p != $p_value !\n";
 	    #}
 	}
 	if ($sign_util==SignUtil::YES) {
 	    if ($significatif) {
-		$test_results->{"sign"}=Alphy::Chi2::SIGNIFICATIF;
+		$test_results->{"sign"}=ALTree::Chi2::SIGNIFICATIF;
 	    #$test_results->{"texte"}.="significatif";
 	    } else {
-		$test_results->{"sign"}=Alphy::Chi2::NON_SIGNIFICATIF;
+		$test_results->{"sign"}=ALTree::Chi2::NON_SIGNIFICATIF;
 		# $test_results->{"texte"}.="non significatif";
 	    }
 	}
@@ -1205,9 +1205,9 @@ sub InfosAffichees
 		    }
 		    if ($mode ==2) {
 			if (defined($test->{"sign"})) {
-			    if ($test->{"sign"} == Alphy::Chi2::NON_SIGNIFICATIF) {
+			    if ($test->{"sign"} == ALTree::Chi2::NON_SIGNIFICATIF) {
 				$chaine .= " (non significatif)";
-			    } elsif ($test->{"sign"} == Alphy::Chi2::SIGNIFICATIF) {
+			    } elsif ($test->{"sign"} == ALTree::Chi2::SIGNIFICATIF) {
 				$chaine .= " (significatif)";
 			    } else {
 				die "Internal error : unknown value ".
@@ -1779,8 +1779,8 @@ sub manage_options
 		) or pod2usage(2);
     if (defined($options{"version"})) {
 	print $0, " version ", $VERSION, "\n";
-	print "(CUtils version ", $Alphy::CUtils::VERSION, 
-	"; chi2.pm version ", $Alphy::Chi2::VERSION,
+	print "(CUtils version ", $ALTree::CUtils::VERSION, 
+	"; chi2.pm version ", $ALTree::Chi2::VERSION,
 	"; Perl version ", $], ")\n";
 	exit 0;
     }
@@ -1955,7 +1955,7 @@ sub main
 	if ($permutation==0) {
 	    my($seuil_chi2)=$option_value->("chi2-threshold", 0.01, 
 					    "Using default chi2 threshold 0.01");
-	    Alphy::Chi2::definition_p_chi2($seuil_chi2, 0.01); # mettre une option 
+	    ALTree::Chi2::definition_p_chi2($seuil_chi2, 0.01); # mettre une option 
 	    # pour seuil test_prop
 	    $sign_util = SignUtil::YES # on a besoin de la significativité
 	    } elsif ($permutation>0) {
@@ -1974,7 +1974,7 @@ sub main
 		($value_per_line, $ligne_chi2)=RepeatAssociation
 		    ($tree, $correspondance, $prolonge,$permutation, $sign_util);
 		my($corrected_values);
-		$corrected_values=Alphy::CUtils::double_permutation
+		$corrected_values=ALTree::CUtils::double_permutation
 		    ($permutation+1, $value_per_line, $ligne_chi2);
 		
 		print "\n";
@@ -2018,8 +2018,8 @@ sub main
 	}
 	my($s_anc)=$1;
 	my($s_der)=$2;
-	my($s_state)= Alphy::Sens->New($s_anc." --> ".$s_der);
-	my($foret)=Alphy::Foret->New();
+	my($s_state)= ALTree::Sens->New($s_anc." --> ".$s_der);
+	my($foret)=ALTree::Foret->New();
 	
 	#$Data::Dumper::Indent = 0;
 	for (my($i)=0; $i<$trees_to_analyse; $i++) {
@@ -2105,11 +2105,11 @@ __END__
     
 =head1 NAME
 
-alphy - Analysing phylogeny trees
+altree - Analysing phylogeny trees
 
 =head1 SYNOPSIS
 
-alphy [options]
+altree [options]
 
  Options:
     --version        program version

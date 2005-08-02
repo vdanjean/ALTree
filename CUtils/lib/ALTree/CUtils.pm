@@ -1,4 +1,4 @@
-package Alphy::CUtils;
+package ALTree::CUtils;
 
 use 5.008;
 use strict;
@@ -14,7 +14,7 @@ our @ISA = qw(Exporter);
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 
-# This allows declaration	use Alphy::CUtils ':all';
+# This allows declaration	use ALTree::CUtils ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
@@ -40,7 +40,7 @@ sub AUTOLOAD {
     my $constname;
     our $AUTOLOAD;
     ($constname = $AUTOLOAD) =~ s/.*:://;
-    croak "&Alphy::CUtils::constant not defined" if $constname eq 'constant';
+    croak "&ALTree::CUtils::constant not defined" if $constname eq 'constant';
     my ($error, $val) = constant($constname);
     if ($error) { croak $error; }
     {
@@ -57,7 +57,7 @@ sub AUTOLOAD {
 }
 
 require XSLoader;
-XSLoader::load('Alphy::CUtils', $VERSION);
+XSLoader::load('ALTree::CUtils', $VERSION);
 
 # Preloaded methods go here.
 
@@ -69,16 +69,16 @@ __END__
 
 =head1 NAME
 
-Alphy::CUtils - Perl extension for blah blah blah
+ALTree::CUtils - Perl extension for blah blah blah
 
 =head1 SYNOPSIS
 
-  use Alphy::CUtils;
+  use ALTree::CUtils;
   blah blah blah
 
 =head1 DESCRIPTION
 
-Stub documentation for Alphy::CUtils, created by h2xs. It looks like the
+Stub documentation for ALTree::CUtils, created by h2xs. It looks like the
 author of the extension was negligent enough to leave the stub
 unedited.
 

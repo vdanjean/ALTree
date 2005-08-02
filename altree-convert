@@ -558,11 +558,11 @@ __END__
     
 =head1 NAME
 
-alphy-convert - Title...
+altree-convert - Title...
 
 =head1 SYNOPSIS
 
-alphy-convert [options]
+altree-convert [options]
 
  Options:
     --version        program version

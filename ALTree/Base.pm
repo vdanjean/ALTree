@@ -1,4 +1,4 @@
-package Alphy::Base;
+package ALTree::Base;
 
 ###########################################
 ########  MAIN DATA STRUCTURES    #########

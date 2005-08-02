@@ -2,6 +2,7 @@
 \bRCS\b
 \bCVS\b
 ,v$
+.cvsignore$
 
 # Makemaker generated files and dirs.
 ^MANIFEST\.
@@ -17,7 +18,7 @@
 ^\.#
 
 # Distributions
-^alphy-.*\.tar\.gz$
+^altree-.*\.tar\.gz$
 
 # Documentation
 ^Documentation/fig/.*\.pdftex(_t)?$

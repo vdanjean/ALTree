@@ -10,7 +10,7 @@
 
 #include "const-c.inc"
 
-MODULE = Alphy::CUtils		PACKAGE = Alphy::CUtils		
+MODULE = ALTree::CUtils		PACKAGE = ALTree::CUtils		
 
 INCLUDE: const-xs.inc
 

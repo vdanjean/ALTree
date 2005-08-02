@@ -2,7 +2,7 @@
 
 Begin trees;  [Treefile saved Tue Jul  5 16:13:26 2005]
 [!
->Data file = /home/cbardel/recherche/logiciel/alphy/Documentation/example_files/phase/localisation/et_caco.paup
+>Data file = /home/cbardel/recherche/logiciel/altree/Documentation/example_files/phase/localisation/et_caco.paup
 >Heuristic search settings:
 >  Optimality criterion = parsimony
 >    Character-status summary:

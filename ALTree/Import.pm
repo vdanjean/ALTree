@@ -1,13 +1,13 @@
-package Alphy::Import;
+package ALTree::Import;
 
 use strict;
-use Alphy::Sens;
-use Alphy::Tree;
-use Alphy::Foret;
-use Alphy::Node;
-use Alphy::SitePerTree;
-use Alphy::SitePerForet;
-use Alphy::SiteSensPerForet;
+use ALTree::Sens;
+use ALTree::Tree;
+use ALTree::Foret;
+use ALTree::Node;
+use ALTree::SitePerTree;
+use ALTree::SitePerForet;
+use ALTree::SiteSensPerForet;
 
 BEGIN {
     use Exporter   ();

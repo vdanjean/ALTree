@@ -1,12 +1,12 @@
 # Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl Alphy-CUtils.t'
+# `make test'. After `make install' it should work as `perl ALTree-CUtils.t'
 
 #########################
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More tests => 1;
-BEGIN { use_ok('Alphy::CUtils') };
+BEGIN { use_ok('ALTree::CUtils') };
 
 #########################
 

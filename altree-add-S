@@ -294,11 +294,11 @@ __END__
     
 =head1 NAME
 
-alphy-add-S - Title...
+altree-add-S - Title...
 
 =head1 SYNOPSIS
 
-alphy-add-S [options]
+altree-add-S [options]
 
  Options:
     --version        program version
