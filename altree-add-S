@@ -104,6 +104,7 @@ sub travail
 		#	die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
 		 #   }
 		$nom=$tableau[0];
+	#	print "$nom\n";
 		$malade=$correspondance->{$nom}->{"case"};
 		$temoin=$correspondance->{$nom}->{"control"};
 	#	print " $nom mal=$malade\n";   
@@ -213,7 +214,7 @@ sub main
 		"epsilon|e=s",
 		"data-type|t=s",
 		"proportion|p=s",
-		"low|l=s",
+		"low|l!",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
 	print $0, " version ", $VERSION, "\n";
