@@ -185,11 +185,12 @@ sub ReadPAUP
 	    $marqueur=1;
 	}
 	if ($ligne =~ /^\s*Sum/) {
-	   # print "marqueur=$marqueur\n";
+	    # print "marqueur=$marqueur\n";
 	    $marqueur=0;
 	}
 	if ($ligne =~ /^Apomorphy lists:/) {
 	    $marqueur=2;
+	    next;
 	} 
 	
 	if ($marqueur==1) {
@@ -238,44 +239,73 @@ sub ReadPAUP
 	my($sens_chgt);
 	if ($marqueur==2) {
 	    my $has_sens=0;
-	    if ($ligne =~ /^\s+node_/) {
-		$ligne =~ s/^\s+//;
-		@tableau=split(/\s+/, $ligne);
-		my $size=-1;
-		if ($tableau[2] =~ /node_[0-9]+/) {
-		    $modificateur=0;
-		    $size=9;
-		} elsif ($tableau[2] =~ /H000/) {
-		    $modificateur=1;
-		    $size=10;
-		}elsif ($tableau[2] =~ /(H[0-9][0-9][1-9])|(H[0-9][1-9][0-9])|(H[1-9][0-9][0-9])/) {
-		    $modificateur=2;
-		    $size=11;
-		} 
-		if (scalar (@tableau) != $size) {
-		    #print Dumper(@tableau);
-		    erreur ("Cannot parse line '$ligne'\n", 0);
-		}
-		$tableau[2]=~ s/node_//g;
-		$tableau[0]=~ s/node_//g;
-		$tab_infoapo[$j]->[0]=$tableau[0]; # father
-		$tab_infoapo[$j]->[1]=$tableau[2]; # son
-		$tab_infoapo[$j]->[2]=$tableau[3+$modificateur]; # apomorphie number
-		$tab_infoapo[$j]->[3]=$tableau[5+$modificateur]; # CI
-		$tab_infoapo[$j]->[4]=$tableau[4+$modificateur]; # nb steps 
-		$sens_chgt = join(' ', $tableau[6+$modificateur], 
-				  $tableau[7+$modificateur], 
-				  $tableau[8+$modificateur]);
-		$has_sens=1;
-	    } elsif ($ligne =~ /\s+([0-9]+)\s+([0-9]+)\s+([0-1]\.[0-9]+)\s+([0-9A-Za-z] [=-][=-]> [0-9A-Za-z])/) {
-		$tab_infoapo[$j]->[0]=$tab_infoapo[$j-1]->[0]; # father
-		$tab_infoapo[$j]->[1]=$tab_infoapo[$j-1]->[1]; # son
-		$tab_infoapo[$j]->[2]=$1; # apomorphie number
-		$tab_infoapo[$j]->[3]=$3; # CI
-		$tab_infoapo[$j]->[4]=$2; # nb steps per branches
-		$sens_chgt=$4;
-		$has_sens=1;
+	    my($position)=0;
+	    if ($ligne =~ /^\s*$/ || $ligne =~ /^\s*------------------/) {
+		next;
+	    } 
+	    
+	    if ($ligne =~ /^\s+Branch/) {
+		$position = index($ligne, "Character");
+		print STDERR "position = $position\n";
+		next;
 	    }
+	    if ($ligne =~ /root/) {
+		next;
+	    }
+	    my $name_haplo = substr($ligne,0,$position-1);
+	    print STDERR $name_haplo, ":name_haplo\n";
+	    my $infos = substr($ligne,$position);
+	    my @tab_name = split(/ --> /, $name_haplo);
+	    $tab_name[0] = s/\s*node_//g;
+	    $tab_infoapo[$j]->[0]=$tab_name[0]; # father
+	    $tab_name[1] = s/ /_/g;
+	    $tab_infoapo[$j]->[1]=$tab_name[1]; # son
+	    my @tab_infos=split(/\s+/, $infos);
+	    $tab_infoapo[$j]->[2]=$tab_infos[0]; # apomorphie number
+	    $tab_infoapo[$j]->[3]=$tab_infos[2]; # CI
+	    $tab_infoapo[$j]->[4]=$tab_infos[1]; # nb steps 
+	    $sens_chgt = join(' ', $tab_infos[3], $tab_infos[4], $tab_infos[5]);
+	    print STDERR $tab_infoapo[$j]->[0], ":father ", $tab_infoapo[$j]->[1]=$tab_name[1], ":son  ",$tab_infoapo[$j]->[2]=$tab_infos[0], ":aponum ",  $tab_infoapo[$j]->[3]=$tab_infos[2], ":CI ", $tab_infoapo[$j]->[4]=$tab_infos[1], ":nbstep ", $sens_chgt, ":sens\n";    
+	    $has_sens=1;
+	    
+	    #   if ($ligne =~ /^\s+node_/) {
+	    #	$ligne =~ s/^\s+//;
+	    #	@tableau=split(/\s+/, $ligne);
+	    #	my $size=-1;
+	    #	if ($tableau[2] =~ /node_[0-9]+/) {
+	    #	    $modificateur=0;
+	    #	    $size=9;
+	    #	} elsif ($tableau[2] =~ /H000/) {
+	    #	    $modificateur=1;
+	    #	    $size=10;
+	    #	}elsif ($tableau[2] =~ /(H[0-9][0-9][1-9])|(H[0-9][1-9][0-9])|(H[1-9][0-9][0-9])/) {
+	    #	    $modificateur=2;
+	    #	    $size=11;
+	    #	} 
+	    #	if (scalar (@tableau) != $size) {
+	    #	    #print Dumper(@tableau);
+	    #	    erreur ("Cannot parse line '$ligne'\n", 0);
+	    #	}
+	    #	$tableau[2]=~ s/node_//g;
+	    #	$tableau[0]=~ s/node_//g;
+	    #	$tab_infoapo[$j]->[0]=$tableau[0]; # father
+	    #	$tab_infoapo[$j]->[1]=$tableau[2]; # son
+	    #	$tab_infoapo[$j]->[2]=$tableau[3+$modificateur]; # apomorphie number
+	    #	$tab_infoapo[$j]->[3]=$tableau[5+$modificateur]; # CI
+	    #	$tab_infoapo[$j]->[4]=$tableau[4+$modificateur]; # nb steps 
+	    #	$sens_chgt = join(' ', $tableau[6+$modificateur], 
+	    #			  $tableau[7+$modificateur], 
+	    #			  $tableau[8+$modificateur]);
+	    #	$has_sens=1;
+	    #    } elsif ($ligne =~ /\s+([0-9]+)\s+([0-9]+)\s+([0-1]\.[0-9]+)\s+([0-9A-Za-z] [=-][=-]> [0-9A-Za-z])/) {
+	    #	$tab_infoapo[$j]->[0]=$tab_infoapo[$j-1]->[0]; # father
+	    #	$tab_infoapo[$j]->[1]=$tab_infoapo[$j-1]->[1]; # son
+	    #	$tab_infoapo[$j]->[2]=$1; # apomorphie number
+	    #	$tab_infoapo[$j]->[3]=$3; # CI
+	    #	$tab_infoapo[$j]->[4]=$2; # nb steps per branches
+	    #	$sens_chgt=$4;
+	    #	$has_sens=1;
+	    #    }
 	    if ($has_sens) {
 		$sens_chgt =~ s/=/-/g;
 		$tab_infoapo[$j]->[5]=ALTree::Sens->New($sens_chgt); # direction of the change 
@@ -285,7 +315,7 @@ sub ReadPAUP
 	
     }
     splice(@{$tab_arbres}, $num_arbre, 1);
-   # print "nb_non_nul=$nb_br_non_nulle\n";
+    # print "nb_non_nul=$nb_br_non_nulle\n";
     return (\@tab_longbranche, \@tab_infoapo, $nb_br_non_nulle);
 }
 
