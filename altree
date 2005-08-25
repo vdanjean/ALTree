@@ -180,6 +180,7 @@ sub ReadPAUP
     my($j)=0;
     my($nb_br_non_nulle)=0;
     my ($position)=0;
+    my($pos)=0;
     foreach $ligne (@{$tab_arbres->[$num_arbre]}) {
 	
 	if ($ligne =~ /^\s+Node\s+to node/) {
@@ -195,47 +196,73 @@ sub ReadPAUP
 	} 
 	
 	if ($marqueur==1) {
-	    $ligne =~ s/^\s+//;
+	   # $ligne =~ s/^\s+//;
 	    if ($ligne =~ /root/) {
 		next;
 	    }
-	    if ($ligne =~ /^[0-9]+/) {
-		@tableau=split(/\s+/, $ligne);
-		if ($#tableau != 4) {
-		    die "error: not 5 columns, $#tableau columns\n";
-		} else { 	
-		    $tab_longbranche[$i]->[0]= $tableau[1]; #father
-		    $tab_longbranche[$i]->[1]= $tableau[0]; #son
-		    $tab_longbranche[$i]->[2]= $tableau[2]; #branch length
-		    if ($tableau[2] != 0) {
-			$nb_br_non_nulle++;
-		    }
-		    $i++;
+	    if ($ligne =~ /---------------------------/) {
+		next;
+	    }
+	    if ($ligne =~ /Node\s+to node/) {
+		$pos = index($ligne, "to node"); 
+		print STDERR "pos = $pos\n";
+		next;
+	    }	
+	    my $son = substr($ligne,0,$pos-1);
+	 #   print STDERR "son1:$son\n";
+	    my $other_infos = substr($ligne,$pos);
+	    $other_infos =~ s/^\s*//;
+	 #   print STDERR "otherinfos:$other_infos\n";
+	    $son =~ /\s*([^\(\)]*\S)\s\(?[0-9]*\)?\s*$/; #Revoir avec Vince
+	    $tab_longbranche[$i]->[1]= $1; #son
+	    my @tableau = split(/\s+/,  $other_infos);
+	    if ($#tableau != 3) {
+		die "error: not 4 columns, $#tableau columns\n";
+	    } else { 
+		$tab_longbranche[$i]->[0]= $tableau[0]; #father
+		$tab_longbranche[$i]->[2]= $tableau[1]; #branch length
+		if ($tableau[2] != 0) {
+		    $nb_br_non_nulle++;
 		}
 	    }
-	    if ($ligne =~ /^H[0-9]+\s+/) {
-		@tableau=split(/\s+/, $ligne);	
-		if ($#tableau == 7) { 
-		    $tab_longbranche[$i]->[0]= $tableau[4]; #father
-		    $tab_longbranche[$i]->[1]= $tableau[0]; #son
-		    $tab_longbranche[$i]->[2]= $tableau[5]; #branch length
-		    if ($tableau[5] != 0) {
-			$nb_br_non_nulle++;
-		    } 
-		} elsif ( $#tableau == 6) {   
-		    $tab_longbranche[$i]->[0]= $tableau[3]; #father
-		    $tab_longbranche[$i]->[1]= $tableau[0]; #son
-		    $tab_longbranche[$i]->[2]= $tableau[4]; #branch length
-		    if ($tableau[4] != 0) {
-			$nb_br_non_nulle++;
-		    } 
-		} else {
-		    die "error in the number of columns for tab_longbranche\n $ligne\n";
-		    
-		}
-		$i++;
-	    }
+	    print STDERR "father:", $tab_longbranche[$i]->[0], " son:", $tab_longbranche[$i]->[1], " brlen", $tab_longbranche[$i]->[2], "\n";
+	    #if ($ligne =~ /^[0-9]+/) {
+	#	@tableau=split(/\s+/, $ligne);
+	#	if ($#tableau != 4) {
+	#	    die "error: not 5 columns, $#tableau columns\n";
+	#	} else { 	
+	#	    $tab_longbranche[$i]->[0]= $tableau[1]; #father
+	#	    $tab_longbranche[$i]->[1]= $tableau[0]; #son
+	#	    $tab_longbranche[$i]->[2]= $tableau[2]; #branch length
+	#	    if ($tableau[2] != 0) {
+	#		$nb_br_non_nulle++;
+	#	    }
+	#	    $i++;
+	#	}
+	#    }
+	#    if ($ligne =~ /^H[0-9]+\s+/) {
+	#	@tableau=split(/\s+/, $ligne);	
+	#	if ($#tableau == 7) { 
+	#	    $tab_longbranche[$i]->[0]= $tableau[4]; #father
+	#	    $tab_longbranche[$i]->[1]= $tableau[0]; #son
+	#	    $tab_longbranche[$i]->[2]= $tableau[5]; #branch length
+	#	    if ($tableau[5] != 0) {
+	#		$nb_br_non_nulle++;
+	#	    } 
+#		} elsif ( $#tableau == 6) {   
+#		    $tab_longbranche[$i]->[0]= $tableau[3]; #father
+	#	    $tab_longbranche[$i]->[1]= $tableau[0]; #son
+	#	    $tab_longbranche[$i]->[2]= $tableau[4]; #branch length
+	#	    if ($tableau[4] != 0) {
+	#		$nb_br_non_nulle++;
+	#	    } 
+	#	} else {
+	#	    die "error in the number of columns for tab_longbranche\n $ligne\n";
+	#	    
+	#	}
+	    $i++;
 	}
+
 	my($modificateur)=0;
 	my($sens_chgt);
 	
@@ -247,7 +274,7 @@ sub ReadPAUP
 	    
 	    if ($ligne =~ /^\s+Branch/) {
 		$position = index($ligne, "Character");
-		print STDERR "position = $position\n";
+	#	print STDERR "position = $position\n";
 		next;
 	    }
 	    if ($ligne =~ /root/) {
@@ -262,14 +289,16 @@ sub ReadPAUP
 	    $tab_infoapo[$j]->[3]=$tab_infos[2]; # CI
 	    $tab_infoapo[$j]->[4]=$tab_infos[1]; # nb steps 
 	    $sens_chgt = join(' ', $tab_infos[3], $tab_infos[4], $tab_infos[5]);
-	    if ($name_haplo =~ /^\s+(node_.*?)\s+$/) { # le ? c'est pour que l'opérateur * ne soit pas gourmand
+	    if ($name_haplo =~ /^\s*(node_.*\S)\s*$/) { 
 		$name_haplo= $1;
-		print $name_haplo, "\n";
 		my @tab_name = split(/ --> /, $name_haplo);
-		#print STDERR "tab0:$tab_name[0]\n";
+	#	print STDERR "tab0:$tab_name[0]\n";
+		$tab_name[0]=~ s/node_//g;
+	#	print STDERR "2tab0:$tab_name[0]\n";
+		$tab_name[1]=~ s/node_//g;
 		$tab_infoapo[$j]->[0]=$tab_name[0]; # father
 		#print STDERR "tab1:$tab_name[1]\n";
-		$tab_name[1] =~ s/\s/_/g;	
+	#	$tab_name[1] =~ s/\s/_/g;	
 		#print STDERR "2tab1:$tab_name[1]\n";
 		$tab_infoapo[$j]->[1]=$tab_name[1]; # son
 	    } elsif ($name_haplo =~ /^\s*$/) {
@@ -524,7 +553,9 @@ sub FillTreeApoInfoPAUP
 	    die "unknown node: $pere_id or $fils_id\n";
 	}
 	my $pere=$tree->GetNode($pere_id);
+	#print $pere->Name();
 	my $fils=$tree->GetNode($fils_id);
+	print STDERR "fils =  $fils_id, pere=$pere_id\n";
 	if ($fils->GetFather() != $pere) {
 	    die ("Inconsistant data while analysing apomophy informations:\n".
 		 "=> node '$fils_id' is not the son of '$pere_id', but of '",
