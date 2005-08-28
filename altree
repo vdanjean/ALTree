@@ -197,15 +197,15 @@ sub ReadPAUP
 	
 	if ($marqueur==1) {
 	   # $ligne =~ s/^\s+//;
-	    if ($ligne =~ /root/) {
-		next;
-	    }
+	    #if ($ligne =~ /root/) {
+	#	next;
+	 #   }
 	    if ($ligne =~ /---------------------------/) {
 		next;
 	    }
 	    if ($ligne =~ /Node\s+to node/) {
 		$pos = index($ligne, "to node"); 
-		print STDERR "pos = $pos\n";
+		#print STDERR "pos = $pos\n";
 		next;
 	    }	
 	    my $son = substr($ligne,0,$pos-1);
@@ -225,7 +225,7 @@ sub ReadPAUP
 		    $nb_br_non_nulle++;
 		}
 	    }
-	    print STDERR "father:", $tab_longbranche[$i]->[0], " son:", $tab_longbranche[$i]->[1], " brlen", $tab_longbranche[$i]->[2], "\n";
+	    #print STDERR "father:", $tab_longbranche[$i]->[0], " son:", $tab_longbranche[$i]->[1], " brlen", $tab_longbranche[$i]->[2], "\n";
 	    #if ($ligne =~ /^[0-9]+/) {
 	#	@tableau=split(/\s+/, $ligne);
 	#	if ($#tableau != 4) {
@@ -277,10 +277,10 @@ sub ReadPAUP
 	#	print STDERR "position = $position\n";
 		next;
 	    }
-	    if ($ligne =~ /root/) {
-		next;
-	    }
-	    print STDERR $ligne, "\n";
+	    #if ($ligne =~ /root/) {
+	#	next;
+	 #   }
+	    #print STDERR $ligne, "\n";
 	    my $name_haplo = substr($ligne,0,$position-1);
 	    my $infos = substr($ligne,$position);
 	    #print STDERR "infos:$infos\n";
@@ -289,7 +289,7 @@ sub ReadPAUP
 	    $tab_infoapo[$j]->[3]=$tab_infos[2]; # CI
 	    $tab_infoapo[$j]->[4]=$tab_infos[1]; # nb steps 
 	    $sens_chgt = join(' ', $tab_infos[3], $tab_infos[4], $tab_infos[5]);
-	    if ($name_haplo =~ /^\s*(node_.*\S)\s*$/) { 
+	    if ($name_haplo =~ /^\s*((root|node_).*\S)\s*$/) { 
 		$name_haplo= $1;
 		my @tab_name = split(/ --> /, $name_haplo);
 	#	print STDERR "tab0:$tab_name[0]\n";
@@ -304,8 +304,10 @@ sub ReadPAUP
 	    } elsif ($name_haplo =~ /^\s*$/) {
 		$tab_infoapo[$j]->[0] = $tab_infoapo[$j-1]->[0]; # father
 		$tab_infoapo[$j]->[1] = $tab_infoapo[$j-1]->[1]; #son	
+	    } else {
+		die "Unknown line $name_haplo\n";
 	    }
-	    print STDERR $tab_infoapo[$j]->[0], ":father ", $tab_infoapo[$j]->[1], ":son  ",$tab_infoapo[$j]->[2]=$tab_infos[0], ":aponum ",  $tab_infoapo[$j]->[3]=$tab_infos[2], ":CI ", $tab_infoapo[$j]->[4]=$tab_infos[1], ":nbstep ", $sens_chgt, ":sens\n"; 
+	    #print STDERR $tab_infoapo[$j]->[0], ":father ", $tab_infoapo[$j]->[1], ":son  ",$tab_infoapo[$j]->[2]=$tab_infos[0], ":aponum ",  $tab_infoapo[$j]->[3]=$tab_infos[2], ":CI ", $tab_infoapo[$j]->[4]=$tab_infos[1], ":nbstep ", $sens_chgt, ":sens\n"; 
 	    
 	    $has_sens=1;
 	    
@@ -555,7 +557,7 @@ sub FillTreeApoInfoPAUP
 	my $pere=$tree->GetNode($pere_id);
 	#print $pere->Name();
 	my $fils=$tree->GetNode($fils_id);
-	print STDERR "fils =  $fils_id, pere=$pere_id\n";
+	#print STDERR "fils =  $fils_id, pere=$pere_id\n";
 	if ($fils->GetFather() != $pere) {
 	    die ("Inconsistant data while analysing apomophy informations:\n".
 		 "=> node '$fils_id' is not the son of '$pere_id', but of '",
