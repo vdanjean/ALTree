@@ -1665,12 +1665,12 @@ sub check_tree_numbers
     if (defined($tree_numbers)) {
 	for my $tree_num (@{$tree_numbers}) {
 	    if ($tree_num < 1) {
-		error("Invalid tree-to-analyse $tree_num\n", 0);
+		erreur("Invalid tree-to-analyse $tree_num\n", 0);
 	    } elsif ($tree_num > $num_tree_in_file) {
-		error("Invalid tree-to-analyse $tree_num (only $num_tree_in_file in file)\n", 0);
+		erreur("Invalid tree-to-analyse $tree_num (only $num_tree_in_file in file)\n", 0);
 	    }
 	    if (defined($selected_trees{$tree_num})) {
-		error("Invalid tree-to-analyse $tree_num (already selected)\n", 0);
+		erreur("Invalid tree-to-analyse $tree_num (already selected)\n", 0);
 	    }
 	    $selected_trees{$tree_num}=1;
 	}
