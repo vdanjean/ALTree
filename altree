@@ -1584,6 +1584,8 @@ sub CalculateEit
 		SetEit(($sitesens_per_tree->GetMit()*$s_t+
 			$sitesens_per_tree->GetSensRev()->GetMit()*$s_t_rev)
 		       /$b_t);
+	   # print "  m_it= ", $sitesens_per_tree->GetMit(),"\n";
+	   # print $site_per_tree->GetSiteNb(),"   ", $sitesens_per_tree->GetEit(), "\n";
 	}
     }
 }

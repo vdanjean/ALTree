@@ -88,7 +88,7 @@ sub travail
 	    $sequence=$tableau[1];
 	    $debut=$tableau[0];
 	    if ($debut =~ /^s*H000/){
-		$ancetre=$sequence.$tem;
+		$ancetre=$sequence."?";
 		print "$debut  $ancetre\n";
 		next;
 	    } else {
@@ -152,7 +152,7 @@ sub travail
 	    print $ligne, "\n";
 	} elsif ($ligne =~ /ancstates\s+\*anc\s+vector\s*=\s*([0-9ATCG]+)\s*;/) {
 	    $anc=$1;
-	    $anc=$anc.$tem;
+	    $anc=$anc."?";
 	    $ligne =~ s/$1/$anc/;
 	    print $ligne,"\n";
 	} elsif ($ligne=~ /begin paup;/) {
