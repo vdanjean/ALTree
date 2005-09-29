@@ -1660,7 +1660,7 @@ sub check_tree_numbers
     my $tab_arbres=shift; # Arbres commencent à indice 1
     my $tree_numbers=shift;
     my %selected_trees;
-    my $num_tree_in_file=scalar(@{$tab_arbres});
+    my $num_tree_in_file=scalar(@{$tab_arbres})-1;
 
     if (defined($tree_numbers)) {
 	for my $tree_num (@{$tree_numbers}) {
