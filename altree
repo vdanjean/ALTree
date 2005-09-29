@@ -158,17 +158,6 @@ sub ReadInputFile1
 }
 
 
-sub TireArbre
-{
-    my($tab_arbres)=shift; # Arbres commencent à indice 1
-    my($total_trees)=scalar(@{$tab_arbres})-1;
-   
-    my($alea);
-    $alea=int(rand($total_trees))+1;
-    #print "alea=$alea\n";
-    return($alea);
-}
-    
 sub ReadPAUP
 {
     my($tab_arbres)=shift; # Arbres commencent à indice 1
@@ -357,7 +346,6 @@ sub ReadPAUP
 	}
 	
     }
-    splice(@{$tab_arbres}, $num_arbre, 1);
     # print "nb_non_nul=$nb_br_non_nulle\n";
     return (\@tab_longbranche, \@tab_infoapo, $nb_br_non_nulle);
 }
@@ -417,6 +405,7 @@ sub ReadPHYLIP
 	    }#Voire gestion ancetre avec Vince
 	   
 	} else { # $data_type == DataType::DNA
+	    erreur("Datatype DNA not yet implemented\n", 0);
 	    #A faire
 	}
     }
@@ -1666,27 +1655,63 @@ sub PrintViMaxSens
 ###########################################################
 # Fonctions du prog principal #############################
 ###########################################################
+sub check_tree_numbers
+{
+    my $tab_arbres=shift; # Arbres commencent à indice 1
+    my $tree_numbers=shift;
+    my %selected_trees;
+    my $num_tree_in_file=scalar(@{$tab_arbres});
+
+    if (defined($tree_numbers)) {
+	for my $tree_num (@{$tree_numbers}) {
+	    if ($tree_num < 1) {
+		error("Invalid tree-to-analyse $tree_num\n", 0);
+	    } elsif ($tree_num > $num_tree_in_file) {
+		error("Invalid tree-to-analyse $tree_num (only $num_tree_in_file in file)\n", 0);
+	    }
+	    if (defined($selected_trees{$tree_num})) {
+		error("Invalid tree-to-analyse $tree_num (already selected)\n", 0);
+	    }
+	    $selected_trees{$tree_num}=1;
+	}
+    }
+    return $num_tree_in_file;
+}
+
+sub select_trees
+{
+    my $max=shift;
+    my $nb=shift;
+
+    my @tab;
+    for (my $i=0; $i<$max; $i++) {
+	$tab[$i]=$i+1; # +1 car les arbres sont indicés à partir de 1;
+    }
+    my @selected;
+    for (my $i=0; $i<$nb; $i++) {
+	my $alea=int(rand($max--));
+	push @selected, $tab[$alea];
+	splice(@tab, $alea, 1);
+    }
+    return \@selected;
+}
 
 sub readTree {
     my $phylo_program=shift;
     my $tab_arbres=shift;
     my $datatype=shift;
     my $ancetre=shift;
+    my($number_arbre)=shift;
     my $tree;
     my($tab_longbranche, $tab_infoapo, $ancetre_seq);
-    my($alea_arbre);
 
-    if (($phylo_program == PhylProg::PAUP) ||  ($phylo_program == PhylProg::PHYLIP)) {
-	$alea_arbre=TireArbre($tab_arbres);
-    }
-    
     my($nb_br_non_nulle);
     if ($phylo_program == PhylProg::PAUP) {
 	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
-	    =ReadPAUP($tab_arbres, $alea_arbre);
+	    =ReadPAUP($tab_arbres, $number_arbre);
     } elsif ($phylo_program == PhylProg::PHYLIP) {
 	($tab_longbranche, $ancetre_seq)
-	    =ReadPHYLIP($tab_arbres, $alea_arbre, $datatype, $ancetre);
+	    =ReadPHYLIP($tab_arbres, $number_arbre, $datatype, $ancetre);
     } elsif ($phylo_program == PhylProg::PAML) {
 	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
 	    =ReadPAML($tab_arbres);
@@ -1846,7 +1871,8 @@ sub manage_options
 		"prolongation|b!",
 		"chi2-threshold|n=f",
 		"permutations|r=i",
-		"trees-to-analyse=i",
+		"number-of-trees-to-analyse=i",
+		"tree-to-analyse=i@",
 		"s-site-number=i",
 		"s-site-characters=s",
 		"co-evo|e=s",
@@ -1942,7 +1968,11 @@ sub main
     my($s_loc)=$option_value->("s-localisation", 0);
     
     my($tab_arbres)=ReadInputFile1($input_file, $phylo_program);
-       
+    
+    my(@no_tree);
+    my($tree_numbers)=$option_value->("tree-to-analyse", \@no_tree);
+    my $num_trees_in_file=check_tree_numbers($tab_arbres, $tree_numbers);
+
     my $datatype;
     if ($phylo_program == PhylProg::PHYLIP) {
 	$option_require->("data-type");
@@ -1965,9 +1995,15 @@ sub main
 	$correspondance=ReadCorrespond($name_corres);
 	
 	
+	my $nb_tree_selected=scalar(@{$tree_numbers});
+	if ($nb_tree_selected == 0) {
+	    $tree_numbers=select_trees($num_trees_in_file, 1);
+	} elsif ($nb_tree_selected > 1) {
+	    erreur("Only one tree can be selected for association\n");
+	}
 
-
-	my($tree)=readTree($phylo_program, $tab_arbres, $datatype, $ancetre);
+	my($tree)=readTree($phylo_program, $tab_arbres, $datatype, $ancetre,
+			   $tree_numbers->[0]);
 	$option_require->("root");
 	$option_require->("rootmeth");
 	
@@ -2075,12 +2111,6 @@ sub main
 	#$option_require->("splitmode");
 	#my($splitmode)=$option_value->("splitmode");
 	print "Localisation method using S-character\n";
-	$option_require->("trees-to-analyse");
-	my($trees_to_analyse)=$option_value->("trees-to-analyse");
-	my($nb_trees_max)=scalar(@{$tab_arbres});
-	if ($trees_to_analyse>$nb_trees_max) {
-	    erreur("Invalid number of trees to analyse : your file contains only $nb_trees_max trees\n", 0);
-	    }
 	$option_require->("s-site-number");
 	my($s_site_nb)=$option_value->("s-site-number");
 	$option_require->("s-site-characters");
@@ -2098,18 +2128,35 @@ sub main
 	my($s_state)= ALTree::Sens->New($s_anc." --> ".$s_der);
 	my($foret)=ALTree::Foret->New();
 	
-	#$Data::Dumper::Indent = 0;
-	for (my($i)=0; $i<$trees_to_analyse; $i++) {
-	#for (my($i)=0; $i<=0; $i++) {
-	    #open(STDOUT, "> out.".$i);
+	my $nb_tree_selected=scalar(@{$tree_numbers});
+	if ($nb_tree_selected == 0) {
+	    my($trees_to_analyse)=$option_value->("number-of-trees-to-analyse", undef);
+	    if (not defined($trees_to_analyse)) {
+		print STDERR "Warning: no option number-of-trees-to-analyse or tree-to-analyse: using all ($num_trees_in_file) trees";
+		$trees_to_analyse=$num_trees_in_file;
+	    }
+	    if ($trees_to_analyse>$num_trees_in_file) {
+		erreur("Invalid number of trees to analyse : your file contains only $num_trees_in_file trees\n", 0);
+	    }
+	    if ($trees_to_analyse<1) {
+		erreur("Not enought trees to analyse ($trees_to_analyse)\n", 0);
+	    }
+	    $tree_numbers=select_trees($num_trees_in_file, $trees_to_analyse);
+	} elsif ($nb_tree_selected > $num_trees_in_file) {
+	    erreur("Invalid number of trees to analyse : your file contains only $num_trees_in_file trees\n", 0);
+	}
 
-	    my ($tree)=readTree($phylo_program, $tab_arbres, $datatype, $ancetre);
-	   if ($option_selected->("root")) {
-	       $option_require->("rootmeth");
-	       my $root_id=$option_value->("root");
-	       my $rootmeth=$option_value->("rootmeth");
-	       ManageRoot($tree, $root_id, $rootmeth);
-	   } 
+	#$Data::Dumper::Indent = 0;
+	for my $num_tree (@{$tree_numbers}) {
+
+	    my ($tree)=readTree($phylo_program, $tab_arbres, $datatype,
+				$ancetre, $num_tree);
+	    if ($option_selected->("root")) {
+		$option_require->("rootmeth");
+		my $root_id=$option_value->("root");
+		my $rootmeth=$option_value->("rootmeth");
+		ManageRoot($tree, $root_id, $rootmeth);
+	    } 
 	    PrintTree($tree, $print_tree);
 
 	    my ($b_t)=$tree->GetNbBrNonNulle();
@@ -2206,7 +2253,8 @@ altree [options]
     --prolongation|b
     --chi2-threshold|n value
     --permutations|r number
-    --trees-to-analyse number
+    --number-of-trees-to-analyse number
+    --tree-to-analyse number
     --s-site-number number
     --s-site-characters ancestral state -> derived state
     --co-evo|e simple|double
@@ -2286,10 +2334,15 @@ Significance threshold for chi2 (default value 0.01)
 Number of permutations used to calculate exact p_values
 (Only for association test)
 
-=item B<--trees-to-analyse> number
+=item B<--number-of-trees-to-analyse> number
 
 Number of trees to analyse in the localisation analysis 
 (only for localisation method using S-character)
+
+=item B<--tree-to-analyse number>
+
+With this option, you can specify the tree to use (instead of
+random). Can be used several times to specify multiple trees.
 
 =item B<--s-site-number number>
 
