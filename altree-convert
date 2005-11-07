@@ -8,7 +8,7 @@ use Getopt::Long; # qw(:config permute);
 use Pod::Usage;
 #use Getopt::Std;
 
-our($opt_h, $opt_r, $opt_i, $opt_j, $opt_o, $opt_t, $opt_p);
+our($opt_h, $opt_r, $opt_i, $opt_j, $opt_o, $opt_t, $opt_p, $opt_c);
 
 our $VERSION;
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
@@ -336,8 +336,9 @@ sub AfficheHashHaplo
 sub MakeCorrespondanceFile
 {
     my($hash_haplo)=shift;
+    my($file_corres)=shift;
     my($haplo);
-    open (CORRESP, '>', "correspond.txt") || die "Unable to open correspond.txt: $!\n";
+    open (CORRESP, '>', $file_corres) || die "Unable to open correspond.txt: $!\n";
     foreach $haplo (keys %{$hash_haplo}) {
 	printf CORRESP "H%.3i\tm%.3i\tc%.3i\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0];
     }
@@ -376,10 +377,11 @@ sub BuildPAUP
     my($nb_haplo)=shift;
     my($nb_loci)=shift;
     my($data_type)=shift;
+    my($file_corres)= shift;
     my($der, $anc);
     my($write_data_type);
     
-    MakeCorrespondanceFile($hash_haplo);
+    MakeCorrespondanceFile($hash_haplo, $file_corres);
     ($anc, $der, $write_data_type)=ReadDataType($data_type);
     open(OUTPAUP, '>', $file) || die "Unable to open '$file': $!\n";
     print OUTPAUP "#Nexus\n";
@@ -422,13 +424,14 @@ sub BuildPHYLIP
     my($nb_haplo)=shift;
     my($nb_loci)=shift;
     my($data_type)=shift;
+    my($file_corres)=shift;
     my ($der, $anc);
     my($write_data_type);
 
 #### SI ON UTILISE PHYLIP? FAIRE UN TEST: on doit avoir du 0/1 ou du ATGCU... SInon, marche pas!
 
 
-    MakeCorrespondanceFile($hash_haplo);
+    MakeCorrespondanceFile($hash_haplo, $file_corres);
     ($anc, $der, $write_data_type)=ReadDataType($data_type);
     open(OUTPHYLIP, '>', $file) || die "Unable to open '$file': $!\n";
     print OUTPHYLIP  "\t", $nb_haplo+1, "\t",  $nb_loci+1, "\n";
@@ -450,6 +453,7 @@ sub main
     	"first-input-file" => \$opt_i,
 	"second-input-file" => \$opt_j,
 	"output-file" => \$opt_o,
+	"case-control-output" => \$opt_c,
 	"data-type" => \$opt_t,
 	"phylo-prog" => \$opt_p,
 	"reconstruct-prog" => \$opt_r,
@@ -464,6 +468,7 @@ sub main
 		"first-input-file|i=s",
                 "second-input-file|j=s",
                 "output-file|o=s",
+		"case-control-output|c=s",
 		"data-type|t=s",
 		"phylo-prog|p=s",
 		"reconstruct-prog|r=s",
@@ -507,6 +512,9 @@ sub main
     if (!$opt_o) { # Output file for a phylogeny reconstruction program
 	die "No output file\n";
     }
+    if (!$opt_c) { # Output file for a phylogeny reconstruction program
+	die "No case-control statut output file\n";
+    }
     my($phylo_program);
     if ($opt_p){
 	$phylo_program = $opt_p;
@@ -543,9 +551,9 @@ sub main
    # AfficheHashHaplo($hash_haplo); # pour verifier
    
     if ($phylo_program =~ /^[Pp][Aa][Uu][Pp]$/) {
-	BuildPAUP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t);  	
+	BuildPAUP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t, $opt_c);  	
     } elsif ($phylo_program =~ /^[Pp][Hh][Yy][Ll][Ii][Pp]$/) {
-	BuildPHYLIP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t);
+	BuildPHYLIP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t, $opt_c);
     } else {
 	die "Unknown phylogeny software. Check the -p option! \n";
     }
@@ -565,10 +573,17 @@ altree-convert - Title...
 altree-convert [options]
 
  Options:
-    --version        program version
-    --short-help|h   brief help message
-    --help           help message with options descriptions
-    --man            full documentation
+    --version             program version
+    --short-help|h        brief help message
+    --help                help message with options descriptions
+    --man                 full documentation
+    --first-input-file|i  input file 1
+    --second-input-file|j input file 2 (not mandatory)
+    --output-file|o       output file
+    --case-control-output|c  output containing the nb cases/controls
+    --data-type|t         DNA|SNP
+    --phylo-prog|p        PAUP|PHYLIP
+    --reconstruct-prog|r  PHASE|FAMHAP
 
 =head1 OPTIONS
 
@@ -590,11 +605,38 @@ Print a help message with options descriptions and exits.
 
 Prints the manual page and exits.
 
+=item B<--first-input-file|i>
+
+Input file 1 (output of the haplotype reconstruction program)
+
+=item B<--second-input-file|j>
+
+Input file 2 (second output of famhap or file containig the disease status)
+
+=item B<--output-file|o>
+
+Output file
+
+=item B<--case-control-output|c>
+
+Output file containing the number of cases and controls carrying each haplotypex
+
+=item B<--data-type|t> C<DNA>|C<SNP>
+
+Type of data: DNA (ATGCU) or SNP (0-1)
+
+=item B<--phylo-prog|p> C<phylip>|C<paup>
+
+Phylogeny reconstruction program
+
+=item B<reconstruct-prog|r> C<famhap|phase>
+
+Haplotype reconstruction program
+
 =back
 
 =head1 DESCRIPTION
 
-B<This program> will read the given input file(s) and do someting
-useful with the contents thereof.
+B<This program> will read the given input file(s) and  generate an input file for the phylogenetic reconstruction software paup or phylip/paml
 
 =cut

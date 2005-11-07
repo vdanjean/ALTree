@@ -302,10 +302,17 @@ altree-add-S - Title...
 altree-add-S [options]
 
  Options:
-    --version        program version
-    --short-help|h   brief help message
-    --help           help message with options descriptions
-    --man            full documentation
+    --version            program version
+    --short-help|h       brief help message
+    --help               help message with options descriptions
+    --man                full documentation
+    --first-input-file|i input file 1
+    --second-input-file|j input file 2 number of cases/controls per haplotypes
+    --output-file|o      output file
+    --epsilon|e          espilon value
+    --data-type|t        data type: SNP or DNA
+    --proportion|p       proportion of cases in the sample
+    --low|l              disease statut for haplotype carried by one individual
 
 =head1 OPTIONS
 
@@ -326,6 +333,34 @@ Print a help message with options descriptions and exits.
 =item B<--man>
 
 Prints the manual page and exits.
+
+=item B<--first-input-file|i>
+
+Input file 1 (paup or phylip file)
+
+=item B<--second-input-file|j>
+
+Input file 2, contains the number of times a given haplotypes is carried by  case and control individuals
+
+=item B<--output-file|o>
+
+Output file
+
+=item B<--epsilon|e>
+
+espilon parameter (see formula in the documentation)
+
+=item B<--data-type|t>  
+
+Type of data: DNA (ATGCU) or SNP (0-1)
+
+=item B<--proportion|p>
+
+Proportion of case individuals in the sample
+
+=item B<--low|l>
+
+If this option is present, it forces the state of the character S to be "?" for haplotypes carried by only one individual
 
 =back
 
