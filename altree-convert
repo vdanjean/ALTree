@@ -391,7 +391,8 @@ sub BuildPAUP
     print OUTPAUP "matrix\n";
     my($haplo);
     foreach $haplo (keys %{$hash_haplo}) {
-	printf OUTPAUP "H%.3i_m%.3i_c%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0], $haplo, $der; # a modifier si je fais un deuxième fichier de sortie...
+#	printf OUTPAUP "H%.3i_m%.3i_c%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0], $haplo, $der; # a modifier si je fais un deuxième fichier de sortie...
+	printf OUTPAUP "H%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2], $haplo, $der; 
     }
     print OUTPAUP "H000_ancetre [add ancestral haplotype]$anc\n";
     print OUTPAUP ";\n";
@@ -619,7 +620,7 @@ Output file
 
 =item B<--case-control-output|c>
 
-Output file containing the number of cases and controls carrying each haplotypex
+Output file containing the number of cases and controls carrying each haplotype
 
 =item B<--data-type|t> C<DNA>|C<SNP>
 

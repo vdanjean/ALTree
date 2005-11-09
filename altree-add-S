@@ -10,7 +10,7 @@ use Getopt::Long; # qw(:config permute);
 use Pod::Usage;
 #use Getopt::Std;
 
-our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j);
+our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j, $opt_a);
 
 our $VERSION;
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
@@ -46,7 +46,7 @@ sub ReadCorrespond
 	    $tableau[2]=~ s/c//;
 	    $tableau[1]=~ s/m//;
 	    if ($tableau[1] =~ /c/ || $tableau[2] =~ /m/) {
-		die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
+		die "You have probably changed the order of cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
 		}
 	    $correspondance{$tableau[0]}->{"case"}=$tableau[1]+0;
 	    $correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;	
@@ -69,6 +69,7 @@ sub travail
     my($proportion_malades)=shift;
     my $low =shift;
     my $name_correspond=shift;
+    my $anc_name = shift;
     my($ligne);
     my($temoin, $malade, $sequence, $nom, $debut, $ancetre);
     my($anc, $num_car, $prop_mal, $prop_tem);
@@ -80,67 +81,84 @@ sub travail
 #	print "$clefs case ", $correspondance->{$clefs}->{"case"}, "\n";
 #    	print "$clefs, control ",$correspondance->{$clefs}->{"control"}, "\n";
 #    }
+    my $found_anc=0;
+    my $ici = 0;
 
     while ($ligne=<STDIN>){
 	chomp($ligne);
-	if ($ligne =~ /^\s*H/) {
-	    @tableau=split(/\s+/, $ligne);
-	    $sequence=$tableau[1];
-	    $debut=$tableau[0];
-	    if ($debut =~ /^s*H000/){
-		$ancetre=$sequence."?";
-		print "$debut  $ancetre\n";
-		next;
+	if ($ligne =~ /^\s*matrix\s*$/) {
+	    $ici=1;
+	}
+	if ($ligne =~ /^\s*;\s*$/) {
+	    $ici=0;
+	}
+	
+	if ($ici==1) {
+	    if ($ligne =~ /s*matrix\s*$/) {
+		print $ligne, "\n";
 	    } else {
-		#if ($debut =~ /^\s*H[0-9]{3}_m[0-9]{3}_c[0-9]{3}/) {
-		 #   @tab2=split(/_/,$debut);
-		    # print $tab2[0],"\n";
-		  #  $temoin=$tab2[2];
-		   # $temoin =~ s/c//;
-		    # print STDERR "temoin=$temoin\n";
-		   # $malade=$tab2[1];
-		   # $malade =~ s/m//;
-		   # if ($malade =~ /c/ || $temoin =~ /m/) {
-		#	die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
-		 #   }
-		$nom=$tableau[0];
-	#	print "$nom\n";
-		$malade=$correspondance->{$nom}->{"case"};
-		$temoin=$correspondance->{$nom}->{"control"};
-	#	print " $nom mal=$malade\n";   
-		$prop_mal=$malade/($malade+$temoin);
-		$prop_tem=$temoin/($malade+$temoin);
-		#	print "M=$malade T=$temoin\n";
-		#print "test=$test\n";
-		#	if ($test==0) { # test: difference |mal-tem| >=seuil 
-		#    if ($malade > $temoin && $malade-$temoin>=$seuil) {
-		#$sequence.="G";
-		#    } elsif ($malade < $temoin && $temoin-$malade>=$seuil) {
-		#	$sequence.="C";
-		#    } else {
-		#	$sequence.="?";
-		#    }
-		#} elsif ($test==1) {
-		#  if ($malade+$temoin==1) {
-		#$sequence.="?";
-		if ($low !=0 && $malade+$temoin==1) {
-		    $sequence.="?";
-		}  else {
-		    if ($prop_mal>$proportion_malades+
-			$seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
-			$sequence.=$mal;
-		    } elsif ($prop_mal<$proportion_malades-
-			     $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
-			$sequence.=$tem;
+		if ($ligne =~ /^\s+$/) {
+		    next;
+		} else {
+		    @tableau=split(/\s+/, $ligne);
+		    $sequence=$tableau[1];
+		    $debut=$tableau[0];
+		    if ($debut eq $anc_name){
+			$ancetre=$sequence."?";
+			print "$debut  $ancetre\n";
+			$found_anc++;
+			next;
 		    } else {
-			$sequence.="?";
-		    }   
+			#if ($debut =~ /^\s*H[0-9]{3}_m[0-9]{3}_c[0-9]{3}/) {
+			#   @tab2=split(/_/,$debut);
+			# print $tab2[0],"\n";
+			#  $temoin=$tab2[2];
+			# $temoin =~ s/c//;
+			# print STDERR "temoin=$temoin\n";
+			# $malade=$tab2[1];
+			# $malade =~ s/m//;
+			# if ($malade =~ /c/ || $temoin =~ /m/) {
+			#	die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
+			#   }
+			$nom=$tableau[0];
+			#	print "$nom\n";
+			$malade=$correspondance->{$nom}->{"case"};
+			$temoin=$correspondance->{$nom}->{"control"};
+			#	print " $nom mal=$malade\n";   
+			$prop_mal=$malade/($malade+$temoin);
+			$prop_tem=$temoin/($malade+$temoin);
+			#	print "M=$malade T=$temoin\n";
+			#print "test=$test\n";
+			#	if ($test==0) { # test: difference |mal-tem| >=seuil 
+			#    if ($malade > $temoin && $malade-$temoin>=$seuil) {
+			#$sequence.="G";
+			#    } elsif ($malade < $temoin && $temoin-$malade>=$seuil) {
+			#	$sequence.="C";
+			#    } else {
+			#	$sequence.="?";
+			#    }
+			#} elsif ($test==1) {
+			#  if ($malade+$temoin==1) {
+			#$sequence.="?";
+			if ($low !=0 && $malade+$temoin==1) {
+			    $sequence.="?";
+			}  else {
+			    if ($prop_mal>$proportion_malades+
+				$seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
+				$sequence.=$mal;
+			    } elsif ($prop_mal<$proportion_malades-
+				     $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
+				$sequence.=$tem;
+			    } else {
+				$sequence.="?";
+			    }   
+			}
+		    }
+		    
+		    print "$nom  ", $sequence, "\n";
+		    #"_m$malade", "_c$temoin\t", $sequence, "\n";
 		}
 	    }
-	    
-	    print "$nom  ", $sequence, "\n";
-	    #"_m$malade", "_c$temoin\t", $sequence, "\n";
-	    
 	} elsif ($ligne =~ /dimension ntax=([0-9]+) nchar=([0-9]+);/) {
 	    $num_car=$2+1;
 	    print "dimension ntax=$1 nchar=", $num_car, ";\n";
@@ -168,6 +186,14 @@ sub travail
 	    print $ligne, "\n";
 	}
     }
+    print "anc? $found_anc\n";
+    if ($found_anc==0 && $anc_name ne "noanc") {
+	die "ancestor not found in the file\n";
+    } elsif ($found_anc ==1 && $anc_name eq "noanc") {
+	die " false ancestor found\n";
+    } elsif ($found_anc > 1) {
+	die "Too many ancestor found ($found_anc ancestors)";
+    }
 }
 
 sub usage {
@@ -183,7 +209,8 @@ sub usage {
     print STDERR "     -t   data type: SNP or DNA\n";
 # ancienne option -t test: 0= mal-tem>seuil 1= seuil proportion0+/-sqr(pq/n)]
     print STDERR "     -p   proportion of cases in the whole data set\n";
-    print STDERR "     -e   modifier\n";
+    print STDERR "     -e   epsilon parameter\n";
+    print STDERR "    [-a]  name of the ancestral haplotype\n"; 
     print STDERR "    [-l]  if -l is present, it forces the state of S to be ? for haplotypes carried by only one individual\n"; 
 }
 
@@ -199,6 +226,7 @@ sub main
 	"epsilon" => \$opt_e,
 	"data-type" => \$opt_t,
 	"proportion" => \$opt_p,
+	"ancestor" => \$opt_a,
 	"low" => \$opt_l,
 	);
     	
@@ -214,6 +242,7 @@ sub main
 		"epsilon|e=s",
 		"data-type|t=s",
 		"proportion|p=s",
+		"ancestor|a=s",
 		"low|l!",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
@@ -232,7 +261,7 @@ sub main
     }
     
     if ($opt_i) {
-	open(STDIN, '<', $opt_i) or die "ouverture impossible de $opt_i : $!" ;
+	open(STDIN, '<', $opt_i) or die "Impossible to open $opt_i : $!" ;
     }
     
     my $correspond_name;
@@ -242,7 +271,7 @@ sub main
 	$correspond_name="correspond.txt"
 	}
     if ($opt_o) {
-	open(STDOUT, '>', $opt_o) or die "ouverture impossible de $opt_o : $!" ;
+	open(STDOUT, '>', $opt_o) or die "Impossible to open $opt_o : $!" ;
     }
     if ($opt_e) {
 	$seuil=$opt_e;
@@ -276,14 +305,18 @@ sub main
 	    usage("The proportion of cases in the sample is missing!\n", $progname);
 	}
 	my($low);
-	# Si $low !=0, alors on met ? si un seul cas ou 1 seul controle
-
+	# Si $low !=0, if only one case or one control, then the state of S is ?
 	if ($opt_l) {
 	    $low=1;
 	} else {
 	    $low=0;
 	}
-	travail($seuil, $data_type,  $proportion, $low, $correspond_name);
+	
+	my $anc_name="noanc";
+	if ($opt_a) {
+	    $anc_name = $opt_a;
+	}    
+	travail($seuil, $data_type,  $proportion, $low, $correspond_name, $anc_name);
 	
     }
 }
@@ -307,11 +340,12 @@ altree-add-S [options]
     --help               help message with options descriptions
     --man                full documentation
     --first-input-file|i input file 1
-    --second-input-file|j input file 2 number of cases/controls per haplotypes
+    --second-input-file|j input file 2 nb cases/controls per haplotypes
     --output-file|o      output file
     --epsilon|e          espilon value
     --data-type|t        data type: SNP or DNA
     --proportion|p       proportion of cases in the sample
+    --ancestor|a         name of ancestral haplotype
     --low|l              disease statut for haplotype carried by one individual
 
 =head1 OPTIONS
@@ -358,6 +392,10 @@ Type of data: DNA (ATGCU) or SNP (0-1)
 
 Proportion of case individuals in the sample
 
+=item B<--ancestor|a>
+
+Name of the ancestral haplotype (if there is one)
+
 =item B<--low|l>
 
 If this option is present, it forces the state of the character S to be "?" for haplotypes carried by only one individual
@@ -366,7 +404,6 @@ If this option is present, it forces the state of the character S to be "?" for 
 
 =head1 DESCRIPTION
 
-B<This program> will read the given input file(s) and do someting
-useful with the contents thereof.
+B<This program> adds a new character (called "character S") to each haplotype in the input file according to the number of cases and controls carrying it.  
 
 =cut

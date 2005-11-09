@@ -8,7 +8,7 @@ use Pod::Usage;
 
 use Data::Dumper;
 
-srand;
+srand(654321);
 
 our $VERSION;
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
