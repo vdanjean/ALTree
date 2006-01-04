@@ -363,11 +363,12 @@ sub ReadPHYLIP
     foreach $ligne (@{$tab_arbres->[$num_arbre]}) {
 	$ligne =~ s/^\s+//;
     	if ($data_type == DataType::SNP) {
+	    #print STDERR "line: $ligne\n";
 	    if ($ligne =~ /best guesses of ancestral states:/) {
 		$marqueur=1;
-		if ($ancetre != "") {
-		    print("ancestor defined twice, the sequence entered with the -anc-seq option will be ignored\n");
-		$ancetre="";
+		if ($ancetre ne "") {
+		    print STDERR "ancestor defined twice, the sequence entered with the -anc-seq option will be ignored\n";
+		    $ancetre="";
 		}
 	    }
 	    if ($ligne =~ /^From\s+To\s+Any\s+Steps/) {
@@ -375,7 +376,7 @@ sub ReadPHYLIP
 		$j=0;
 	    }
 	    if ($marqueur==1) {
-		if ($ligne =~ /.*0\!\s+[01\?\s]./) {
+		if ($ligne =~ /.*0\!\s+[01?\s]+/) {
 		    
 		    @tab=split(/\s+/, $ligne);
 		    shift(@tab);
@@ -383,14 +384,15 @@ sub ReadPHYLIP
 		    for ($i=0; $i<=$#tab; $i++) {
 			$ancetre.=$tab[$i];
 		    }
-		   #DEBUG print "ancetre=$ancetre\n";
 		}
+		#print STDERR "ancetre=$ancetre ($ligne)\n";
 	    }
 	    if ($marqueur==2) {
-		if ($ligne =~ /root/) {
-		    next;
-		} elsif ($ligne =~ /^\s*([0-9a-zA-Z_]+)\s+H?[0-9a-zA-Z_]+\s+(yes|no|maybe)\s+[01.? ]+\s*$/) {
-		    #print "trouvé! $ligne\n";
+	        #print STDERR "Reading line $ligne\n";
+		#if ($ligne =~ /root/) {
+		#    next;
+		if ($ligne =~ /^\s*([0-9a-zA-Z_]+)\s+[0-9a-zA-Z_]+\s+(yes|no|maybe)\s+[01.? ]+\s*$/) {
+		    #print STDERR "trouvé! $ligne\n";
 		    @tab=split(/\s+/, $ligne);
 		    $tabinfo->[$j]->[0]=shift(@tab);
 		    $tabinfo->[$j]->[1]=shift(@tab);
@@ -400,14 +402,14 @@ sub ReadPHYLIP
 		}
 	    }
 	    
-	    if ($ancetre eq "") {
-		erreur ("You have forgotten the option --anc-seq!\n", 0);
-	    }#Voire gestion ancetre avec Vince
 	   
 	} else { # $data_type == DataType::DNA
 	    erreur("Datatype DNA not yet implemented\n", 0);
 	    #A faire
 	}
+    }
+    if ($ancetre eq "") {
+	erreur ("You have forgotten the option --anc-seq!\n", 0);
     }
     return ($tabinfo, $ancetre);
 }
@@ -2259,7 +2261,7 @@ altree [options]
     --s-site-characters ancestral state -> derived state
     --co-evo|e simple|double
     --print-tree 
-    --anc-seq sequence
+    --anc-seq ancestral sequence (only with phylip)
 
 =head1 OPTIONS
 

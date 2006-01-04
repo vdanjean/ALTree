@@ -86,11 +86,13 @@ sub _SetRoot {
     my $self=shift;
 
     my(@roots);
+    #print STDERR "nodes: \n";
     foreach my $node ($self->GetNodesList()) {
-#	print"node: ", $node->Name(), " father ", $node->GetFather()->Name(), "\n";
 	if (not $node->HasFather()) {
 	    push @roots, $node;
+	    #print STDERR "root: ", $node->Name(), "\n";
 	}	    
+	#else { print STDERR "node: ", $node->Name(), " father ", $node->GetFather()->Name(), "\n"; }
     }
     #Verification that there is only one root
     if (scalar(@roots) !=1) {
