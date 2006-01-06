@@ -67,588 +67,12 @@ use constant P_VAL_CHI2 => 0.01;
 use constant P_VAL_TESTPROP => 0.01;
 use constant ONLY_CASE  => 3;
 
-package DataType;
-use constant SNP => 0;
-use constant DNA => 1;
-
-package PhylProg;
-use constant PHYLIP => 0;
-use constant PAUP => 1;
-use constant PAML => 2;
-
 package main;
-###########################################
-########  READING OF INPUT FILES  #########
-###########################################
-
-#Read the file correspond.txt and put haplotype ID, nb case and nb controle in a hash: $correspondance{$HaploID}->{"case"} et  $correspondance{$HaploID}->{"controle"}
-sub ReadCorrespond 
-{
-    my($name_correspond) =shift;
-    my($ligne, @tableau);
-    my(%correspondance);
-    open (CORRESP, '<', $name_correspond) || die "Unable to open file $name_correspond: $!\n";
-    while ($ligne=<CORRESP>) {
-	chomp($ligne);
-	if ($ligne =~ /^$/) {
-	    next;
-	}
-	@tableau=split(/\s+/, $ligne);
-	if ($#tableau != 2) {
-	    die "error in $name_correspond: not 3 columns at line '$ligne'\n";
-	} else {
-	    $tableau[2]=~ s/c//;
-	    $tableau[1]=~ s/m//;
-	    if ($tableau[1] =~ /c/ || $tableau[2] =~ /m/) {
-		die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
-		}
-	    $correspondance{$tableau[0]}->{"case"}=$tableau[1]+0;
-	    $correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;	
-	}
-    }
-    my($clefs);
-    #DEBUG
-    #foreach $clefs (keys %correspondance) {
-    #print "$clefs case: ", $correspondance{$clefs}->{"case"}, "\n";
-    #	print "$clefs, control: ",$correspondance{$clefs}->{"control"}, "\n";
-    #}
-    return(\%correspondance);
-}
-
-sub AfficheTab
-{
-    my($tableau)=shift;
-    my($nb_elem)=scalar(@{$tableau->[0]});
-   # print "nb_elem=$nb_elem\n"; DEBUG
-    my($i, $j);
-    for ($i=0;$i<=$#$tableau;$i++) {
-	for ($j=0;$j<$nb_elem;$j++) {
-	    print $tableau->[$i]->[$j], "\t";
-	}
-	print "\n";
-    }
-}
-
-sub ReadInputFile1
-{
-    my($input_file)=shift;
-    my($phylo_program)=shift;
-    my($ligne);
-    my($identifiant);
-    
-    if ($phylo_program == PhylProg::PAUP) {
-	$identifiant="Tree number";
-    } elsif  ($phylo_program == PhylProg::PHYLIP) { 
-	$identifiant="requires a total of";
-    } else {
-	$identifiant = "TREE # ";
-    }
-    open (INPUT, '<', $input_file) || die "Unable to open file $input_file: $!\n";
-    my($indice)=0;
-    my(@tab_arbres)=(); # contain ref on a tab containing lines for 1 tree 
-    while ($ligne=<INPUT>) {
-	chomp($ligne);
-	if ($ligne=~/$identifiant\s*[0-9.]*/) {
-	    $indice++;
-	}
-	push (@{$tab_arbres[$indice]}, $ligne);
-    }
-    
-    return (\@tab_arbres);
-}
-
-
-sub ReadPAUP
-{
-    my($tab_arbres)=shift; # Arbres commencent à indice 1
-    my($num_arbre)=shift;
-    my($ligne, @tableau);
-    my($marqueur)=0;
-    my(@tab_longbranche, @tab_infoapo);
-    my($i)=0;
-    my($j)=0;
-    my($nb_br_non_nulle)=0;
-    my ($position)=0;
-    my($pos)=0;
-    foreach $ligne (@{$tab_arbres->[$num_arbre]}) {
-	
-	if ($ligne =~ /^\s+Node\s+to node/) {
-	    $marqueur=1;
-	}
-	if ($ligne =~ /^\s*Sum/) {
-	    # print "marqueur=$marqueur\n";
-	    $marqueur=0;
-	}
-	if ($ligne =~ /^Apomorphy lists:/) {
-	    $marqueur=2;
-	    next;
-	} 
-	
-	if ($marqueur==1) {
-	   # $ligne =~ s/^\s+//;
-	    #if ($ligne =~ /root/) {
-	#	next;
-	 #   }
-	    if ($ligne =~ /---------------------------/) {
-		next;
-	    }
-	    if ($ligne =~ /Node\s+to node/) {
-		$pos = index($ligne, "to node"); 
-		#print STDERR "pos = $pos\n";
-		next;
-	    }	
-	    my $son = substr($ligne,0,$pos-1);
-	 #   print STDERR "son1:$son\n";
-	    my $other_infos = substr($ligne,$pos);
-	    $other_infos =~ s/^\s*//;
-	 #   print STDERR "otherinfos:$other_infos\n";
-	    $son =~ /\s*([^\(\)]*\S)\s\(?[0-9]*\)?\s*$/; #Revoir avec Vince
-	    $tab_longbranche[$i]->[1]= $1; #son
-	    my @tableau = split(/\s+/,  $other_infos);
-	    if ($#tableau != 3) {
-		die "error: not 4 columns, $#tableau columns\n";
-	    } else { 
-		$tab_longbranche[$i]->[0]= $tableau[0]; #father
-		$tab_longbranche[$i]->[2]= $tableau[1]; #branch length
-		if ($tableau[2] != 0) {
-		    $nb_br_non_nulle++;
-		}
-	    }
-	    #print STDERR "father:", $tab_longbranche[$i]->[0], " son:", $tab_longbranche[$i]->[1], " brlen", $tab_longbranche[$i]->[2], "\n";
-	    #if ($ligne =~ /^[0-9]+/) {
-	#	@tableau=split(/\s+/, $ligne);
-	#	if ($#tableau != 4) {
-	#	    die "error: not 5 columns, $#tableau columns\n";
-	#	} else { 	
-	#	    $tab_longbranche[$i]->[0]= $tableau[1]; #father
-	#	    $tab_longbranche[$i]->[1]= $tableau[0]; #son
-	#	    $tab_longbranche[$i]->[2]= $tableau[2]; #branch length
-	#	    if ($tableau[2] != 0) {
-	#		$nb_br_non_nulle++;
-	#	    }
-	#	    $i++;
-	#	}
-	#    }
-	#    if ($ligne =~ /^H[0-9]+\s+/) {
-	#	@tableau=split(/\s+/, $ligne);	
-	#	if ($#tableau == 7) { 
-	#	    $tab_longbranche[$i]->[0]= $tableau[4]; #father
-	#	    $tab_longbranche[$i]->[1]= $tableau[0]; #son
-	#	    $tab_longbranche[$i]->[2]= $tableau[5]; #branch length
-	#	    if ($tableau[5] != 0) {
-	#		$nb_br_non_nulle++;
-	#	    } 
-#		} elsif ( $#tableau == 6) {   
-#		    $tab_longbranche[$i]->[0]= $tableau[3]; #father
-	#	    $tab_longbranche[$i]->[1]= $tableau[0]; #son
-	#	    $tab_longbranche[$i]->[2]= $tableau[4]; #branch length
-	#	    if ($tableau[4] != 0) {
-	#		$nb_br_non_nulle++;
-	#	    } 
-	#	} else {
-	#	    die "error in the number of columns for tab_longbranche\n $ligne\n";
-	#	    
-	#	}
-	    $i++;
-	}
-
-	my($modificateur)=0;
-	my($sens_chgt);
-	
-	if ($marqueur==2) {
-	    my $has_sens=0;
-	    if ($ligne =~ /^\s*$/ || $ligne =~ /^\s*------------------/) {
-		next;
-	    } 
-	    
-	    if ($ligne =~ /^\s+Branch/) {
-		$position = index($ligne, "Character");
-	#	print STDERR "position = $position\n";
-		next;
-	    }
-	    #if ($ligne =~ /root/) {
-	#	next;
-	 #   }
-	    #print STDERR $ligne, "\n";
-	    my $name_haplo = substr($ligne,0,$position-1);
-	    my $infos = substr($ligne,$position);
-	    #print STDERR "infos:$infos\n";
-	    my @tab_infos=split(/\s+/, $infos);
-	    $tab_infoapo[$j]->[2]=$tab_infos[0]; # apomorphie number
-	    $tab_infoapo[$j]->[3]=$tab_infos[2]; # CI
-	    $tab_infoapo[$j]->[4]=$tab_infos[1]; # nb steps 
-	    $sens_chgt = join(' ', $tab_infos[3], $tab_infos[4], $tab_infos[5]);
-	    if ($name_haplo =~ /^\s*((root|node_).*\S)\s*$/) { 
-		$name_haplo= $1;
-		my @tab_name = split(/ --> /, $name_haplo);
-	#	print STDERR "tab0:$tab_name[0]\n";
-		$tab_name[0]=~ s/node_//g;
-	#	print STDERR "2tab0:$tab_name[0]\n";
-		$tab_name[1]=~ s/node_//g;
-		$tab_infoapo[$j]->[0]=$tab_name[0]; # father
-		#print STDERR "tab1:$tab_name[1]\n";
-	#	$tab_name[1] =~ s/\s/_/g;	
-		#print STDERR "2tab1:$tab_name[1]\n";
-		$tab_infoapo[$j]->[1]=$tab_name[1]; # son
-	    } elsif ($name_haplo =~ /^\s*$/) {
-		$tab_infoapo[$j]->[0] = $tab_infoapo[$j-1]->[0]; # father
-		$tab_infoapo[$j]->[1] = $tab_infoapo[$j-1]->[1]; #son	
-	    } else {
-		die "Unknown line $name_haplo\n";
-	    }
-	    #print STDERR $tab_infoapo[$j]->[0], ":father ", $tab_infoapo[$j]->[1], ":son  ",$tab_infoapo[$j]->[2]=$tab_infos[0], ":aponum ",  $tab_infoapo[$j]->[3]=$tab_infos[2], ":CI ", $tab_infoapo[$j]->[4]=$tab_infos[1], ":nbstep ", $sens_chgt, ":sens\n"; 
-	    
-	    $has_sens=1;
-	    
-	    #   if ($ligne =~ /^\s+node_/) {
-	    #	$ligne =~ s/^\s+//;
-	    #	@tableau=split(/\s+/, $ligne);
-	    #	my $size=-1;
-	    #	if ($tableau[2] =~ /node_[0-9]+/) {
-	    #	    $modificateur=0;
-	    #	    $size=9;
-	    #	} elsif ($tableau[2] =~ /H000/) {
-	    #	    $modificateur=1;
-	    #	    $size=10;
-	    #	}elsif ($tableau[2] =~ /(H[0-9][0-9][1-9])|(H[0-9][1-9][0-9])|(H[1-9][0-9][0-9])/) {
-	    #	    $modificateur=2;
-	    #	    $size=11;
-	    #	} 
-	    #	if (scalar (@tableau) != $size) {
-	    #	    #print Dumper(@tableau);
-	    #	    erreur ("Cannot parse line '$ligne'\n", 0);
-	    #	}
-	    #	$tableau[2]=~ s/node_//g;
-	    #	$tableau[0]=~ s/node_//g;
-	    #	$tab_infoapo[$j]->[0]=$tableau[0]; # father
-	    #	$tab_infoapo[$j]->[1]=$tableau[2]; # son
-	    #	$tab_infoapo[$j]->[2]=$tableau[3+$modificateur]; # apomorphie number
-	    #	$tab_infoapo[$j]->[3]=$tableau[5+$modificateur]; # CI
-	    #	$tab_infoapo[$j]->[4]=$tableau[4+$modificateur]; # nb steps 
-	    #	$sens_chgt = join(' ', $tableau[6+$modificateur], 
-	    #			  $tableau[7+$modificateur], 
-	    #			  $tableau[8+$modificateur]);
-	    #	$has_sens=1;
-	    #    } elsif ($ligne =~ /\s+([0-9]+)\s+([0-9]+)\s+([0-1]\.[0-9]+)\s+([0-9A-Za-z] [=-][=-]> [0-9A-Za-z])/) {
-	    #	$tab_infoapo[$j]->[0]=$tab_infoapo[$j-1]->[0]; # father
-	    #	$tab_infoapo[$j]->[1]=$tab_infoapo[$j-1]->[1]; # son
-	    #	$tab_infoapo[$j]->[2]=$1; # apomorphie number
-	    #	$tab_infoapo[$j]->[3]=$3; # CI
-	    #	$tab_infoapo[$j]->[4]=$2; # nb steps per branches
-	    #	$sens_chgt=$4;
-	    #	$has_sens=1;
-	    #    }
-	    if ($has_sens) {
-		$sens_chgt =~ s/=/-/g;
-		$tab_infoapo[$j]->[5]=ALTree::Sens->New($sens_chgt); # direction of the change 
-		$j++;
-	    }
-	}
-	
-    }
-    # print "nb_non_nul=$nb_br_non_nulle\n";
-    return (\@tab_longbranche, \@tab_infoapo, $nb_br_non_nulle);
-}
-
-sub ReadPHYLIP
-{
-    my($tab_arbres)=shift; # Arbres commencent à indice 1
-    my($num_arbre)=shift;
-    my($data_type)=shift;
-    my $ancetre =shift;
-    my($ligne, @tableau);
-    my($marqueur)=0;
-    my(@tab, $tabinfo, $j);
-    
-    foreach $ligne (@{$tab_arbres->[$num_arbre]}) {
-	$ligne =~ s/^\s+//;
-    	if ($data_type == DataType::SNP) {
-	    #print STDERR "line: $ligne\n";
-	    if ($ligne =~ /best guesses of ancestral states:/) {
-		$marqueur=1;
-		if ($ancetre ne "") {
-		    print STDERR "ancestor defined twice, the sequence entered with the -anc-seq option will be ignored\n";
-		    $ancetre="";
-		}
-	    }
-	    if ($ligne =~ /^From\s+To\s+Any\s+Steps/) {
-		$marqueur=2;
-		$j=0;
-	    }
-	    if ($marqueur==1) {
-		if ($ligne =~ /.*0\!\s+[01?\s]+/) {
-		    
-		    @tab=split(/\s+/, $ligne);
-		    shift(@tab);
-		    my($i);
-		    for ($i=0; $i<=$#tab; $i++) {
-			$ancetre.=$tab[$i];
-		    }
-		}
-		#print STDERR "ancetre=$ancetre ($ligne)\n";
-	    }
-	    if ($marqueur==2) {
-	        #print STDERR "Reading line $ligne\n";
-		#if ($ligne =~ /root/) {
-		#    next;
-		if ($ligne =~ /^\s*([0-9a-zA-Z_]+)\s+[0-9a-zA-Z_]+\s+(yes|no|maybe)\s+[01.? ]+\s*$/) {
-		    #print STDERR "trouvé! $ligne\n";
-		    @tab=split(/\s+/, $ligne);
-		    $tabinfo->[$j]->[0]=shift(@tab);
-		    $tabinfo->[$j]->[1]=shift(@tab);
-		    $tabinfo->[$j]->[2]=shift(@tab);
-		    $tabinfo->[$j]->[3]=join('',@tab);
-		    $j++;
-		}
-	    }
-	    
-	   
-	} else { # $data_type == DataType::DNA
-	    erreur("Datatype DNA not yet implemented\n", 0);
-	    #A faire
-	}
-    }
-    if ($ancetre eq "") {
-	erreur ("You have forgotten the option --anc-seq!\n", 0);
-    }
-    return ($tabinfo, $ancetre);
-}
-
-sub ReadPAML 
-{
-    my($tab_arbres)=shift; # Arbres commencent à indice 1
-    my($ligne);
-    my($i)=-1;
-    my($j)=0;
-    my($nb_br_non_nulle)=0;
-    my($marqueur)=0;
-    my(@tab_longbranche, @tab_infoapo);
-    my($has_mutation)=0;
-    foreach $ligne (@{$tab_arbres->[1]}) {
-	chomp($ligne);
-	if ($ligne =~ /^\s*Summary of changes along branches/) {
-	    $marqueur=1;
-	    next;
-	}
-	if ($ligne =~ /^\s*List of extant and reconstructed sequences/) {
-	    if ($has_mutation != 0) {
-		$nb_br_non_nulle++;
-	    }
-	    $tab_longbranche[$i]->[2]=$has_mutation; 
-	    $marqueur=0;
-	    last;
-	}
-
-	if ($marqueur==1) {
-	    $ligne =~ s/^\s+//;
-	    if (($ligne =~ /\s*Branch [0-9]+:\s+([0-9]+)\.\.([0-9]+)\s*$/) || 
-		($ligne =~ /\s*Branch [0-9]+:\s+([0-9]+)\.\.[0-9]+\s+[(](.*)[)]\s*$/)) {
-		# Début de branche
-		#print "Cas 1 ($1 $2)\n";
-		$i++;
-		if ($has_mutation != 0) {
-		    $nb_br_non_nulle++;
-		}
-		if ($i>0) {
-		    $tab_longbranche[$i-1]->[2]=$has_mutation; #branch length for preceeding branch
-		}
-		$has_mutation=0;
-		$tab_longbranche[$i]->[0]= $1; #father
-		$tab_longbranche[$i]->[1]= $2; #son
-	    #} elsif ($ligne =~ /\s*([0-9]+)\s+([0-9A-Za-z?_-])\s+[0-9.]+\s*->/) {
-	    } elsif ($ligne =~ /\s*([0-9]+)\s+([0-9A-Za-z?_-])\s+[0-9.]+\s*->\s*([0-9A-Za-z?_-])\s*([0-9\.]*)?\s*/) {
-		
-		# A VERIFIER: NORMALEMENT NE DOIT SE PRODUIRE QU'EN BOUT DE BRANCHES!
-		if ($3 eq "?") {
-		    next;
-		}
-		$has_mutation++;
-		$tab_infoapo[$j]->[0] = $tab_longbranche[$i]->[0]; #father
-		$tab_infoapo[$j]->[1] = $tab_longbranche[$i]->[1]; #son
-      		$tab_infoapo[$j]->[2]=$1; # apomorphie number
-      		#$tab_infoapo[$j]->[3]=; # CI
-		$tab_infoapo[$j]->[4]=1; # nb steps =1 for SNPs 
-		my($sens_chgt)=$2."->".$3;
-		$tab_infoapo[$j]->[5]=ALTree::Sens->New($sens_chgt); # direction of the change 
-		$j++;
-	    }
-	}
-    }
-    return (\@tab_longbranche, \@tab_infoapo, $nb_br_non_nulle);
-}
-
-########################################################
 
 ###########################################
 #########  BUILDING OF THE TREE  ##########
 ###########################################
 
-
-# Build the tree and add the branch length info
-sub TreeBuilding{
-    my($tab_longbranche)=shift;
-    my($i);
-    my($tree)=ALTree::Tree->New();
-
-    #print "TreeBuilding\n";
-    for ($i=0;$i<=$#$tab_longbranche;$i++) {
-	my($pere_id, $fils_id, $long_br); # variables intermédiaires pour 
-	# lisibilite du prog
-
-	$pere_id=$tab_longbranche->[$i]->[0];
-	$fils_id=$tab_longbranche->[$i]->[1];
-	#print "branche pere($pere) -> fils($fils)\n";
-	$long_br=$tab_longbranche->[$i]->[2];
-
-	my $pere;
-	my $fils;
-	if (not $tree->HasNodeIndex($fils_id)) {
-	    $fils=ALTree::Node->New($fils_id); #creation de la structure Node
-	    $tree->AddNode($fils);     # puis, on la met dans tree
-	} else {
-	    $fils=$tree->GetNode($fils_id);
-	}
-	if (not $tree->HasNodeIndex($pere_id)) {
-	    $pere=ALTree::Node->New($pere_id); #creation de la structure Node
-	    $tree->AddNode($pere);     # puis, on la met dans tree
-	} else {
-	    $pere=$tree->GetNode($pere_id);
-	}
-	$pere->AddChild($fils);
-#	print "arbre{pere}->{children}->[0]->{id} ", $arbre->{$pere}->{"children"}->[0]->{"id"}, "\n"; 
-	if ($fils->HasFather()) {
-	    die ($fils->Name()." already have a father: ".$fils->GetFather()->Name()."\n");
-	} else {
-	    $fils->SetFather($pere);
-	}
-	if ($fils->HasBrLen()) {
-	    die($fils->Name()." already have a branch length: ".$fils->GetBrLen()."\n");
-	} else {
-	    $fils->SetBrLen($long_br);
-	}
-    }
-    return($tree);
-}
-
-sub FillTreeApoInfoPAUP
-{
-    my($tree)=shift;
-    my($tab_infoapo)=shift;
-    my($i);
- 
-    #print "FillTreeApoInfo\n";
-    for ($i=0;$i<=$#$tab_infoapo;$i++) {
-	my($pere_id, $fils_id, $apo_num, $apo_CI, $apo_steps, $apo_sens)
-	    = @{$tab_infoapo->[$i]};
-	#print "branche pere($pere) -> fils($fils)\n";
-	if (not $tree->HasNodeIndex($pere_id) || 
-	    not $tree->HasNodeIndex($fils_id)) {
-	    die "unknown node: $pere_id or $fils_id\n";
-	}
-	my $pere=$tree->GetNode($pere_id);
-	#print $pere->Name();
-	my $fils=$tree->GetNode($fils_id);
-	#print STDERR "fils =  $fils_id, pere=$pere_id\n";
-	if ($fils->GetFather() != $pere) {
-	    die ("Inconsistant data while analysing apomophy informations:\n".
-		 "=> node '$fils_id' is not the son of '$pere_id', but of '",
-		 $fils->GetFather()->Name()."'\n"		 
-		 );
-	}
-	
-	my $site;
-	if (not $tree->HasSiteIndex($apo_num)) { 
-	    $site=ALTree::SitePerTree->New($apo_num);
-	    $tree->AddSite($site);
-	    if (defined $apo_CI) { # For PAML trees, CI is not defined
-		$site->SetCI($apo_CI);
-	    }
-	} else {
-	    $site=$tree->GetSite($apo_num);
-	}
-
-	my($ref_site_sens)=$site->ProvideSens($apo_sens);
-	$ref_site_sens->SetStep($apo_steps); # For PAML, $aposteps=1
-
-	$fils->AddApo($ref_site_sens); # lie arbre et hash_site_sens
-    }
-}
-
-sub FillTreeApo1Phylip # Put sequence in structure node 
-{
-    my($tree)=shift;
-    my($tabinfo)=shift;
-    my($ancestor)=shift;
-    my($fils);
-    my($sequence);
-  
-    for (my $i=0; $i<=$#$tabinfo; $i++) {
-	$fils=$tabinfo->[$i]->[1];
-	$sequence=$tabinfo->[$i]->[3];
-#	print "fils=$fils, seq=$sequence\n";
-	$tree->GetNode($fils)->SetSequence($sequence);
-    }
-    
-    $tree->GetRoot()->SetSequence($ancestor);
-}
-
-sub FillTreeApo2Phylip
-{
-    my($present_node)=shift;
-    my($racine)=shift;
-    my($ancetre_seq)=shift;
-    my($tree)=shift;
-    my($fatherseq);
-    my($childseq);
-    my($child);
-    my($newchildseq);
-    
-    #print "noeud: ", $present_node->{"id"}, "\n";
-    if ($present_node eq $racine) {
-	$fatherseq=$ancetre_seq;
-    } else {
-	$fatherseq=$present_node->GetFather()->GetSequence();
-    }
-    $childseq=$present_node->GetSequence();
-    my($longueur)=length($childseq);
-    if (length($fatherseq) != $longueur) {
-	die "Error: reconstructed sequences have not the same length at note ",
-	$present_node->GetFather()->Name(), " ($fatherseq) and at node ",
-	$present_node->Name(), " ($childseq)\n";
-    } 
-    my($br_len)=0;
-    for (my $i=0; $i<$longueur;$i++) {
-	my($fathersite)= substr($fatherseq,$i,1);
-	my($childsite)= substr($childseq, $i,1);
-	if ($childsite eq ".") {
-	    $childsite=$fathersite;
-	    
-	}
-	elsif ($fathersite ne $childsite) {
-	    $br_len++;
-	    my($apo_num)=$i+1;
-	    my($apo_sens)=ALTree::Sens->New($fathersite."->".$childsite);
-	    my $site;
-	    if (not $tree->HasSiteIndex($apo_num)) { 
-       		$site=ALTree::SitePerTree->New($apo_num);
-		$tree->AddSite($site);
-	    } else {
-		$site=$tree->GetSite($apo_num);
-	    }
-	    $site->IncNbMut();
-
-	    my($ref_site_sens)=$site->ProvideSens($apo_sens);
-	    
-	    $present_node->AddApo($ref_site_sens); # lie arbre et hash_site_sens
-	}
-	$newchildseq.=$childsite; #rajoute
-	$present_node->SetSequence($newchildseq); # rjouté
-    }
-    $present_node->SetBrLen($br_len);
-    foreach $child ($present_node->GetChildrenList()) { 
-	FillTreeApo2Phylip($child, $racine, $ancetre_seq, $tree);
-    }
-}
 
 # Outgroup is not removed from the hash nodes.
 # It is only removed from the list of children of it's father 
@@ -684,6 +108,7 @@ sub Name
 ####### CHECK FUNCTIONS ###################################
 ###########################################################
 
+# Do some check on the tree
 sub CheckCorrespondance 
 {
     my($tree)=shift;
@@ -697,9 +122,11 @@ sub CheckCorrespondance
 	    if (not defined $correspondance->{$node->GetId()}) {
 		$node->SetCase(0);
 		$node->SetControl(0);
-		print STDERR "Error: the leaf ", $node->Name(),
-		" is not in the input file $name_corres.\n",
-		"The number of cases and controls for this leaf are automatically set to 0\n";
+		ALTree::Utils::erreur("The leaf '". $node->Name().
+				      "' is not in the input file ".
+				      "'$name_corres'.\nThe number of cases and".
+				      " controls for this leaf are automatically".
+				      " set to 0\n");
 	    }
 	}
 	
@@ -710,68 +137,27 @@ sub CheckCorrespondance
 
     foreach my $clef (keys %{$correspondance}) {
 	if (not $tree->HasNodeIndex($clef)) {
-	    erreur("undefined node detected in $name_corres: $clef.  You have probably forgot to remove the haplotype corresponding to the ancestor. Check the input file correspond.txt.\n", 1);
+	    ALTree::Utils::erreur("Node '$clef' found in '$name_corres' does".
+				  " not exist in the tree.\nYou have probably".
+				  " forgot to remove the haplotype corresponding".
+				  " to the ancestor. Check the input file".
+				  " '$name_corres'.\n", 1);
 	}
-	if ($clef=~ /^H/) {
-	    if ($tree->GetRoot()->Name() eq $clef) {
-		next;
-	    } else {
-		my($nb_fils)=$tree->GetNode($clef)->NbChildren();
-		
-		if ($nb_fils!=0) {
-		    print STDERR "$clef, defined as a leaf in $name_corres is defined as a node in the tree\n";
-		}
+	if ($tree->GetRoot()->Name() eq $clef) {
+	    next;
+	} else {
+	    my($nb_fils)=$tree->GetNode($clef)->NbChildren();
+	    
+	    if ($nb_fils!=0) {
+		print STDERR "$clef, defined as a leaf in $name_corres is defined as a node in the tree\n";
 	    }
 	}
     }    
 }
 
-sub CheckApoBrlen
-{
-    my($tree)=shift;
-    my($node);
-
-    $tree->GetRoot()->SetBrLen(0); # to prevent "uninitialized value"
-
-    foreach $node ($tree->GetNodesList()) {
-	if ($node->GetBrLen() != $node->NbApoStep()) { 
-            # check if nb_apo correspond to br_len
-	    die "Error in the tree: branch length= ", $node->GetBrLen(),
-	    " but ", $node->NbApoStep(),
-	    " apomorphies are defined for node ", $node->Name(), "\n";
-	}
-    }	
-}
 ##################################################
 ########  PARCOURS ET REMPLISSAGE ARBRE  #########
 ##################################################
-
-sub parcours_nosplit # Pour apprendre
-{
-    my($tabnodes_a_traiter)=shift;
-    my($prolonge)=shift;
-    my($node, $child, @tab_noeuds_suivants);
-    my($val)=0;
-    foreach $node (@{$tabnodes_a_traiter}) {
-	if (NbFils($node) != 0) {
-	    $val=1;
-	    foreach $child ($node->GetChildrenList()) {
-		push (@tab_noeuds_suivants, $child);
-	    }
-	} else {
-	    if ($prolonge == 1) {
-	    	push (@tab_noeuds_suivants, $node);
-	    }
-	}
-	print $node->{"id"}, " ";
-    }
-    print "\n";
-    if ($val==1) {
-	parcours_nosplit(\@tab_noeuds_suivants, $prolonge);
-    } else {
-	return;
-    }
-}
 
 sub ClassicalChi2
 {
@@ -805,7 +191,7 @@ sub ClassicalChi2
                 $c=$node->{"control"};
 		if ($m==0 && $c==0) {
 		    my($name)=$node->Name();
-		    erreur("no case and no controls for node $name", 1);
+		    ALTree::Utils::erreur("no case and no controls for node $name", 1);
 		}
                 $t_m=(($m+$c)*$sum_case)/$sum_total;
                         #print STDERR $node->Name() ," m=$m, t_m=$t_m, c=$c\n";
@@ -983,68 +369,6 @@ sub parcours_nosplit_chi2split
     }
 }
 
-sub parcours2  #Fonction écrite pour apprendre
-{
-    my($present_node)=shift;
-    my($child);
-    my($i);
-    my($nb_fils);
-    $nb_fils=NbFils($present_node);
-    #if ($present_node->{"id"} =~ /^H/)  { 
-    if ($nb_fils == 0) {
-	print "node:",$present_node->{"id"}, " "; #123456
-#	#my($clefs);
-#	#foreach $clefs (keys %{$present_node->{"apo"}}) {
-#	   # print "apo:",$clefs, " ";
-#	#}
-    } else {
-	# print $present_node->{"id"}, " "; #123456
-	
-	#for $child (@{$present_node->{"children"}}) { si pas besoin du
-	# parcours($child);                         $i...    
-	#}
-	$i=0;
-	parcours2($present_node->GetChild(0));
-	if ($nb_fils>=2) {
-	    for ($i=1; $i<$nb_fils; $i++) {
-		print "node:",$present_node->GetId(), " ";
-#		#my($clefs);
-#		#foreach $clefs (keys %{$present_node->{"apo"}}) {
-#		#    print "apo:",$clefs, " ";
-#		#}
-#		#print "--";
-		parcours2($present_node->GetChild($i));
-	    }
-	}
-	#print $present_node->{"id"}, " " ;#343651
-    }
-}
-
-
-sub parcours # Fonction ecrite pour apprendre
-{
-    my($present_node)=shift;
-    my($first)=shift;
-    my($child);
-   
-    my($nb_fils);
-    
-   # if ($present_node->{"id"} =~ /^H/)  { 
-   # 	print $present_node->{"id"}, " "; #123456
-   # } else {
-	#print $present_node->{"id"}, " "; #123456
-	
-	foreach $child ($present_node->GetChildrenList()) { 
-	    parcours($child);                            
-	}
-	print $present_node->GetId(), ":",$present_node->{"height"}, " " ;#343651
-   # }
-    if (defined($first)) {    
-	print " [FIN]\n";
-    }
-    
-}
-
 sub FillCaseControl
 {
     my($present_node)=shift;
@@ -1096,7 +420,6 @@ sub FillHeight
 	FillHeight($child, $height);
     }
     $present_node->{"height"}=$height;
-    #$height+=1; # Demander à Vince
 }
 
 
@@ -1147,7 +470,7 @@ sub AffichageParLevel # Ne prend pas une fonction pour l'affichage
     };
     $AffichageInterne->($racine, "", " ", "-", " ");
 }
-    
+
 sub AffichageArbre # Prend une fonction pour l'affichage
 {
     my ($racine)=shift;
@@ -1276,8 +599,8 @@ sub InfosAffichees
 			    } elsif ($test->{"sign"} == ALTree::Chi2::SIGNIFICATIF) {
 				$chaine .= " (significatif)";
 			    } else {
-				die "Internal error : unknown value ".
-				    $test->{"sign"}."\n";
+				ALTree::Utils::internal_error("unknown value ".
+				    $test->{"sign"});
 			    }
 			}		    
 			if (defined($test->{"texte"})) {
@@ -1659,25 +982,26 @@ sub PrintViMaxSens
 ###########################################################
 sub check_tree_numbers
 {
-    my $tab_arbres=shift; # Arbres commencent à indice 1
-    my $tree_numbers=shift;
+    my $num_tree_in_file=shift;
+    my $user_tree_numbers=shift;
+    my @tree_numbers;
     my %selected_trees;
-    my $num_tree_in_file=scalar(@{$tab_arbres})-1;
 
-    if (defined($tree_numbers)) {
-	for my $tree_num (@{$tree_numbers}) {
-	    if ($tree_num < 1) {
-		erreur("Invalid tree-to-analyse $tree_num\n", 0);
-	    } elsif ($tree_num > $num_tree_in_file) {
-		erreur("Invalid tree-to-analyse $tree_num (only $num_tree_in_file in file)\n", 0);
+    for my $tree_num (@{$user_tree_numbers}) {
+	if ($tree_num < 1) {
+	    ALTree::Utils::erreur("Invalid tree-to-analyse $tree_num\n", 0);
+	  } elsif ($tree_num > $num_tree_in_file) {
+	      ALTree::Utils::erreur("Invalid tree-to-analyse $tree_num (only $num_tree_in_file in file)\n", 0);
 	    }
-	    if (defined($selected_trees{$tree_num})) {
-		erreur("Invalid tree-to-analyse $tree_num (already selected)\n", 0);
-	    }
-	    $selected_trees{$tree_num}=1;
-	}
+	if (defined($selected_trees{$tree_num})) {
+	    ALTree::Utils::erreur("Invalid tree-to-analyse $tree_num (already selected)\n", 0);
+	  }
+	$selected_trees{$tree_num}=1;
+	# Correspondance entre les numéros de l'utilisateur et les
+	# indices dans le tableau (ie commence à 1 ou à 0)
+	push @tree_numbers, $tree_num-1;
     }
-    return $num_tree_in_file;
+    return \@tree_numbers;
 }
 
 sub select_trees
@@ -1687,7 +1011,7 @@ sub select_trees
 
     my @tab;
     for (my $i=0; $i<$max; $i++) {
-	$tab[$i]=$i+1; # +1 car les arbres sont indicés à partir de 1;
+	$tab[$i]=$i;
     }
     my @selected;
     for (my $i=0; $i<$nb; $i++) {
@@ -1698,57 +1022,14 @@ sub select_trees
     return \@selected;
 }
 
-sub readTree {
-    my $phylo_program=shift;
-    my $tab_arbres=shift;
-    my $datatype=shift;
-    my $ancetre=shift;
-    my($number_arbre)=shift;
-    my $tree;
-    my($tab_longbranche, $tab_infoapo, $ancetre_seq);
-
-    my($nb_br_non_nulle);
-    if ($phylo_program == PhylProg::PAUP) {
-	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
-	    =ReadPAUP($tab_arbres, $number_arbre);
-    } elsif ($phylo_program == PhylProg::PHYLIP) {
-	($tab_longbranche, $ancetre_seq)
-	    =ReadPHYLIP($tab_arbres, $number_arbre, $datatype, $ancetre);
-    } elsif ($phylo_program == PhylProg::PAML) {
-	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
-	    =ReadPAML($tab_arbres);
-    } else {
-	die "Phylogeny program not supported";
-    }
-    $tree=TreeBuilding($tab_longbranche);
-    
-    #print Dumper($tree);
-    if ($phylo_program == PhylProg::PAUP ||
-	$phylo_program == PhylProg::PAML) {
-	$tree->SetNbBrNonNulle($nb_br_non_nulle);
-	FillTreeApoInfoPAUP($tree, $tab_infoapo);
-	CheckApoBrlen($tree);
-    } elsif ($phylo_program == PhylProg::PHYLIP) {
-	my $racine=$tree->GetRoot();
-	FillTreeApo1Phylip($tree, $tab_longbranche, $ancetre_seq);
-	FillTreeApo2Phylip($racine, $racine, $ancetre_seq, $tree);
-    } else {
-	die "Phylogeny program not supported";
-    }
-   # CheckApoBrlen($tree); Pb avec phylip..
-    
-    return $tree;
-}
-
 sub PrintTree { 
     my $tree=shift;
-    my $print_tree=shift;
-    if ($print_tree==1) {
-	my ($racine)=$tree->GetRoot();
-	AffichageArbre($racine, \&TreeInfos);
-	print "\n\n";
-    }
+
+    my ($racine)=$tree->GetRoot();
+    AffichageArbre($racine, \&TreeInfos);
+    print "\n\n";
 }
+
 sub ManageRoot {
     my $tree= shift;
     my $root_id=shift;
@@ -1756,7 +1037,7 @@ sub ManageRoot {
     
     my $root=$tree->GetNode($root_id);
     if (not defined($root)) {
-	erreur ("The name you enter for option root does not correspond to any node!", 1);
+	ALTree::Utils::erreur ("The name you enter for option root does not correspond to any node!", 1);
     }
     if ($rootmeth == RootMeth::ANC) {
 	$tree->ChangeRoot($root);
@@ -1771,33 +1052,11 @@ sub ManageRoot {
 	my $newracine=$tree->GetRoot();
 	#AffichageArbre($newracine, \&TreeInfos);
     } else {
-	erreur("unauthorized value for rootmeth", 1);
+	ALTree::Utils::erreur("unauthorized value for rootmeth", 1);
     }
 }
 
 ###########################################################
-
-sub erreur
-{
-    my $msg=shift;
-    my $use_pod=shift;
-
-    if (not defined($use_pod) or $use_pod) {
-	pod2usage("Error: ".$msg);
-    } else {
-	print STDERR "Error: ".$msg;
-	exit 1;
-    }
-}
-
-sub internal_error
-{
-    my $msg=shift;
-
-    die("Internal error: $msg\n".
-	"Please, report this bug (with all is needed to reproduce it) to:\n".
-	"bardel\@vjf.inserm.fr\n");
-}
 
 sub manage_options
 {
@@ -1956,9 +1215,8 @@ sub main
 
     $options=manage_options();
     
-    my($prolonge)=$option_value->("prolongation", 0);
+    my($prolonge)=$option_value->("prolongation", 1);
     my($print_tree)=$option_value->("print-tree", 0);
-   # print "printtree=$print_tree\n";
 
     $option_require->("tree-building-program");
     my($phylo_program)=$option_value->("tree-building-program");  
@@ -1968,24 +1226,79 @@ sub main
 
     my($association)=$option_value->("association", 0);
     my($s_loc)=$option_value->("s-localisation", 0);
-    
-    my($tab_arbres)=ReadInputFile1($input_file, $phylo_program);
-    
-    my(@no_tree);
-    my($tree_numbers)=$option_value->("tree-to-analyse", \@no_tree);
-    my $num_trees_in_file=check_tree_numbers($tab_arbres, $tree_numbers);
+    if (!$association && !$s_loc) {
+	ALTree::Utils::erreur("Should I perform the association test or the".
+			      " localisation test ?");
+    }
+
 
     my $datatype;
+    my $ancetre="";
     if ($phylo_program == PhylProg::PHYLIP) {
 	$option_require->("data-type");
 	$datatype=$option_value->("data-type");
+	if ($option_selected->("anc-seq")) {
+	    $ancetre=$option_value->("anc-seq");
+	}
     }
-    my $ancetre;
-    if ($option_selected->("anc-seq")) {
-	 $ancetre=$option_value->("anc-seq");
-    } else {
-	$ancetre="";
+
+    ###########################################################
+    # Récupération et précalcul des arbres qu'on va utiliser
+    ###########################################################
+
+    my @trees;
+    {
+	my($tab_arbres)=ALTree::Input::ReadInputFile1($input_file, $phylo_program, 
+						      $datatype, $ancetre);
+	my $num_trees_in_file=scalar(@{$tab_arbres});
+
+	my(@no_tree);
+	my($user_tree_numbers)=$option_value->("tree-to-analyse", \@no_tree);
+	my $tree_numbers=check_tree_numbers($num_trees_in_file, $user_tree_numbers);
+
+	my $nb_tree_selected=scalar(@{$tree_numbers});
+	if ($association) { 
+	    if ($nb_tree_selected == 0) {
+		$tree_numbers=select_trees($num_trees_in_file, 1);
+	    } elsif ($nb_tree_selected > 1) {
+		ALTree::Utils::erreur("Only one tree can be selected for association\n");
+	      }
+	}
+	if ($s_loc) {
+	    if ($nb_tree_selected == 0) {
+		my($trees_to_analyse)=$option_value->("number-of-trees-to-analyse",
+						      undef);
+		if (not defined($trees_to_analyse)) {
+		    print STDERR "Warning: no option number-of-trees-to-analyse".
+			" or tree-to-analyse: using all ($num_trees_in_file)".
+			" trees";
+		    $trees_to_analyse=$num_trees_in_file;
+		}
+		if ($trees_to_analyse>$num_trees_in_file) {
+		    ALTree::Utils::erreur("Invalid number of trees to analyse :".
+					  " your file contains only".
+					  " $num_trees_in_file trees\n", 0);
+		  }
+		if ($trees_to_analyse<1) {
+		    ALTree::Utils::erreur("Not enought trees to analyse".
+					  " ($trees_to_analyse)\n", 0);
+		  }
+		$tree_numbers=select_trees($num_trees_in_file, $trees_to_analyse);
+	    } elsif ($nb_tree_selected > $num_trees_in_file) {
+		ALTree::Utils::erreur("Invalid number of trees to analyse :".
+				      " your file contains only".
+				      " $num_trees_in_file trees\n", 0);
+	      }
+	}
+	for my $num_tree (@{$tree_numbers}) {
+	    my $tree=ALTree::Input::readTree($phylo_program, $tab_arbres, 
+					     $datatype, $ancetre, $num_tree);
+	    push @trees, $tree;
+	}
     }
+    ###########################################################
+    # Let's go. D'abord pour l'association
+    ###########################################################
 
     if ($association == 1) { 
 	my($splitmode)=SplitMode::NOSPLIT; # nosplit est imposé
@@ -1994,58 +1307,20 @@ sub main
 	my($name_corres)=$option_value->("second-input-file", "correspond.txt");
 	my($correspondance); # ref on a hash containing haploID refferring to
 	# a hash containing nb case and nb control
-	$correspondance=ReadCorrespond($name_corres);
+	$correspondance=ALTree::Input::ReadCorrespond($name_corres);
 	
-	
-	my $nb_tree_selected=scalar(@{$tree_numbers});
-	if ($nb_tree_selected == 0) {
-	    $tree_numbers=select_trees($num_trees_in_file, 1);
-	} elsif ($nb_tree_selected > 1) {
-	    erreur("Only one tree can be selected for association\n");
-	}
+	my($tree)=$trees[0];
 
-	my($tree)=readTree($phylo_program, $tab_arbres, $datatype, $ancetre,
-			   $tree_numbers->[0]);
 	$option_require->("root");
 	$option_require->("rootmeth");
 	
 	my $root_id=$option_value->("root");
 	my $rootmeth=$option_value->("rootmeth");
 	ManageRoot($tree, $root_id, $rootmeth); 
-	PrintTree($tree, $print_tree);
+	if ($print_tree) {
+	    PrintTree($tree);
+	}
 	
-       	###############################
-	# DEBUG A VIRER #
-	###############################
-
-#      NODE: for (;;) {
-#	    print "Noeud à rooter ? (-1 pour finir) ";
-#	    my $nb=<>;
-#	    chomp $nb;
-#	    if ($nb eq "-1") {
-#		last;
-#	    }
-#	    my $newroot;
-#	    foreach my $node ($tree->GetNodesList()) {
-#		if ($node->Name() eq $nb) {
-#		    print "rooting node $node\n";
-#
-#		    $tree->ChangeRoot($node);
-#
-#		    my $newracine=$tree->GetRoot();
-#		    AffichageArbre($newracine, \&TreeInfos);
-#		    print "\n\n";
-##		    next NODE;
-#		}
-#	    }
-#	    print "Node $nb not found\n";
-#	    next NODE;
-#	}
-#	exit 0;
-	###############################
-	# FIN DEBUG A VIRER #
-	###############################
-
 	CheckCorrespondance($tree, $correspondance, $name_corres); 
 	
 	#print "\n";
@@ -2107,7 +1382,9 @@ sub main
 	}
     } 
 
-#####################Localisation #############
+    ###########################################################
+    # Let's go. Et pour la localisation
+    ###########################################################
 
     if ($s_loc==1) {
 	#$option_require->("splitmode");
@@ -2122,72 +1399,47 @@ sub main
 #	print "co_evo_type=$co_evo_type\n";
 
 #DEBUG	print "s_char_state=$s_char_state\n";
-	if (not ($s_char_state =~ m/([A-Za-z0-9]+)\s*[-=_]*[>]\s*([A-Za-z0-9]+)/)) {
-	    erreur("Invalid character change for character S. It should be Anc -> Der\n", 0);
+	if (not ($s_char_state =~ 
+		 m/([A-Za-z0-9]+)\s*[-=_]*[>]\s*([A-Za-z0-9]+)/)) {
+	    ALTree::Utils::erreur("Invalid character change for character".
+				  " S. It should be Anc -> Der\n", 0);
 	}
 	my($s_anc)=$1;
 	my($s_der)=$2;
 	my($s_state)= ALTree::Sens->New($s_anc." --> ".$s_der);
 	my($foret)=ALTree::Foret->New();
 	
-	my $nb_tree_selected=scalar(@{$tree_numbers});
-	if ($nb_tree_selected == 0) {
-	    my($trees_to_analyse)=$option_value->("number-of-trees-to-analyse", undef);
-	    if (not defined($trees_to_analyse)) {
-		print STDERR "Warning: no option number-of-trees-to-analyse or tree-to-analyse: using all ($num_trees_in_file) trees";
-		$trees_to_analyse=$num_trees_in_file;
-	    }
-	    if ($trees_to_analyse>$num_trees_in_file) {
-		erreur("Invalid number of trees to analyse : your file contains only $num_trees_in_file trees\n", 0);
-	    }
-	    if ($trees_to_analyse<1) {
-		erreur("Not enought trees to analyse ($trees_to_analyse)\n", 0);
-	    }
-	    $tree_numbers=select_trees($num_trees_in_file, $trees_to_analyse);
-	} elsif ($nb_tree_selected > $num_trees_in_file) {
-	    erreur("Invalid number of trees to analyse : your file contains only $num_trees_in_file trees\n", 0);
-	}
 
 	#$Data::Dumper::Indent = 0;
-	for my $num_tree (@{$tree_numbers}) {
+	for my $tree (@trees) {
 
-	    my ($tree)=readTree($phylo_program, $tab_arbres, $datatype,
-				$ancetre, $num_tree);
 	    if ($option_selected->("root")) {
 		$option_require->("rootmeth");
 		my $root_id=$option_value->("root");
 		my $rootmeth=$option_value->("rootmeth");
 		ManageRoot($tree, $root_id, $rootmeth);
-	    } 
-	    PrintTree($tree, $print_tree);
+	    }
+	    if ($print_tree) {
+		PrintTree($tree);
+	    }
 
 	    my ($b_t)=$tree->GetNbBrNonNulle();
 
 	    my $site=$tree->GetSite($s_site_nb);
 	    if (not defined($site)) {
-		erreur("Invalid value ($s_site_nb) for --s-site-number\n", 0);
+		ALTree::Utils::erreur("Invalid value ($s_site_nb) for".
+				      " --s-site-number\n", 0);
 	    }
-	    #print Dumper($tree);
-	    #print "nb_br_non_nulle=$b_t ($s_site_nb, ",Dumper($s_state),", $co_evo_type)\n";
-	    #print "nb_br_non_nulle=$b_t\n";
-	    # s_t correspond to the number of time S mutates in the s_state sens
+
 	    my($s_t, $s_t_rev)=CalculateRit($tree, $s_site_nb, $s_state, 
 					    $co_evo_type); 
-	    #print Dumper($tree);
 	    CalculateEit($tree, $s_site_nb, $s_t, $s_t_rev, $b_t);
-	   
-	   # PrintAllVit($tree, $s_site_nb);
-
 	    $foret->AddTree($tree);
-	    #my($worksite)=19;
-	    #my($ref_sitesens)=BuildTabRefSiteSens($sites, $worksite);
-	    #my(@ref_sitesens_trie)=sort{$b->GetVit() <=> $a->GetVit()} @{$ref_sitesens};
-	    #print "ttt=", $ref_sitesens_trie[0]->GetVit(),"\n";
 	}
-	#exit 0;
 	$foret->CalculVi();
 	#PrintAllVi($foret, $s_site_nb);# Non trié
-	#PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant pour chaque sit, juste le meilleur sens
+	#PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant
+	#pour chaque sit, juste le meilleur sens
 	print "\n";
 	print "Results:\n";
 	PrintViMaxSens($foret, $s_site_nb);

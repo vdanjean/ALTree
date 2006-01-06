@@ -1,6 +1,8 @@
 package ALTree::Import;
 
 use strict;
+use ALTree::Utils;
+use ALTree::Input;
 use ALTree::Sens;
 use ALTree::Tree;
 use ALTree::Foret;

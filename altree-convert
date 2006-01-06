@@ -351,20 +351,21 @@ sub MakeCorrespondanceFile
 sub ReadDataType
 {
     my($data_type)=shift;
-    my ($der, $anc);
+#    my ($der, $anc);
     my($write_data_type);
     if ($data_type eq "DNA") {
 	$write_data_type="ATGCU";
-	$anc="G";
-	$der="C";
+#	$anc="G";
+#	$der="C";
     } elsif ($data_type eq "NUM") {
 	$write_data_type="0123456789";
-	$anc="1";
-	$der="0";
+#	$anc="1";
+#	$der="0";
     } else {
 	die "Invalid data type specified in opt_t: $opt_t. You should use DNA or NUM\n";
     }
-    return ($anc, $der, $write_data_type);
+    return ($write_data_type);
+#   return ($anc, $der, $write_data_type);
 }
 
 
@@ -378,27 +379,28 @@ sub BuildPAUP
     my($nb_loci)=shift;
     my($data_type)=shift;
     my($file_corres)= shift;
-    my($der, $anc);
+   # my($der, $anc);
     my($write_data_type);
     
     MakeCorrespondanceFile($hash_haplo, $file_corres);
-    ($anc, $der, $write_data_type)=ReadDataType($data_type);
+    #($anc, $der, $write_data_type)=ReadDataType($data_type);
+    ($write_data_type)=ReadDataType($data_type);
     open(OUTPAUP, '>', $file) || die "Unable to open '$file': $!\n";
     print OUTPAUP "#Nexus\n";
     print OUTPAUP "Begin data;\n";
-    print OUTPAUP "dimension ntax=",$nb_haplo+1," nchar=", $nb_loci+1,";\n";
+    print OUTPAUP "dimension ntax=",$nb_haplo+1," nchar=", $nb_loci,";\n";
     print OUTPAUP "format symbols=\"$write_data_type\" missing=?;\n";
     print OUTPAUP "matrix\n";
     my($haplo);
     foreach $haplo (keys %{$hash_haplo}) {
 #	printf OUTPAUP "H%.3i_m%.3i_c%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0], $haplo, $der; # a modifier si je fais un deuxième fichier de sortie...
-	printf OUTPAUP "H%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2], $haplo, $der; 
+	printf OUTPAUP "H%.3i\t%s\n", $hash_haplo->{$haplo}->[2], $haplo;#, $der; 
     }
-    print OUTPAUP "H000_ancetre [add ancestral haplotype]$anc\n";
+    print OUTPAUP "H000_ancetre [add ancestral haplotype]\n";#$anc\n";
     print OUTPAUP ";\n";
     print OUTPAUP "end;\n";
     print OUTPAUP "begin assumptions;\n";
-    print OUTPAUP "ancstates *anc vector = [add ancestral haplotype]$anc;\n";
+    print OUTPAUP "ancstates *anc vector = [add ancestral haplotype];\n";
     print OUTPAUP "end;\n";
     print OUTPAUP "begin paup;\n";
     print OUTPAUP "set nowarnreset autoclose maxtrees = [2000] increase=[no - Auto AutoInc = 100] monitor = no taxlabels = full\n";
@@ -426,21 +428,22 @@ sub BuildPHYLIP
     my($nb_loci)=shift;
     my($data_type)=shift;
     my($file_corres)=shift;
-    my ($der, $anc);
+  #  my ($der, $anc);
     my($write_data_type);
 
 #### SI ON UTILISE PHYLIP? FAIRE UN TEST: on doit avoir du 0/1 ou du ATGCU... SInon, marche pas!
 
 
     MakeCorrespondanceFile($hash_haplo, $file_corres);
-    ($anc, $der, $write_data_type)=ReadDataType($data_type);
+#    ($anc, $der, $write_data_type)=ReadDataType($data_type);
+    ($write_data_type)=ReadDataType($data_type);
     open(OUTPHYLIP, '>', $file) || die "Unable to open '$file': $!\n";
     print OUTPHYLIP  "\t", $nb_haplo+1, "\t",  $nb_loci+1, "\n";
     my($haplo);
     foreach $haplo (keys %{$hash_haplo}) {#### SI ON UTILISE PHYLIP? FAIRE UN TEST: on doit avoir du 0/1 ou du ATGCU... SInon, marche pas!
-	printf OUTPHYLIP "H%.3i%s\t%s%s\n", $hash_haplo->{$haplo}->[2],"      ", $haplo, $der;
+	printf OUTPHYLIP "H%.3i%s\t%s\n", $hash_haplo->{$haplo}->[2],"      ", $haplo;#, $der;
     }
-    print OUTPHYLIP "H000_anc  ", "\t", "[ancestral sequence]$anc\n";
+    print OUTPHYLIP "H000_anc  ", "\t", "[ancestral sequence]\n";#$anc\n";
     close(OUTPHYLIP);
    # print STDERR "Don't forget to prepare the ancestor file containing the ancestor sequence followed by the character $anc\n";
 }
@@ -552,7 +555,7 @@ sub main
    # AfficheHashHaplo($hash_haplo); # pour verifier
    
     if ($phylo_program =~ /^[Pp][Aa][Uu][Pp]$/) {
-	BuildPAUP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t, $opt_c);  	
+	BuildPAUP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t, $opt_c)
     } elsif ($phylo_program =~ /^[Pp][Hh][Yy][Ll][Ii][Pp]$/) {
 	BuildPHYLIP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t, $opt_c);
     } else {
