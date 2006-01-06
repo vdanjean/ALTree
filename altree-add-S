@@ -69,7 +69,7 @@ sub travail
     my($proportion_malades)=shift;
     my $low =shift;
     my $name_correspond=shift;
-    my $anc_name = shift;
+#    my $anc_name = shift;
     my($ligne);
     my($temoin, $malade, $sequence, $nom, $debut, $ancetre);
     my($anc, $num_car, $prop_mal, $prop_tem);
@@ -83,127 +83,147 @@ sub travail
 #    }
     my $found_anc=0;
     my $ici = 0;
-
+    my $phylo_prog= "Phylip";
+    my $compteur=0;
     while ($ligne=<STDIN>){
 	chomp($ligne);
-	if ($ligne =~ /^\s*matrix\s*$/) {
-	    $ici=1;
-	}
-	if ($ligne =~ /^\s*;\s*$/) {
-	    $ici=0;
-	}
-	
-	if ($ici==1) {
-	    if ($ligne =~ /s*matrix\s*$/) {
+	$compteur++;
+	my $diese='#';
+	if ($ligne =~ /^\s*$diese[N|n]exus\s*$/) {
+	    $phylo_prog="PAUP";
+	} 	
+	if ($phylo_prog eq "PAUP") {
+	    if ($ligne =~ /^\s*matrix\s*$/) {
 		print $ligne, "\n";
-	    } else {
-		if ($ligne =~ /^\s+$/) {
-		    next;
-		} else {
-		    @tableau=split(/\s+/, $ligne);
-		    $sequence=$tableau[1];
-		    $debut=$tableau[0];
-		    #    if ($debut eq $anc_name){
-		#	$ancetre=$sequence."?";
-		    #	print "$debut  $ancetre\n";
-		    #	$found_anc++;
-		    #	next;
-		    #    } else {
-		    #if ($debut =~ /^\s*H[0-9]{3}_m[0-9]{3}_c[0-9]{3}/) {
-		    #   @tab2=split(/_/,$debut);
-		    # print $tab2[0],"\n";
-		    #  $temoin=$tab2[2];
-		    # $temoin =~ s/c//;
-		    # print STDERR "temoin=$temoin\n";
-		    # $malade=$tab2[1];
-		    # $malade =~ s/m//;
-		    # if ($malade =~ /c/ || $temoin =~ /m/) {
-		    #	die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
-		    #   }
-		    if ($debut eq $anc_name){
-			$found_anc++;
-		    }	
-		    $nom=$tableau[0];
-		    #	print "$nom\n";
-		    $malade=$correspondance->{$nom}->{"case"};
-		    $temoin=$correspondance->{$nom}->{"control"};
-		    if ($malade == 0 && $temoin == 0) {
-			print STDERR "$nom is carried by 0 cases and 0 controls. The state ? has been attributed to the S character\n";
-			$sequence.="?";
-			print "$nom  ", $sequence, "\n";
-			next;
-		    }
-		    
-		    #	print " $nom mal=$malade\n";   
-		    $prop_mal=$malade/($malade+$temoin);
-		    $prop_tem=$temoin/($malade+$temoin);
-		    #	print "M=$malade T=$temoin\n";
-		    #print "test=$test\n";
-		    #	if ($test==0) { # test: difference |mal-tem| >=seuil 
-		    #    if ($malade > $temoin && $malade-$temoin>=$seuil) {
-		    #$sequence.="G";
-		    #    } elsif ($malade < $temoin && $temoin-$malade>=$seuil) {
-		    #	$sequence.="C";
-		    #    } else {
-		    #	$sequence.="?";
-		    #    }
-		#} elsif ($test==1) {
-		    #  if ($malade+$temoin==1) {
-		    #$sequence.="?";
-		    if ($low !=0 && $malade+$temoin==1) {
-			$sequence.="?";
-		    }  else {
-			if ($prop_mal>$proportion_malades+
-			    $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
-			    $sequence.=$mal;
-			} elsif ($prop_mal<$proportion_malades-
-				 $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
-			    $sequence.=$tem;
-			} else {
-			    $sequence.="?";
-			}   
-			#}
-		    }
-		    
-		    print "$nom  ", $sequence, "\n";
-		    #"_m$malade", "_c$temoin\t", $sequence, "\n";
-		}
+		$ici=1;
+		next
 	    }
-	} elsif ($ligne =~ /dimension ntax=([0-9]+) nchar=([0-9]+);/) {
-	    $num_car=$2+1;
-	    print "dimension ntax=$1 nchar=", $num_car, ";\n";
-	} elsif ($ligne =~ /format symbols=\"([0-9ATGCU]+)\"/) {
-	    my($format)=$1;
-	    my($format_old)=$1;
-	    $format =~ tr/GC//d;
-	    $ligne =~ s/$format_old/${format}CG/;
-	    print $ligne, "\n";
-	} elsif ($ligne =~ /ancstates\s+\*anc\s+vector\s*=\s*([0-9ATCG]+)\s*;/) {
-	    $anc=$1;
-	    $anc=$anc."?";
-	    $ligne =~ s/$1/$anc/;
-	    print $ligne,"\n";
-	} elsif ($ligne=~ /begin paup;/) {
-	    print $ligne,"\n";
-	    print "exclude $num_car; \n";
-	} elsif ($ligne=~ /\s*describetrees/) {
-	    print "include $num_car;\n";
-	    print $ligne,"\n";
-	} elsif ($ligne =~ /^\s*([0-9]+)\s+([0-9]+)$/) {
-	    $num_car=$2+1;
-	    print "$1\t$num_car\n";
+	    if ($ligne =~ /^\s*;\s*$/) {
+		
+		$ici=0;
+	    }
 	} else {
-	    print $ligne, "\n";
+	    if ($compteur>1) {
+		$ici=1;
+	    } 
 	}
+	    
+	if ($ici==0 && $phylo_prog eq "PAUP") {
+	    if ($ligne =~ /dimension ntax=([0-9]+) nchar=([0-9]+);/) {
+		$num_car=$2+1;
+		print "dimension ntax=$1 nchar=", $num_car, ";\n";
+	    } elsif ($ligne =~ /format symbols=\"([0-9ATGCU]+)\"/) {
+		my($format)=$1;
+		my($format_old)=$1;
+		$format =~ tr/GC//d;
+		$ligne =~ s/$format_old/${format}CG/;
+		print $ligne, "\n";
+	    } elsif ($ligne =~ /ancstates\s+\*anc\s+vector\s*=\s*([0-9ATCG]+)\s*;/) {
+		$anc=$1;
+		$anc=$anc."?";
+		$ligne =~ s/$1/$anc/;
+		print $ligne,"\n";
+	    } elsif ($ligne=~ /begin paup;/) {
+		print $ligne,"\n";
+		print "exclude $num_car; \n";
+	    } elsif ($ligne=~ /\s*describetrees/) {
+		print "include $num_car;\n";
+		print $ligne,"\n";
+	    } elsif ($ligne =~ /^\s*([0-9]+)\s+([0-9]+)$/) {
+		$num_car=$2+1;
+		print "$1\t$num_car\n";
+	    } else {
+		print $ligne, "\n";
+	    }
+	} elsif ($ici==0 && $phylo_prog eq "Phylip") {
+	    if ($ligne =~ /^\s*([0-9]+)\s+([0-9]+)\s*$/) {
+		print $1, "\t", $2+1, "\n";
+	    } else {
+		die "Strange line $ligne in Phylip file\n";
+	    }
+	} elsif ($ici==1) {
+	    if ($ligne =~ /^\s+$/) {
+		next;
+	    } else {
+		@tableau=split(/\s+/, $ligne);
+		$sequence=$tableau[1];
+		$debut=$tableau[0];
+		#    if ($debut eq $anc_name){
+		#	$ancetre=$sequence."?";
+		#	print "$debut  $ancetre\n";
+		#	$found_anc++;
+		#	next;
+		#    } else {
+		#if ($debut =~ /^\s*H[0-9]{3}_m[0-9]{3}_c[0-9]{3}/) {
+		#   @tab2=split(/_/,$debut);
+		# print $tab2[0],"\n";
+		#  $temoin=$tab2[2];
+		# $temoin =~ s/c//;
+		# print STDERR "temoin=$temoin\n";
+		# $malade=$tab2[1];
+		# $malade =~ s/m//;
+		# if ($malade =~ /c/ || $temoin =~ /m/) {
+		#	die "You have probably interverti cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
+		#   }
+#		if ($debut eq $anc_name){
+#		    $found_anc++;
+#		}	
+		$nom=$tableau[0];
+		#	print "$nom\n";
+		$malade=$correspondance->{$nom}->{"case"};
+		$temoin=$correspondance->{$nom}->{"control"};
+		if ($malade == 0 && $temoin == 0) {
+		    print STDERR "$nom is carried by 0 cases and 0 controls. The state ? has been attributed to the S character\n";
+		    $sequence.="?";
+		    print "$nom  ", $sequence, "\n";
+		    next;
+		}
+		
+		#	print " $nom mal=$malade\n";   
+		$prop_mal=$malade/($malade+$temoin);
+		$prop_tem=$temoin/($malade+$temoin);
+		#	print "M=$malade T=$temoin\n";
+		#print "test=$test\n";
+		#	if ($test==0) { # test: difference |mal-tem| >=seuil 
+		#    if ($malade > $temoin && $malade-$temoin>=$seuil) {
+		#$sequence.="G";
+		#    } elsif ($malade < $temoin && $temoin-$malade>=$seuil) {
+		#	$sequence.="C";
+		#    } else {
+		#	$sequence.="?";
+		#    }
+		#} elsif ($test==1) {
+		#  if ($malade+$temoin==1) {
+		#$sequence.="?";
+		if ($low !=0 && $malade+$temoin==1) {
+		    $sequence.="?";
+		}  else {
+		    if ($prop_mal>$proportion_malades+
+			$seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
+			$sequence.=$mal;
+		    } elsif ($prop_mal<$proportion_malades-
+			     $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
+			$sequence.=$tem;
+		    } else {
+			$sequence.="?";
+		    }   
+			#}
+		}
+		
+		print "$nom  ", $sequence, "\n";
+		#"_m$malade", "_c$temoin\t", $sequence, "\n";
+	    }
+	    
+	} 
     }
-    print "anc? $found_anc\n";
-    if ($found_anc==0 && $anc_name ne "noanc") {
-	die "ancestor not found in the file\n";
-    } elsif ($found_anc ==1 && $anc_name eq "noanc") {
-	die " false ancestor found\n";
-    } elsif ($found_anc > 1) {
-	die "Too many ancestor found ($found_anc ancestors)";
-    }
+    #print "anc? $found_anc\n";
+#   if ($found_anc==0 && $anc_name ne "noanc") {
+#	die "ancestor not found in the file\n";
+#    } elsif ($found_anc ==1 && $anc_name eq "noanc") {
+#	die " false ancestor found\n";
+#    } elsif ($found_anc > 1) {
+#	die "Too many ancestor found ($found_anc ancestors)";
+#    }
 }
 
 sub usage {
@@ -220,7 +240,7 @@ sub usage {
 # ancienne option -t test: 0= mal-tem>seuil 1= seuil proportion0+/-sqr(pq/n)]
     print STDERR "     -p   proportion of cases in the whole data set\n";
     print STDERR "     -e   epsilon parameter\n";
-    print STDERR "    [-a]  name of the ancestral haplotype\n"; 
+   # print STDERR "    [-a]  name of the ancestral haplotype\n"; 
     print STDERR "    [-l]  if -l is present, it forces the state of S to be ? for haplotypes carried by only one individual\n"; 
 }
 
@@ -236,7 +256,7 @@ sub main
 	"epsilon" => \$opt_e,
 	"data-type" => \$opt_t,
 	"proportion" => \$opt_p,
-	"ancestor" => \$opt_a,
+#	"ancestor" => \$opt_a,
 	"low" => \$opt_l,
 	);
     	
@@ -252,7 +272,7 @@ sub main
 		"epsilon|e=s",
 		"data-type|t=s",
 		"proportion|p=s",
-		"ancestor|a=s",
+	#	"ancestor|a=s",
 		"low|l!",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
@@ -322,11 +342,11 @@ sub main
 	    $low=0;
 	}
 	
-	my $anc_name="noanc";
-	if ($opt_a) {
-	    $anc_name = $opt_a;
-	}    
-	travail($seuil, $data_type,  $proportion, $low, $correspond_name, $anc_name);
+#	my $anc_name="noanc";
+#	if ($opt_a) {
+#	    $anc_name = $opt_a;
+#	}    
+	travail($seuil, $data_type,  $proportion, $low, $correspond_name);#, $anc_name);
 	
     }
 }
