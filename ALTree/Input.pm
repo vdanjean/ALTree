@@ -1,5 +1,8 @@
 package ALTree::Input;
 
+use strict;
+use ALTree::Utils qw(erreur);
+use Data::Dumper;
 ###########################################
 ########  Read file fonctions     #########
 ###########################################
@@ -75,13 +78,26 @@ sub ReadCorrespond
     return(\%correspondance);
 }
 
+# return :
+# Array (size number of trees) of
+#   Hash of
+#     "tab_longbranche" =>
+#        Array of (son, father, branch length)
+#            WARNING: [un peu différent pour PHYLIP]
+#
+#     "tab_infoapo" =>
+#        Array of (father, son, apo number, CI, nb steps, direction of change)
+#     "nb_br_non_nulle" =>
+#        Int
+#     ["outgroup" => String(leaf name)]
+#     ["ancestor" => String(sequence)]
+
 sub ReadInputFile1
 {
     my($input_file)=shift;
     my($phylo_program)=shift;
     my($datatype)=shift;
     my($ancetre)=shift;
-    my($ligne);
     my($identifiant);
     
     if ($phylo_program == PhylProg::PAUP) {
@@ -91,267 +107,360 @@ sub ReadInputFile1
     } else {
 	$identifiant = "TREE # ";
     }
-    open (INPUT, '<', $input_file) || die "Unable to open file $input_file: $!\n";
-    my($indice)=0;
-    my(@tab_arbres)=(); # contain ref on a tab containing lines for 1 tree 
-    while ($ligne=<INPUT>) {
-	chomp($ligne);
-	if ($ligne=~/$identifiant\s*[0-9.]*/) {
-	    $indice++;
+    my $tab_arbres;
+    if ($phylo_program == PhylProg::PAUP) {
+	$tab_arbres=ReadPAUP($input_file);
+    } elsif  ($phylo_program == PhylProg::PHYLIP) { 
+    	if ($datatype != DataType::SNP) {
+	    erreur("Datatype DNA not yet implemented\n", 0);
 	}
-	push (@{$tab_arbres[$indice]}, $ligne);
+	$tab_arbres=ReadPHYLIP($input_file);
+    } else {
+	$tab_arbres=ReadPAML($input_file);
     }
-    for my $arbre (@tab_arbres) {
-	if ($arbre != $tab_arbres[0]) {
-	    $arbre=readTreeOld($phylo_program, $arbre, 
-			       $datatype, $ancetre);
-	}
-    }
-    shift @tab_arbres;
-    return (\@tab_arbres);
-}
 
+    for my $arbre (@{$tab_arbres}) {
+	$arbre=readTreeOld($phylo_program, $arbre, 
+			   $datatype, $ancetre);
+    }
+    return ($tab_arbres);
+}
 
 sub ReadPAUP
 {
-    my($tab_arbre)=shift;
-    my($ligne, @tableau);
-    my($marqueur)=0;
-    my(@tab_longbranche, @tab_infoapo);
-    my($i)=0;
-    my($j)=0;
-    my($nb_br_non_nulle)=0;
-    my ($position)=0;
-    my($pos)=0;
-    foreach $ligne (@{$tab_arbre}) {
+    my $file=shift;
+    my($ligne);
+    my @trees;
+    
+    open (INPUT, '<', $file) || die "Unable to open file $file: $!\n";
+  TREE: 
+    {
+	my(@tab_longbranche, @tab_infoapo);
+	my($nb_br_non_nulle)=0;
+	my(%tree);
 	
-	if ($ligne =~ /^\s+Node\s+to node/) {
-	    $marqueur=1;
-	}
-	if ($ligne =~ /^\s*Sum/) {
-	    # print "marqueur=$marqueur\n";
-	    $marqueur=0;
-	}
-	if ($ligne =~ /^Apomorphy lists:/) {
-	    $marqueur=2;
-	    next;
-	} 
-	
-	if ($marqueur==1) {
-	   # $ligne =~ s/^\s+//;
-	    #if ($ligne =~ /root/) {
-	#	next;
-	 #   }
-	    if ($ligne =~ /---------------------------/) {
-		next;
+      FIND_TREE:
+	{
+	    while ($ligne=<INPUT>) {
+		last FIND_TREE if ($ligne =~ /^\s+Node\s+to node/);
 	    }
-	    if ($ligne =~ /Node\s+to node/) {
-		$pos = index($ligne, "to node"); 
-		#print STDERR "pos = $pos\n";
-		next;
-	    }	
-	    my $son = substr($ligne,0,$pos-1);
-	 #   print STDERR "son1:$son\n";
-	    my $other_infos = substr($ligne,$pos);
-	    $other_infos =~ s/^\s*//;
-	 #   print STDERR "otherinfos:$other_infos\n";
-	    $son =~ /\s*([^\(\)]*\S)\s\(?[0-9]*\)?\s*$/; #Revoir avec Vince
-	    $tab_longbranche[$i]->[1]= $1; #son
-	    my @tableau = split(/\s+/,  $other_infos);
-	    if ($#tableau != 3) {
-		die "error: not 4 columns, $#tableau columns\n";
-	    } else { 
-		$tab_longbranche[$i]->[0]= $tableau[0]; #father
-		$tab_longbranche[$i]->[2]= $tableau[1]; #branch length
+	    # Fin du fichier
+	    last TREE;
+	}
+	    
+      READ_LONGBRANCHE:
+	{
+	    my $pos = index($ligne, "to node");
+	    while ($ligne=<INPUT>) {
+		if ($ligne =~ /-------------------------/) {
+		    next;
+		}		
+		if ($ligne =~ /^\s*Sum/) {
+		    last READ_LONGBRANCHE;
+		}
+		chomp($ligne);
+		my $son = substr($ligne,0,$pos-1);
+		#   print STDERR "son1:$son\n";
+		my $other_infos = substr($ligne,$pos);
+		$other_infos =~ s/^\s*//;
+		#   print STDERR "otherinfos:$other_infos\n";
+		if ($son =~ /^\s*([0-9]+)\s*$/) {
+		    $son = $1;
+		} elsif ($son =~ /\s*([^\s](.*[^\s])?)\s+\([0-9]*\)(\*)?\s*$/) {
+		    $son = $1;
+		    if (defined($3)) {
+			if (defined($tree{"outgroup"})) {
+			    erreur("I found a second outgroup '$son'\n".
+				   "in file '$file' at line $.\n".
+				   "(the first outgroup was".
+				   " '$tree{outgroup}')\n", 0);
+			}
+			$tree{"outgroup"} = $son;
+		    }
+		} else {
+		    erreur("Sorry, I am unable to understand:\n$ligne\n".
+			   "in file '$file' at line $.\n".
+			   "(bad branch '$son' while reading branch".
+			   " lengths)\n", 0);
+		}
+		my @tableau = split(/\s+/,  $other_infos);
+		if ($#tableau != 3) {
+		    erreur("Sorry, I am unable to understand:\n$ligne\n".
+			   "in file '$file' at line $.\n".
+			   "(bad number of columns while reading branch".
+			   " lengths)\n", 0);
+		}
+		# We add (son, father, branch length)
+		push @tab_longbranche, [$tableau[0], $son, $tableau[1]];
 		if ($tableau[2] != 0) {
 		    $nb_br_non_nulle++;
 		}
 	    }
-	    $i++;
+	    next TREE;
 	}
+      FIND_APO:
+	{
+	    while ($ligne=<INPUT>) {
+		if ($ligne =~ /^\s+Branch\s+Character\s+Steps\s+CI\s+Change/) {
+		    last FIND_APO;
+		}
+	    }
+	    next TREE;
+	}
+      READ_APO:
+	{
+	    my $position = index($ligne, "Character");
+	    my $son;
+	    my $father;
 
-	my($modificateur)=0;
-	my($sens_chgt);
-	
-	if ($marqueur==2) {
-	    my $has_sens=0;
-	    if ($ligne =~ /^\s*$/ || $ligne =~ /^\s*------------------/) {
-		next;
-	    } 
-	    
-	    if ($ligne =~ /^\s+Branch/) {
-		$position = index($ligne, "Character");
-	#	print STDERR "position = $position\n";
-		next;
-	    }
-	    #print STDERR $ligne, "\n";
-	    my $name_haplo = substr($ligne,0,$position-1);
-	    my $infos = substr($ligne,$position);
-	    #print STDERR "infos:$infos\n";
-	    my @tab_infos=split(/\s+/, $infos);
-	    $tab_infoapo[$j]->[2]=$tab_infos[0]; # apomorphie number
-	    $tab_infoapo[$j]->[3]=$tab_infos[2]; # CI
-	    $tab_infoapo[$j]->[4]=$tab_infos[1]; # nb steps 
-	    $sens_chgt = join(' ', $tab_infos[3], $tab_infos[4], $tab_infos[5]);
-	    if ($name_haplo =~ /^\s*((root|node_).*\S)\s*$/) { 
-		$name_haplo= $1;
-		my @tab_name = split(/ --> /, $name_haplo);
-	#	print STDERR "tab0:$tab_name[0]\n";
-		$tab_name[0]=~ s/node_//g;
-	#	print STDERR "2tab0:$tab_name[0]\n";
-		$tab_name[1]=~ s/node_//g;
-		$tab_infoapo[$j]->[0]=$tab_name[0]; # father
-		#print STDERR "tab1:$tab_name[1]\n";
-	#	$tab_name[1] =~ s/\s/_/g;	
-		#print STDERR "2tab1:$tab_name[1]\n";
-		$tab_infoapo[$j]->[1]=$tab_name[1]; # son
-	    } elsif ($name_haplo =~ /^\s*$/) {
-		$tab_infoapo[$j]->[0] = $tab_infoapo[$j-1]->[0]; # father
-		$tab_infoapo[$j]->[1] = $tab_infoapo[$j-1]->[1]; #son	
-	    } else {
-		die "Unknown line $name_haplo\n";
-	    }
-	    #print STDERR $tab_infoapo[$j]->[0], ":father ", $tab_infoapo[$j]->[1], ":son  ",$tab_infoapo[$j]->[2]=$tab_infos[0], ":aponum ",  $tab_infoapo[$j]->[3]=$tab_infos[2], ":CI ", $tab_infoapo[$j]->[4]=$tab_infos[1], ":nbstep ", $sens_chgt, ":sens\n"; 
-	    
-	    $has_sens=1;
-	    
-	    if ($has_sens) {
-		$sens_chgt =~ s/=/-/g;
-		$tab_infoapo[$j]->[5]=ALTree::Sens->New($sens_chgt); # direction of the change 
-		$j++;
+	    while ($ligne=<INPUT>) {
+		chomp($ligne);
+		if ($ligne =~ /^\s*$/) {
+		    last READ_APO;
+		}
+		if ($ligne =~ /^\s*------------------/) {
+		    next;
+		}
+		my $name_haplo = substr($ligne,0,$position-1);
+		if ($name_haplo =~ /^\s*$/) {
+		    if (not defined($son)) {
+			erreur("Sorry, I am unable to understand:\n$ligne\n".
+			       "in file '$file' at line $.\n".
+			       "(no branch while reading".
+			       " apomorphies)\n", 0);
+		    }
+		} elsif ($name_haplo =~ /^\s*(root|node_[0-9]+) --> (.*[^\s])\s*$/){
+		    $father=$1;
+		    $son=$2;
+		    $father=~ s/^node_//;
+		    $son=~ s/^node_//;
+		} else {
+			erreur("Sorry, I am unable to understand:\n$ligne\n".
+			       "in file '$file' at line $.\n".
+			       "(bad branch while reading".
+			       " apomorphies)\n", 0);
+		}
+
+
+		my $infos = substr($ligne,$position);
+		#print STDERR "infos:$infos\n";
+		my @tab_infos=split(/\s+/, $infos);
+		if ($#tab_infos != 5) {
+		    erreur("Sorry, I am unable to understand:\n$ligne\n".
+			   "in file '$file' at line $.\n".
+			   "(bad number of columns while reading".
+			   " apomorphies)\n", 0);
+		}		
+
+		my $sens_chgt = join(' ', $tab_infos[3], "-->", $tab_infos[5]);
+
+		# (father, son, apo number, CI, nb steps, direction of change)
+		push @tab_infoapo, [$father, $son, $tab_infos[0],
+				$tab_infos[2], $tab_infos[1],
+				ALTree::Sens->New($sens_chgt)];
+
 	    }
 	}
-	
+	$tree{"tab_longbranche"} = \@tab_longbranche;
+	$tree{"tab_infoapo"} = \@tab_infoapo;
+	$tree{"nb_br_non_nulle"} = $nb_br_non_nulle;
+	push @trees, \%tree;
+	redo TREE;
+    } continue {
+	erreur("Unexpected end of file while reading a tree\n".
+	       "in file '$file' at line $.\n", 0);
     }
-    # print "nb_non_nul=$nb_br_non_nulle\n";
-    return (\@tab_longbranche, \@tab_infoapo, $nb_br_non_nulle);
+    close(INPUT);
+    #print STDERR Dumper(@trees);
+    return \@trees;
 }
 
 sub ReadPHYLIP
 {
-    my($tab_arbre)=shift;
-    my($num_arbre)=shift;
-    my($data_type)=shift;
-    my $ancetre =shift;
-    my($ligne, @tableau);
-    my($marqueur)=0;
-    my(@tab, $tabinfo, $j);
+    my $file=shift;
+    my($ligne);
+    my @trees;
     
-    foreach $ligne (@{$tab_arbre}) {
-	$ligne =~ s/^\s+//;
-    	if ($data_type == DataType::SNP) {
-	    #print STDERR "line: $ligne\n";
-	    if ($ligne =~ /best guesses of ancestral states:/) {
-		$marqueur=1;
-		if ($ancetre ne "") {
-		    print STDERR "ancestor defined twice, the sequence entered with the -anc-seq option will be ignored\n";
-		    $ancetre="";
-		}
+    open (INPUT, '<', $file) || die "Unable to open file $file: $!\n";
+  TREE: 
+    {
+	my(@tab_longbranche);
+	my(%tree);
+	
+      FIND_TREE:
+	{
+	  FIND_ANCESTOR:
+	    {
+		while ($ligne=<INPUT>) {
+		    last FIND_TREE if ($ligne =~ /^From\s+To\s+Any\s+Steps/);
+		    last FIND_ANCESTOR if ($ligne =~ /^best guesses of ancestral states:/);
+		    }
+		# Fin du fichier
+		last TREE;
 	    }
-	    if ($ligne =~ /^From\s+To\s+Any\s+Steps/) {
-		$marqueur=2;
-		$j=0;
-	    }
-	    if ($marqueur==1) {
-		if ($ligne =~ /.*0\!\s+[01?\s]+/) {
-		    
-		    @tab=split(/\s+/, $ligne);
-		    shift(@tab);
-		    my($i);
-		    for ($i=0; $i<=$#tab; $i++) {
-			$ancetre.=$tab[$i];
+	    my $ancestor="";
+	  READ_ANCESTOR:
+	    {
+		while ($ligne=<INPUT>) {
+		    chomp($ligne);
+		    if ($ligne =~ /.*0\!\s+([01?\s]+)$/) {
+			my @tab=split(/\s+/, $1);
+			$ancestor.=join('', @tab);
+		    } elsif ($ligne =~ /^[\s]*$/) {
+			last READ_ANCESTOR;
+		    } elsif ($ligne =~ /^[0-9\s]*$/) {
+		    } elsif ($ligne =~ /^\s*\*-+\s*$/) {
+		    } else {
+			erreur("Sorry, I am unable to understand:\n$ligne\n".
+			       "in file '$file' at line $.\n".
+			       "(while reading ancestor)\n", 0);			
 		    }
 		}
-		#print STDERR "ancetre=$ancetre ($ligne)\n";
+		next TREE;
 	    }
-	    if ($marqueur==2) {
-	        #print STDERR "Reading line $ligne\n";
-		#if ($ligne =~ /root/) {
-		#    next;
-		if ($ligne =~ /^\s*([0-9a-zA-Z_]+)\s+[0-9a-zA-Z_]+\s+(yes|no|maybe)\s+[01.? ]+\s*$/) {
+	    print STDERR "ancestor=$ancestor\n";
+	    while ($ligne=<INPUT>) {
+		last FIND_TREE if ($ligne =~ /^From\s+To\s+Any\s+Steps/);
+	    }
+	    next TREE;
+	}
+	    
+      READ_LONGBRANCHE:
+	{
+	    while ($ligne=<INPUT>) {
+		chomp($ligne);
+
+		if ($ligne =~ /^\s*([0-9a-zA-Z_]+)\s+([0-9a-zA-Z_]+)\s+(yes|no|maybe)\s+([01.? ]+)\s*$/) {
 		    #print STDERR "trouvé! $ligne\n";
-		    @tab=split(/\s+/, $ligne);
-		    $tabinfo->[$j]->[0]=shift(@tab);
-		    $tabinfo->[$j]->[1]=shift(@tab);
-		    $tabinfo->[$j]->[2]=shift(@tab);
-		    $tabinfo->[$j]->[3]=join('',@tab);
-		    $j++;
+		    my($father)=$1;
+		    my($son)=$2;
+		    my($step)=$3;
+		    my @tab=split(/\s+/, $4);
+		    push @tab_longbranche, [$father, $son, $step, join('',@tab)];
+
+		} else {
+		    if (scalar(@tab_longbranche)==0) {
+			next;
+		    } elsif ($ligne =~ /^\s*$/) {
+			last READ_LONGBRANCHE;
+		    } else {
+			erreur("Sorry, I am unable to understand:\n$ligne\n".
+			       "in file '$file' at line $.\n".
+			       "(while reading branches)\n", 0);			
+		    }
 		}
 	    }
-	    
-	   
-	} else { # $data_type == DataType::DNA
-	    erreur("Datatype DNA not yet implemented\n", 0);
-	    #A faire
+	    if (scalar(@tab_longbranche)==0) {
+		next TREE;
+	    }
 	}
+	$tree{"tab_longbranche"} = \@tab_longbranche;
+	push @trees, \%tree;
+	redo TREE;
+    } continue {
+	erreur("Unexpected end of file while reading a tree\n".
+	       "in file '$file' at line $.\n", 0);
     }
-    if ($ancetre eq "") {
-	erreur ("You have forgotten the option --anc-seq!\n", 0);
-    }
-    return ($tabinfo, $ancetre);
+    close(INPUT);
+    #print STDERR Dumper(@trees);
+    return \@trees;
 }
 
 sub ReadPAML 
 {
-    my($tab_arbre)=shift;
+    my $file=shift;
     my($ligne);
-    my($i)=-1;
-    my($j)=0;
-    my($nb_br_non_nulle)=0;
-    my($marqueur)=0;
-    my(@tab_longbranche, @tab_infoapo);
-    my($has_mutation)=0;
-    foreach $ligne (@{$tab_arbre}) {
-	chomp($ligne);
-	if ($ligne =~ /^\s*Summary of changes along branches/) {
-	    $marqueur=1;
-	    next;
-	}
-	if ($ligne =~ /^\s*List of extant and reconstructed sequences/) {
-	    if ($has_mutation != 0) {
-		$nb_br_non_nulle++;
+    my @trees;
+    
+    open (INPUT, '<', $file) || die "Unable to open file $file: $!\n";
+  TREE: 
+    {
+	my(@tab_longbranche, @tab_infoapo);
+	my($nb_br_non_nulle)=0;
+	my(%tree);
+	
+      FIND_TREE:
+	{
+	    while ($ligne=<INPUT>) {
+		last FIND_TREE if ($ligne =~ /^\s*Summary of changes along branches/);
 	    }
-	    $tab_longbranche[$i]->[2]=$has_mutation; 
-	    $marqueur=0;
-	    last;
+	    # Fin du fichier
+	    last TREE;
 	}
-
-	if ($marqueur==1) {
-	    $ligne =~ s/^\s+//;
-	    if (($ligne =~ /\s*Branch [0-9]+:\s+([0-9]+)\.\.([0-9]+)\s*$/) || 
-		($ligne =~ /\s*Branch [0-9]+:\s+([0-9]+)\.\.[0-9]+\s+[(](.*)[)]\s*$/)) {
-		# Début de branche
-		#print "Cas 1 ($1 $2)\n";
-		$i++;
-		if ($has_mutation != 0) {
-		    $nb_br_non_nulle++;
+	
+      READ_LONGBRANCHE:
+	{
+	  READ_BRANCH:
+	    while ($ligne=<INPUT>) {
+		chomp($ligne);
+		if ($ligne =~ /^\s*List of extant and reconstructed sequences/) {
+		    last READ_LONGBRANCHE;
 		}
-		if ($i>0) {
-		    $tab_longbranche[$i-1]->[2]=$has_mutation; #branch length for preceeding branch
-		}
-		$has_mutation=0;
-		$tab_longbranche[$i]->[0]= $1; #father
-		$tab_longbranche[$i]->[1]= $2; #son
-	    #} elsif ($ligne =~ /\s*([0-9]+)\s+([0-9A-Za-z?_-])\s+[0-9.]+\s*->/) {
-	    } elsif ($ligne =~ /\s*([0-9]+)\s+([0-9A-Za-z?_-])\s+[0-9.]+\s*->\s*([0-9A-Za-z?_-])\s*([0-9\.]*)?\s*/) {
-		
-		# A VERIFIER: NORMALEMENT NE DOIT SE PRODUIRE QU'EN BOUT DE BRANCHES!
-		if ($3 eq "?") {
+		if ($ligne =~ /^\s*$/) {
 		    next;
 		}
-		$has_mutation++;
-		$tab_infoapo[$j]->[0] = $tab_longbranche[$i]->[0]; #father
-		$tab_infoapo[$j]->[1] = $tab_longbranche[$i]->[1]; #son
-      		$tab_infoapo[$j]->[2]=$1; # apomorphie number
-      		#$tab_infoapo[$j]->[3]=; # CI
-		$tab_infoapo[$j]->[4]=1; # nb steps =1 for SNPs 
-		my($sens_chgt)=$2."->".$3;
-		$tab_infoapo[$j]->[5]=ALTree::Sens->New($sens_chgt); # direction of the change 
-		$j++;
+		if ($ligne =~ /^Check root for directions of change./) {
+		    next;
+		}
+		if (($ligne =~ /\s*Branch [0-9]+:\s+([0-9]+)\.\.([0-9]+)\s*$/) || 
+		    ($ligne =~ /\s*Branch [0-9]+:\s+([0-9]+)\.\.[0-9]+\s+[(](.*)[)]\s*$/)) {
+		    my $father=$1;
+		    my $son=$2;
+		    my $br_len=0;
+		  READ_APO:
+		    {
+			while ($ligne=<INPUT>) {
+			    if ($ligne =~ /^\s*$/) {
+				next;
+			    }
+			    if ($ligne =~ /\s*([0-9]+)\s+([0-9A-Za-z?_-])\s+[0-9.]+\s*->\s*([0-9A-Za-z?_-])\s*([0-9\.]*)?\s*/) {
+				# A VERIFIER: NORMALEMENT NE DOIT SE PRODUIRE QU'EN BOUT DE BRANCHES!
+				if ($3 eq "?") {
+				    next;
+				}
+				#father
+				#son
+				# apomorphie number
+				# CI
+				# nb steps =1 for SNPs 
+				# direction of the change 
+				$br_len++;
+				push @tab_infoapo, [$father, $son, $1, undef,
+						    1, ALTree::Sens
+						    ->New($2."->".$3)];				
+			    } else {
+				last READ_APO;
+			    }
+			}
+			next TREE;
+		    }
+
+		    # We add (son, father, branch length)
+		    push @tab_longbranche, [$father, $son, $br_len];
+		    if ($br_len != 0) {
+			$nb_br_non_nulle++;
+		    }
+		    # On boucle : on a déjà trouvé une autre ligne
+		    redo READ_BRANCH;
+		} else {
+		    erreur("Sorry, I am unable to understand:\n$ligne\n".
+			   "in file '$file' at line $.\n", 0);
+		}
 	    }
+	    next TREE;
 	}
+	$tree{"tab_longbranche"} = \@tab_longbranche;
+	$tree{"tab_infoapo"} = \@tab_infoapo;
+	$tree{"nb_br_non_nulle"} = $nb_br_non_nulle;
+	push @trees, \%tree;
+	redo TREE;
+    } continue {
+	erreur("Unexpected end of file while reading a tree\n".
+	       "in file '$file' at line $.\n", 0);
     }
-    return (\@tab_longbranche, \@tab_infoapo, $nb_br_non_nulle);
+    close(INPUT);
+    #print STDERR Dumper(@trees);
+    return \@trees;
 }
 
 sub readTree {
@@ -376,32 +485,37 @@ sub readTreeOld {
     my $datatype=shift;
     my $ancetre=shift;
     my $tree;
-    my($tab_longbranche, $tab_infoapo, $ancetre_seq);
 
-    my($nb_br_non_nulle);
-    if ($phylo_program == PhylProg::PAUP) {
-	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
-	    =ReadPAUP($tab_arbre);
-    } elsif ($phylo_program == PhylProg::PHYLIP) {
-	($tab_longbranche, $ancetre_seq)
-	    =ReadPHYLIP($tab_arbre, $datatype, $ancetre);
-    } elsif ($phylo_program == PhylProg::PAML) {
-	($tab_longbranche, $tab_infoapo, $nb_br_non_nulle)
-	    =ReadPAML($tab_arbre);
-    } else {
-	ALTree::Utils::internal_error("Phylogeny program not supported");
-    }
+    my $tab_longbranche=$tab_arbre->{"tab_longbranche"};
     $tree=TreeBuilding($tab_longbranche);
     
     #print STDERR Dumper($tab_arbre);
     #print STDERR Dumper($tree);
     if ($phylo_program == PhylProg::PAUP ||
 	$phylo_program == PhylProg::PAML) {
+	
+	my $nb_br_non_nulle=$tab_arbre->{"nb_br_non_nulle"};
 	$tree->SetNbBrNonNulle($nb_br_non_nulle);
+
+	my $tab_infoapo=$tab_arbre->{"tab_infoapo"};
 	FillTreeApoInfoPAUP($tree, $tab_infoapo);
+
 	CheckApoBrlen($tree);
     } elsif ($phylo_program == PhylProg::PHYLIP) {
 	my $racine=$tree->GetRoot();
+	my $ancetre_seq;
+	if (not defined($tab_arbre->{"ancestor"})) {
+	    if ($ancetre) {
+		$ancetre_seq=$ancetre;
+	    } else {
+		erreur ("You have forgotten the option --anc-seq!\n", 0);
+	    }
+	} else {
+	    $ancetre_seq=$tab_arbre->{"ancestor"};
+	    if ($ancetre && $ancetre ne $ancetre_seq) {
+		print STDERR "ancestor defined twice, the sequence entered with the -anc-seq option will be ignored\n";
+	    }
+	}
 	FillTreeApo1Phylip($tree, $tab_longbranche, $ancetre_seq);
 	FillTreeApo2Phylip($racine, $racine, $ancetre_seq, $tree);
     } else {
@@ -428,10 +542,9 @@ sub TreeBuilding{
     for ($i=0;$i<=$#$tab_longbranche;$i++) {
 	my($pere_id, $fils_id, $long_br); # variables intermédiaires pour 
 	# lisibilite du prog
-
+	    
 	$pere_id=$tab_longbranche->[$i]->[0];
 	$fils_id=$tab_longbranche->[$i]->[1];
-	#print "branche pere($pere) -> fils($fils)\n";
 	$long_br=$tab_longbranche->[$i]->[2];
 
 	my $pere;
@@ -451,7 +564,8 @@ sub TreeBuilding{
 	$pere->AddChild($fils);
 #	print "arbre{pere}->{children}->[0]->{id} ", $arbre->{$pere}->{"children"}->[0]->{"id"}, "\n"; 
 	if ($fils->HasFather()) {
-	    die ($fils->Name()." already have a father: ".$fils->GetFather()->Name()."\n");
+	    die ($fils->Name()." already have a father: ".$fils->GetFather()->Name().
+		 " and I would like ".$pere->Name()." as father\n");
 	} else {
 	    $fils->SetFather($pere);
 	}
@@ -475,7 +589,7 @@ sub FillTreeApoInfoPAUP
 	my($pere_id, $fils_id, $apo_num, $apo_CI, $apo_steps, $apo_sens)
 	    = @{$tab_infoapo->[$i]};
 	#print "branche pere($pere) -> fils($fils)\n";
-	if (not $tree->HasNodeIndex($pere_id) || 
+	if (not $tree->HasNodeIndex($pere_id) or
 	    not $tree->HasNodeIndex($fils_id)) {
 	    die "unknown node: $pere_id or $fils_id\n";
 	}

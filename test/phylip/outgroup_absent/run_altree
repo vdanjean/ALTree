@@ -1,3 +1,5 @@
-~/recherche/logiciel/alphy/altree -i outfile  -j nb_cas_controls.txt \
+#!/bin/sh -x
+
+../../../altree -i outfile  -j nb_cas_controls.txt \
  -a -t SNP --root root --rootmeth ancestor -p phylip -b -r 1 \
  --tree-to-analyse 1  > 1_trio_phy.asso

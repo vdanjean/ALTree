@@ -1,2 +1,4 @@
-~/recherche/logiciel/alphy/altree -i rst  -j nb_cas_control.txt  -a -t SNP --root OUTG \
+#!/bin/sh -x
+
+../../../altree -i rst  -j nb_cas_control.txt  -a -t SNP --root OUTG \
  --rootmeth outgroup -p paml -b -r 1 > 1_trio_ML.asso
