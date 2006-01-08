@@ -61,7 +61,7 @@ sub ReadCorrespond
 		ALTree::Utils::erreur("I do not understand '$_' in $name_correspond at".
 		       " line $.:\n$ligne\nPlease, check the syntax.\n", 0);
 	    }
-	    if (exists($correspondance{$id}->{$type})) {
+	    if (defined($correspondance{$id}->{$type})) {
 		ALTree::Utils::erreur("For the second time, I read the number of".
 		       " ${type}s of '$id'\nin file '$name_correspond' at".
 		       " line $.:\n$ligne\nPlease, check the syntax.\n", 0);
@@ -79,18 +79,29 @@ sub ReadCorrespond
 }
 
 # return :
-# Array (size number of trees) of
-#   Hash of
-#     "tab_longbranche" =>
-#        Array of (son, father, branch length)
-#            WARNING: [un peu différent pour PHYLIP]
+# Hash of
+#   "filename" => String
+#   "trees" =>
+#     Array (size number of trees) of
+#       Hash of
+#         "index" => Int
+#         "line" => Int
+#         "file" => ref of first hash
+#         "tab_longbranche" =>
+#            Array of (son, father, branch length)
 #
-#     "tab_infoapo" =>
-#        Array of (father, son, apo number, CI, nb steps, direction of change)
-#     "nb_br_non_nulle" =>
-#        Int
-#     ["outgroup" => String(leaf name)]
-#     ["ancestor" => String(sequence)]
+#         "tab_seq" =>
+#           Hash of
+#             son => Array of (father, yes|no|maybe, .....1..0..1..)
+#
+#         "tab_infoapo" =>
+#            Array of (father, son, apo
+# number, CI, nb steps, direction of change)
+#         "nb_br_non_nulle" =>
+#            Int
+#         ["outgroup" => String(leaf name)]
+#         ["ancestor" => String(sequence)]
+#         "tree" => Tree
 
 sub ReadInputFile1
 {
@@ -99,7 +110,8 @@ sub ReadInputFile1
     my($datatype)=shift;
     my($ancetre)=shift;
     my($identifiant);
-    
+    my(%file)=("filename" => $input_file);
+
     if ($phylo_program == PhylProg::PAUP) {
 	$identifiant="Tree number";
     } elsif  ($phylo_program == PhylProg::PHYLIP) { 
@@ -118,12 +130,18 @@ sub ReadInputFile1
     } else {
 	$tab_arbres=ReadPAML($input_file);
     }
+    $file{"trees"}=$tab_arbres;
 
+    my $index=0;
     for my $arbre (@{$tab_arbres}) {
-	$arbre=readTreeOld($phylo_program, $arbre, 
-			   $datatype, $ancetre);
+	$arbre->{"index"}=$index++;
+	$arbre->{"file"}=\%file;
+	$arbre->{"tree"}=readTreeOld($phylo_program, $arbre, 
+				     $datatype, $ancetre);
     }
-    return ($tab_arbres);
+    $file{"nb_trees"}=$index;
+    print STDERR "read done\n";
+    return (\%file);
 }
 
 sub ReadPAUP
@@ -147,6 +165,7 @@ sub ReadPAUP
 	    # Fin du fichier
 	    last TREE;
 	}
+	$tree{"line"}=$.;
 	    
       READ_LONGBRANCHE:
 	{
@@ -285,6 +304,7 @@ sub ReadPHYLIP
   TREE: 
     {
 	my(@tab_longbranche);
+	my(%tab_seq);
 	my(%tree);
 	
       FIND_TREE:
@@ -318,12 +338,14 @@ sub ReadPHYLIP
 		}
 		next TREE;
 	    }
-	    print STDERR "ancestor=$ancestor\n";
+	    $tree{"ancestor"}=$ancestor;
+	    #print STDERR "ancestor=$ancestor\n";
 	    while ($ligne=<INPUT>) {
 		last FIND_TREE if ($ligne =~ /^From\s+To\s+Any\s+Steps/);
 	    }
 	    next TREE;
 	}
+	$tree{"line"}=$.;
 	    
       READ_LONGBRANCHE:
 	{
@@ -334,10 +356,19 @@ sub ReadPHYLIP
 		    #print STDERR "trouvé! $ligne\n";
 		    my($father)=$1;
 		    my($son)=$2;
-		    my($step)=$3;
-		    my @tab=split(/\s+/, $4);
-		    push @tab_longbranche, [$father, $son, $step, join('',@tab)];
-
+		    my($step2)=$3;
+		    my $seq=join('', split(/\s+/, $4));
+		    my $step=$seq;
+		    $step =~ s/\.//g;
+		    $step=length($step);
+		    push @tab_longbranche, [$father, $son, $step];
+		    if (defined($tab_seq{$son})) {
+			erreur("It is the second time I read an information".
+			       "for the branch leading to '$son':\n$ligne\n".
+			       "in file '$file' at line $.\n".
+			       "Please, check your data.\n", 0);
+		    }
+		    $tab_seq{$son}=[$father, $step2, $seq];
 		} else {
 		    if (scalar(@tab_longbranche)==0) {
 			next;
@@ -355,6 +386,7 @@ sub ReadPHYLIP
 	    }
 	}
 	$tree{"tab_longbranche"} = \@tab_longbranche;
+	$tree{"tab_seq"} = \%tab_seq;
 	push @trees, \%tree;
 	redo TREE;
     } continue {
@@ -387,7 +419,7 @@ sub ReadPAML
 	    # Fin du fichier
 	    last TREE;
 	}
-	
+	$tree{"line"}=$.;	
       READ_LONGBRANCHE:
 	{
 	  READ_BRANCH:
@@ -465,17 +497,12 @@ sub ReadPAML
 
 sub readTree {
     my $phylo_program=shift;
-    my $tab_arbres=shift;
+    my $input_file=shift;
     my $datatype=shift;
     my $ancetre=shift;
     my $number_arbre=shift;
 
-    my $tree;
-    my($tab_longbranche, $tab_infoapo, $ancetre_seq);
-
-    my($nb_br_non_nulle);
- 
-    return $tab_arbres->[$number_arbre]->{"tree"};
+    return $input_file->{"trees"}->[$number_arbre]->{"tree"};
 }
 
 #use Data::Dumper;
@@ -491,17 +518,7 @@ sub readTreeOld {
     
     #print STDERR Dumper($tab_arbre);
     #print STDERR Dumper($tree);
-    if ($phylo_program == PhylProg::PAUP ||
-	$phylo_program == PhylProg::PAML) {
-	
-	my $nb_br_non_nulle=$tab_arbre->{"nb_br_non_nulle"};
-	$tree->SetNbBrNonNulle($nb_br_non_nulle);
-
-	my $tab_infoapo=$tab_arbre->{"tab_infoapo"};
-	FillTreeApoInfoPAUP($tree, $tab_infoapo);
-
-	CheckApoBrlen($tree);
-    } elsif ($phylo_program == PhylProg::PHYLIP) {
+    if ($phylo_program == PhylProg::PHYLIP) {
 	my $racine=$tree->GetRoot();
 	my $ancetre_seq;
 	if (not defined($tab_arbre->{"ancestor"})) {
@@ -516,15 +533,28 @@ sub readTreeOld {
 		print STDERR "ancestor defined twice, the sequence entered with the -anc-seq option will be ignored\n";
 	    }
 	}
-	FillTreeApo1Phylip($tree, $tab_longbranche, $ancetre_seq);
-	FillTreeApo2Phylip($racine, $racine, $ancetre_seq, $tree);
+	BuildInfoApoPhylip($tab_arbre, $ancetre_seq, $racine);
+	#FillTreeApo1Phylip($tree, $tab_longbranche, $ancetre_seq);
+	#FillTreeApo2Phylip($racine, $racine, $ancetre_seq, $tree);
+    }elsif ($phylo_program == PhylProg::PAUP ||
+	$phylo_program == PhylProg::PAML) {
+	
     } else {
 	ALTree::Utils::internal_error("Phylogeny program not supported");
     }
-   # CheckApoBrlen($tree); Pb avec phylip..
     
-    my %infos=("tree" => $tree);
-    return \%infos;
+    my $tab_infoapo=$tab_arbre->{"tab_infoapo"};
+    FillTreeApoInfo($tree, $tab_infoapo);
+
+    if (not defined($tab_arbre->{"has_ambiguity"})) {
+	# CheckApoBrlen($tree); Pb avec phylip..
+	my $nb_br_non_nulle=$tab_arbre->{"nb_br_non_nulle"};
+	$tree->SetNbBrNonNulle($nb_br_non_nulle);
+
+	CheckApoBrlen($tree);
+    }
+
+    return $tree;
 }
 
 ###########################################
@@ -578,7 +608,7 @@ sub TreeBuilding{
     return($tree);
 }
 
-sub FillTreeApoInfoPAUP
+sub FillTreeApoInfo
 {
     my($tree)=shift;
     my($tab_infoapo)=shift;
@@ -591,17 +621,25 @@ sub FillTreeApoInfoPAUP
 	#print "branche pere($pere) -> fils($fils)\n";
 	if (not $tree->HasNodeIndex($pere_id) or
 	    not $tree->HasNodeIndex($fils_id)) {
-	    die "unknown node: $pere_id or $fils_id\n";
+	    my $id;
+	    if (not $tree->HasNodeIndex($pere_id)) {
+		$id=$pere_id;
+	    } else {
+		$id=$fils_id;
+	    }
+	    erreur("For the apomorphy $apo_num ('$pere_id' -> '$fils_id'),".
+		   " the node name\n'$id' has not been found in the tree\n".
+		   "Please, check your data.", 0);
 	}
 	my $pere=$tree->GetNode($pere_id);
 	#print $pere->Name();
 	my $fils=$tree->GetNode($fils_id);
 	#print STDERR "fils =  $fils_id, pere=$pere_id\n";
 	if ($fils->GetFather() != $pere) {
-	    die ("Inconsistant data while analysing apomophy informations:\n".
-		 "=> node '$fils_id' is not the son of '$pere_id', but of '",
-		 $fils->GetFather()->Name()."'\n"		 
-		 );
+	    erreur("I read the apomorphy $apo_num ('$pere_id' -> '$fils_id').\n".
+		   "However, the node '$fils_id' has '".
+		   $fils->GetFather()->Name()."' as father in the tree.\n".
+		   "Please, check your data.", 0);
 	}
 	
 	my $site;
@@ -622,81 +660,97 @@ sub FillTreeApoInfoPAUP
     }
 }
 
-sub FillTreeApo1Phylip # Put sequence in structure node 
+sub BuildInfoApoPhylip
 {
-    my($tree)=shift;
-    my($tabinfo)=shift;
-    my($ancestor)=shift;
-    my($fils);
-    my($sequence);
-  
-    for (my $i=0; $i<=$#$tabinfo; $i++) {
-	$fils=$tabinfo->[$i]->[1];
-	$sequence=$tabinfo->[$i]->[3];
-#	print "fils=$fils, seq=$sequence\n";
-	$tree->GetNode($fils)->SetSequence($sequence);
-    }
-    
-    $tree->GetRoot()->SetSequence($ancestor);
-}
-
-sub FillTreeApo2Phylip
-{
-    my($present_node)=shift;
-    my($racine)=shift;
+    my($tab_arbre)=shift;
     my($ancetre_seq)=shift;
-    my($tree)=shift;
-    my($fatherseq);
-    my($childseq);
-    my($child);
-    my($newchildseq);
+    my($racine)=shift;
     
-    #print "noeud: ", $present_node->{"id"}, "\n";
-    if ($present_node eq $racine) {
-	$fatherseq=$ancetre_seq;
-    } else {
-	$fatherseq=$present_node->GetFather()->GetSequence();
-    }
-    $childseq=$present_node->GetSequence();
-    my($longueur)=length($childseq);
-    if (length($fatherseq) != $longueur) {
-	die "Error: reconstructed sequences have not the same length at note ",
-	$present_node->GetFather()->Name(), " ($fatherseq) and at node ",
-	$present_node->Name(), " ($childseq)\n";
-    } 
-    my($br_len)=0;
-    for (my $i=0; $i<$longueur;$i++) {
-	my($fathersite)= substr($fatherseq,$i,1);
-	my($childsite)= substr($childseq, $i,1);
-	if ($childsite eq ".") {
-	    $childsite=$fathersite;
-	    
-	}
-	elsif ($fathersite ne $childsite) {
-	    $br_len++;
-	    my($apo_num)=$i+1;
-	    my($apo_sens)=ALTree::Sens->New($fathersite."->".$childsite);
-	    my $site;
-	    if (not $tree->HasSiteIndex($apo_num)) { 
-       		$site=ALTree::SitePerTree->New($apo_num);
-		$tree->AddSite($site);
-	    } else {
-		$site=$tree->GetSite($apo_num);
-	    }
-	    $site->IncNbMut();
+    my @tab_infoapo;
+    my $nb_br_non_nulle=0;
+    my $has_ambiguity=0;
+    my($tab_seq)=$tab_arbre->{"tab_seq"};
 
-	    my($ref_site_sens)=$site->ProvideSens($apo_sens);
-	    
-	    $present_node->AddApo($ref_site_sens); # lie arbre et hash_site_sens
+    my $set_seq;
+
+    my $root=$racine->GetId();
+
+    $set_seq=sub {
+	my $son=shift;
+
+	print STDERR "managing $son\n";
+	my $branch=$tab_seq->{$son};
+	if (scalar(@{$branch})==4) {
+	    return;
 	}
-	$newchildseq.=$childsite; #rajoute
-	$present_node->SetSequence($newchildseq); # rjouté
+
+	my $father=$branch->[0];
+	my $fatherseq;
+	
+	if (not defined($tab_seq->{$father})) {
+	    if ($father ne $root) {
+		erreur("The node '$son' seems to be a son of '".
+		       $father."'\nbut I cannot get info about this branch ".
+		       "in the tree number ".$tab_arbre->{"index"}.
+		       "\nthat begins at line ".$tab_arbre->{"line"}.
+		       " in file '".$tab_arbre->{"file"}->{"filename"}.
+		       "'\nPlease, check your data.\n", 0);
+	    }
+	    $fatherseq=$ancetre_seq;
+	} else {
+	    if (scalar(@{$tab_seq->{$father}}) == 3) {
+		$set_seq->($father);
+	    }
+	    $fatherseq=$tab_seq->{$father}->[3];
+	}
+	my $childseq=$branch->[2];
+	my $longueur=length($childseq);
+
+	if (length($fatherseq) != $longueur) {
+	    erreur("Reconstructed sequences have not the same length".
+		   " at node '".$father."'\n($fatherseq) and at node '".
+		   $son."' ($childseq)\n", 0);
+	}
+	my($br_len)=0;
+	my($newchildseq)="";
+	for (my $i=0; $i<$longueur;$i++) {
+	    my($fathersite)= substr($fatherseq,$i,1);
+	    my($childsite)= substr($childseq, $i,1);
+	    if ($childsite eq ".") {
+		$childsite=$fathersite;
+		
+	    } elsif ($fathersite ne $childsite) {
+		if ($fathersite eq '?' || $childsite eq '?') {
+		    $has_ambiguity++;
+		} 
+		$br_len++;
+		my($apo_num)=$i+1;
+		my($apo_sens)=ALTree::Sens->New($fathersite."->".$childsite);
+		push @tab_infoapo, [$father, $son, $apo_num,
+				    undef, # Pas de CI dans les données avec PHYLIP
+				    1, # Pas de gestion des micro sat.
+				    $apo_sens];
+	    }
+	    $newchildseq.=$childsite;
+	}
+	if ($br_len != 0) {
+	    $nb_br_non_nulle++;
+	}
+	push @{$branch}, $newchildseq;
+    };
+
+    for my $son (keys %{$tab_seq}) {
+	$set_seq->($son);
     }
-    $present_node->SetBrLen($br_len);
-    foreach $child ($present_node->GetChildrenList()) { 
-	FillTreeApo2Phylip($child, $racine, $ancetre_seq, $tree);
+
+    $tab_arbre->{"tab_infoapo"}=\@tab_infoapo;
+    $tab_arbre->{"nb_br_non_nulle"}=$nb_br_non_nulle;
+    if ($has_ambiguity) {
+	$tab_arbre->{"has_ambiguity"}=$has_ambiguity;
     }
+    #delete($tab_arbre->{"tab_seq"});
 }
+
 
 sub CheckApoBrlen
 {

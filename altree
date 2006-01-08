@@ -27,6 +27,7 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 use ALTree::Chi2 ();
 use ALTree::Import;
+use ALTree::Utils qw(erreur);
 #use Newchi2treeUtils;
 
 ###########################################
@@ -122,11 +123,11 @@ sub CheckCorrespondance
 	    if (not defined $correspondance->{$node->GetId()}) {
 		$node->SetCase(0);
 		$node->SetControl(0);
-		ALTree::Utils::erreur("The leaf '". $node->Name().
-				      "' is not in the input file ".
-				      "'$name_corres'.\nThe number of cases and".
-				      " controls for this leaf are automatically".
-				      " set to 0\n");
+		erreur("The leaf '". $node->Name().
+		       "' is not in the input file ".
+		       "'$name_corres'.\nThe number of cases and".
+		       " controls for this leaf are automatically".
+		       " set to 0\n");
 	    }
 	}
 	
@@ -137,11 +138,11 @@ sub CheckCorrespondance
 
     foreach my $clef (keys %{$correspondance}) {
 	if (not $tree->HasNodeIndex($clef)) {
-	    ALTree::Utils::erreur("Node '$clef' found in '$name_corres' does".
-				  " not exist in the tree.\nYou have probably".
-				  " forgot to remove the haplotype corresponding".
-				  " to the ancestor. Check the input file".
-				  " '$name_corres'.\n", 1);
+	    erreur("Node '$clef' found in '$name_corres' does".
+		   " not exist in the tree.\nYou have probably".
+		   " forgot to remove the haplotype corresponding".
+		   " to the ancestor. Check the input file".
+		   " '$name_corres'.\n", 1);
 	}
 	if ($tree->GetRoot()->Name() eq $clef) {
 	    next;
@@ -191,7 +192,7 @@ sub ClassicalChi2
                 $c=$node->{"control"};
 		if ($m==0 && $c==0) {
 		    my($name)=$node->Name();
-		    ALTree::Utils::erreur("no case and no controls for node $name", 1);
+		    erreur("no case and no controls for node $name", 1);
 		}
                 $t_m=(($m+$c)*$sum_case)/$sum_total;
                         #print STDERR $node->Name() ," m=$m, t_m=$t_m, c=$c\n";
@@ -989,13 +990,13 @@ sub check_tree_numbers
 
     for my $tree_num (@{$user_tree_numbers}) {
 	if ($tree_num < 1) {
-	    ALTree::Utils::erreur("Invalid tree-to-analyse $tree_num\n", 0);
+	    erreur("Invalid tree-to-analyse $tree_num\n", 0);
 	  } elsif ($tree_num > $num_tree_in_file) {
-	      ALTree::Utils::erreur("Invalid tree-to-analyse $tree_num (only $num_tree_in_file in file)\n", 0);
-	    }
-	if (defined($selected_trees{$tree_num})) {
-	    ALTree::Utils::erreur("Invalid tree-to-analyse $tree_num (already selected)\n", 0);
+	      erreur("Invalid tree-to-analyse $tree_num (only $num_tree_in_file in file)\n", 0);
 	  }
+	if (defined($selected_trees{$tree_num})) {
+	    erreur("Invalid tree-to-analyse $tree_num (already selected)\n", 0);
+	}
 	$selected_trees{$tree_num}=1;
 	# Correspondance entre les numéros de l'utilisateur et les
 	# indices dans le tableau (ie commence à 1 ou à 0)
@@ -1037,7 +1038,7 @@ sub ManageRoot {
     
     my $root=$tree->GetNode($root_id);
     if (not defined($root)) {
-	ALTree::Utils::erreur ("The name you enter for option root does not correspond to any node!", 1);
+	erreur ("The name you enter for option root does not correspond to any node!", 1);
     }
     if ($rootmeth == RootMeth::ANC) {
 	$tree->ChangeRoot($root);
@@ -1052,7 +1053,7 @@ sub ManageRoot {
 	my $newracine=$tree->GetRoot();
 	#AffichageArbre($newracine, \&TreeInfos);
     } else {
-	ALTree::Utils::erreur("unauthorized value for rootmeth", 1);
+	erreur("unauthorized value for rootmeth", 1);
     }
 }
 
@@ -1227,8 +1228,8 @@ sub main
     my($association)=$option_value->("association", 0);
     my($s_loc)=$option_value->("s-localisation", 0);
     if (!$association && !$s_loc) {
-	ALTree::Utils::erreur("Should I perform the association test or the".
-			      " localisation test ?");
+	erreur("Should I perform the association test or the".
+	       " localisation test ?");
     }
 
 
@@ -1248,9 +1249,9 @@ sub main
 
     my @trees;
     {
-	my($tab_arbres)=ALTree::Input::ReadInputFile1($input_file, $phylo_program, 
+	my($input_file)=ALTree::Input::ReadInputFile1($input_file, $phylo_program, 
 						      $datatype, $ancetre);
-	my $num_trees_in_file=scalar(@{$tab_arbres});
+	my $num_trees_in_file=$input_file->{"nb_trees"};
 
 	my(@no_tree);
 	my($user_tree_numbers)=$option_value->("tree-to-analyse", \@no_tree);
@@ -1261,8 +1262,8 @@ sub main
 	    if ($nb_tree_selected == 0) {
 		$tree_numbers=select_trees($num_trees_in_file, 1);
 	    } elsif ($nb_tree_selected > 1) {
-		ALTree::Utils::erreur("Only one tree can be selected for association\n");
-	      }
+		erreur("Only one tree can be selected for association\n");
+	    }
 	}
 	if ($s_loc) {
 	    if ($nb_tree_selected == 0) {
@@ -1275,23 +1276,23 @@ sub main
 		    $trees_to_analyse=$num_trees_in_file;
 		}
 		if ($trees_to_analyse>$num_trees_in_file) {
-		    ALTree::Utils::erreur("Invalid number of trees to analyse :".
-					  " your file contains only".
-					  " $num_trees_in_file trees\n", 0);
-		  }
+		    erreur("Invalid number of trees to analyse :".
+			   " your file contains only".
+			   " $num_trees_in_file trees\n", 0);
+		}
 		if ($trees_to_analyse<1) {
-		    ALTree::Utils::erreur("Not enought trees to analyse".
+		    erreur("Not enought trees to analyse".
 					  " ($trees_to_analyse)\n", 0);
-		  }
+		}
 		$tree_numbers=select_trees($num_trees_in_file, $trees_to_analyse);
 	    } elsif ($nb_tree_selected > $num_trees_in_file) {
-		ALTree::Utils::erreur("Invalid number of trees to analyse :".
-				      " your file contains only".
-				      " $num_trees_in_file trees\n", 0);
-	      }
+		erreur("Invalid number of trees to analyse :".
+		       " your file contains only".
+		       " $num_trees_in_file trees\n", 0);
+	    }
 	}
 	for my $num_tree (@{$tree_numbers}) {
-	    my $tree=ALTree::Input::readTree($phylo_program, $tab_arbres, 
+	    my $tree=ALTree::Input::readTree($phylo_program, $input_file, 
 					     $datatype, $ancetre, $num_tree);
 	    push @trees, $tree;
 	}
@@ -1401,8 +1402,8 @@ sub main
 #DEBUG	print "s_char_state=$s_char_state\n";
 	if (not ($s_char_state =~ 
 		 m/([A-Za-z0-9]+)\s*[-=_]*[>]\s*([A-Za-z0-9]+)/)) {
-	    ALTree::Utils::erreur("Invalid character change for character".
-				  " S. It should be Anc -> Der\n", 0);
+	    erreur("Invalid character change for character".
+		   " S. It should be Anc -> Der\n", 0);
 	}
 	my($s_anc)=$1;
 	my($s_der)=$2;
@@ -1427,8 +1428,8 @@ sub main
 
 	    my $site=$tree->GetSite($s_site_nb);
 	    if (not defined($site)) {
-		ALTree::Utils::erreur("Invalid value ($s_site_nb) for".
-				      " --s-site-number\n", 0);
+		erreur("Invalid value ($s_site_nb) for".
+		       " --s-site-number\n", 0);
 	    }
 
 	    my($s_t, $s_t_rev)=CalculateRit($tree, $s_site_nb, $s_state, 
