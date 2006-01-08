@@ -95,8 +95,7 @@ sub ReadCorrespond
 #             son => Array of (father, yes|no|maybe, .....1..0..1..)
 #
 #         "tab_infoapo" =>
-#            Array of (father, son, apo
-# number, CI, nb steps, direction of change)
+#            Array of (father, son, apo number, CI, nb steps, direction of change)
 #         "nb_br_non_nulle" =>
 #            Int
 #         ["outgroup" => String(leaf name)]
@@ -646,9 +645,10 @@ sub FillTreeApoInfo
 	if (not $tree->HasSiteIndex($apo_num)) { 
 	    $site=ALTree::SitePerTree->New($apo_num);
 	    $tree->AddSite($site);
-	    if (defined $apo_CI) { # For PAML trees, CI is not defined
-		$site->SetCI($apo_CI);
-	    }
+	    # CI is not used any more
+	    #if (defined $apo_CI) { # For PAML trees, CI is not defined
+	    #    $site->SetCI($apo_CI);
+	    #}
 	} else {
 	    $site=$tree->GetSite($apo_num);
 	}
