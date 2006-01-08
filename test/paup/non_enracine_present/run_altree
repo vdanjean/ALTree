@@ -1,5 +1,5 @@
 #!/bin/sh -x
 
 
-~/recherche/logiciel/alphy/altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \
-  --root H000 --rootmeth outgroup -p paup -b -r 1  --tree-to-analyse 1 > caco_1.asso
+../../../altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \
+ --outgroup H000 -p paup -b -r 1  --tree-to-analyse 1 > caco_1.asso

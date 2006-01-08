@@ -55,3 +55,13 @@ package PhylProg;
 use constant PHYLIP => 0;
 use constant PAUP => 1;
 use constant PAML => 2;
+
+package ANC;
+use constant Rooted => 0;
+use constant Unrooted => 1;
+use constant OutGroup => 2;
+
+no strict;
+
+@Name=("rooted using an ancestral sequence",
+       "unrooted", "rooted using an outgroup");

@@ -28,6 +28,7 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 use ALTree::Chi2 ();
 use ALTree::Import;
 use ALTree::Utils qw(erreur);
+use ALTree::Input qw(PrepareTree);
 #use Newchi2treeUtils;
 
 ###########################################
@@ -77,10 +78,11 @@ package main;
 
 # Outgroup is not removed from the hash nodes.
 # It is only removed from the list of children of it's father 
-sub EliminateNode
+sub RemoveOutgroup
 {
-    my($outgroup)=shift;
-    #print "outgroup= ", $outgroup->{"id"}, "\n";
+    my $tree=shift;
+    my $outgroup=shift;
+
     my($father_outgr)=$outgroup->GetFather();
     $father_outgr->DeleteChild($outgroup);
 }
@@ -110,24 +112,38 @@ sub Name
 ###########################################################
 
 # Do some check on the tree
+# Return true (1) if the outgroup need to be removed
 sub CheckCorrespondance 
 {
     my($tree)=shift;
     my($correspondance)=shift;
     my($name_corres)=shift;
-    
+    my($outgroup)=shift;
+    my($ret)=0;
+
 #Check if all the leaf are defined in $correspondance
     foreach my $node ($tree->GetNodesList()) {
 	my($nb_fils)=$node->NbChildren();
 	if ($nb_fils == 0) { # We are on a leaf
 	    if (not defined $correspondance->{$node->GetId()}) {
-		$node->SetCase(0);
-		$node->SetControl(0);
-		erreur("The leaf '". $node->Name().
-		       "' is not in the input file ".
-		       "'$name_corres'.\nThe number of cases and".
-		       " controls for this leaf are automatically".
-		       " set to 0\n");
+		if (defined($outgroup) && ($node->GetId() eq $outgroup)) {
+		    $ret=1;
+		} else {
+		    #$node->SetCase(0);
+		    #$node->SetControl(0);
+		    if (not defined($outgroup)) {
+			erreur("The leaf '". $node->Name().
+			       "' is not in the input file ".
+			       "'$name_corres'.\nPerhaps this is the".
+			       " outgroup and you need to remove it (option".
+			       " --remove-outgroup).\n".
+			       "Please, check you data\n", 0);
+		    } else {
+			erreur("The leaf '". $node->Name().
+			       "' is not in the input file ".
+			       "'$name_corres'.\nPlease, check you data\n", 0);
+		    }
+		}
 	    }
 	}
 	
@@ -139,10 +155,10 @@ sub CheckCorrespondance
     foreach my $clef (keys %{$correspondance}) {
 	if (not $tree->HasNodeIndex($clef)) {
 	    erreur("Node '$clef' found in '$name_corres' does".
-		   " not exist in the tree.\nYou have probably".
+		   " not exist in the tree. You have probably".
 		   " forgot to remove the haplotype corresponding".
-		   " to the ancestor. Check the input file".
-		   " '$name_corres'.\n", 1);
+		   " to the ancestor.\nPlease, check the input file".
+		   " '$name_corres'.\n", 0);
 	}
 	if ($tree->GetRoot()->Name() eq $clef) {
 	    next;
@@ -150,10 +166,13 @@ sub CheckCorrespondance
 	    my($nb_fils)=$tree->GetNode($clef)->NbChildren();
 	    
 	    if ($nb_fils!=0) {
-		print STDERR "$clef, defined as a leaf in $name_corres is defined as a node in the tree\n";
+		erreur("'$clef' present in $name_corres is a".
+		       " internal node (not a leaf) in the tree\n".
+		       "Please, check your data");
 	    }
 	}
     }    
+    return $ret;
 }
 
 ##################################################
@@ -192,7 +211,7 @@ sub ClassicalChi2
                 $c=$node->{"control"};
 		if ($m==0 && $c==0) {
 		    my($name)=$node->Name();
-		    erreur("no case and no controls for node $name", 1);
+		    erreur("no case and no control for node $name\n", 1);
 		}
                 $t_m=(($m+$c)*$sum_case)/$sum_total;
                         #print STDERR $node->Name() ," m=$m, t_m=$t_m, c=$c\n";
@@ -1031,30 +1050,13 @@ sub PrintTree {
     print "\n\n";
 }
 
-sub ManageRoot {
+sub SwitchRoot {
     my $tree= shift;
-    my $root_id=shift;
-    my $rootmeth =shift;
-    
-    my $root=$tree->GetNode($root_id);
-    if (not defined($root)) {
-	erreur ("The name you enter for option root does not correspond to any node!", 1);
-    }
-    if ($rootmeth == RootMeth::ANC) {
-	$tree->ChangeRoot($root);
-	my $newracine=$tree->GetRoot();
-	# print "Newracine name",$newracine->Name(), "\n";
-	# AffichageArbre($newracine, \&TreeInfos);
-	# print "Newracine name",$newracine->Name(), "\n";
-    } elsif ($rootmeth == RootMeth::OUTG) {
-	my  $ancestor=$root->GetFather();
-	$tree->ChangeRoot($ancestor);
-	EliminateNode($root);
-	my $newracine=$tree->GetRoot();
-	#AffichageArbre($newracine, \&TreeInfos);
-    } else {
-	erreur("unauthorized value for rootmeth", 1);
-    }
+    my $outgroup=shift;
+
+    my $root=$outgroup->GetFather();
+    $tree->ChangeRoot($root);    
+    my $newracine=$tree->GetRoot();
 }
 
 ###########################################################
@@ -1126,8 +1128,8 @@ sub manage_options
                 "second-input-file|j=s",
                 "output-file|o=s",
                 "data-type|t=s",
-		"rootmeth=s",
-		"root=s",
+		"remove-outgroup!",
+		"outgroup=s",
                 "tree-building-program|p=s",
                 "splitmode|s=s",
 		"prolongation|b!",
@@ -1282,7 +1284,7 @@ sub main
 		}
 		if ($trees_to_analyse<1) {
 		    erreur("Not enought trees to analyse".
-					  " ($trees_to_analyse)\n", 0);
+			   " ($trees_to_analyse)\n", 0);
 		}
 		$tree_numbers=select_trees($num_trees_in_file, $trees_to_analyse);
 	    } elsif ($nb_tree_selected > $num_trees_in_file) {
@@ -1291,12 +1293,117 @@ sub main
 		       " $num_trees_in_file trees\n", 0);
 	    }
 	}
+
+	my $anctype=$input_file->{"anctype"};
+	if ($anctype == ANC::Rooted && 
+	    ($option_selected->("outgroup") 
+	     || $option_selected->("remove-outgroup"))) {
+	    erreur("You cannot use the options '--outgroup' or".
+		   " '--remove-outgroup' because your input file '"
+		   .$input_file->{"filename"}."' contains trees rooted".
+		   " with an ancestral sequence.\n", 1);
+	}
+	if ($anctype == ANC::OutGroup) {
+	    my $outgroup=$input_file->{"outgroup"};
+	    if (defined($outgroup)) {
+		if ($option_value->("outgroup", $outgroup) ne $outgroup) {
+		    erreur("The option '--outgroup' tell me to use '".
+			   $option_value->("outgroup")."' as an outgroup ".
+			   "whereas the file '".$input_file->{"filename"}.
+			   "' contains trees rooted with the outgroup '".
+			   $outgroup."'.\n", 1);
+		}
+	    } else {
+		$input_file->{"outgroup"}=$option_value->("outgroup", undef);
+	    }
+	}
+	my ($switchroot)="";
+	if ($anctype == ANC::Unrooted) {
+	    $input_file->{"outgroup"}=$option_value->("outgroup", undef);
+	    $switchroot=$option_value->("outgroup", 0);
+	}
+	if ($option_selected->("remove-outgroup")
+	    && not defined($input_file->{"outgroup"})) {
+	    if ($anctype == ANC::OutGroup) {
+		erreur("You tell me to remove the outgroup for the".
+		       " analyses. ".
+		       "The input file '".$input_file->{"filename"}.
+		       "' contains trees rooted using ".
+		       "an outgroup but I cannot automaticaly find which one".
+		       " has been used.\nPlease, provide me the outgroup".
+		       " (option '--outgroup')\n", 0);
+	    } else {
+		erreur("You tell me to remove the outgroup for the".
+		       " analyses, ".
+		       "however, I do not know what is the outgroup\n".
+		       "Please, use the '--outgroup' option\n", 0);
+	    }
+	}
+	if ($association
+	    && $anctype == ANC::Unrooted
+	    && not defined($input_file->{"outgroup"})) {
+	    erreur("I need a rooted tree to perform the association".
+		   " test. However, the input file '".
+		   $input_file->{"filename"}."' contains unrooted trees\n".
+		   "Please, provide me an outgroup (option '--outgroup')\n"
+		   , 1);
+	    #erreur("I need a rooted tree to perform the association".
+	#	   " test.\nThe input file '".$input_file->{"filename"}.
+	#	   "' contains trees rooted using ".
+	#	   "an outgroup\nbut I cannot automaticaly find which one".
+	#	   " has been used.\nPlease, provide me the outgroup".
+	#	   " (option '--outgroup')\n"
+	#	   , 1);
+	}
+
+	my $remove_outgroup=$option_value->("remove-outgroup", 0);
 	for my $num_tree (@{$tree_numbers}) {
-	    my $tree=ALTree::Input::readTree($phylo_program, $input_file, 
-					     $datatype, $ancetre, $num_tree);
-	    push @trees, $tree;
+	    my $file_tree=PrepareTree($phylo_program, $input_file, 
+				      $datatype, $ancetre, $num_tree);
+	    push @trees, $file_tree;
+
+	    my ($tree)=$file_tree->{"tree"};
+	    my $outgroup;
+	    if (defined($input_file->{"outgroup"})) {
+		$outgroup=$tree->GetNode($input_file->{"outgroup"});
+		if (not defined($outgroup)) {
+		    erreur ("I cannot find the outgroup '".
+			    $input_file->{"outgroup"}."' in the".
+			    " tree number ".($file_tree->{"index"}+1).
+			    " in file '".$input_file->{"filename"}.
+			    "'. It does not correspond to any node!\n", 0);
+		}
+		if (!$switchroot) {
+		    if ($outgroup->GetFather() != $tree->GetRoot()) {
+			erreur("The outgroup '".$outgroup->Name().
+			       "' is not just under the root ".
+			       "for the tree number ".
+			       ($file_tree->{"index"}+1).
+			       " in file '".$input_file->{"filename"}.
+			       "'.\nDo you choose the rigth outgroup ?\n", 0);
+		    }
+		}
+	    }
+	    if ($switchroot) {
+		SwitchRoot($tree, $outgroup);
+	    }
+	    if ($remove_outgroup) {
+		RemoveOutgroup($tree, $outgroup);
+	    }
+
+	    if ($print_tree) {
+		PrintTree($tree);
+	    }
+	    if ($s_loc && defined($file_tree->{"has_ambiguity"})) {
+		erreur("Some apomorphies are ambiguous in the".
+		       " tree number ".($file_tree->{"index"}+1).
+		       " in file '".$input_file->{"filename"}.
+		       "' (I find the character state '?').".
+		       " It cannot be used for the localisation test.\n", 0);
+	    }
 	}
     }
+    print STDERR "read done\n";
     ###########################################################
     # Let's go. D'abord pour l'association
     ###########################################################
@@ -1310,22 +1417,27 @@ sub main
 	# a hash containing nb case and nb control
 	$correspondance=ALTree::Input::ReadCorrespond($name_corres);
 	
-	my($tree)=$trees[0];
-
-	$option_require->("root");
-	$option_require->("rootmeth");
+	my($file_tree)=$trees[0];
+	my($tree)=$file_tree->{"tree"};
 	
-	my $root_id=$option_value->("root");
-	my $rootmeth=$option_value->("rootmeth");
-	ManageRoot($tree, $root_id, $rootmeth); 
-	if ($print_tree) {
-	    PrintTree($tree);
+	my($outgroup)=$file_tree->{"file"}->{"outgroup"};
+	if (CheckCorrespondance($tree, $correspondance, $name_corres,
+				$outgroup)) {
+	    if (!$option_selected->("remove-outgroup")) {
+		print STDERR "Warning: assuming option '--remove-outgroup' as".
+		    " the outgroup '".$outgroup.
+		    "' is not in the file '".$name_corres."'\n";
+		
+		RemoveOutgroup($tree, $tree->GetNode($outgroup));
+	    }
+	} else {
+	    if ($option_selected->("remove-outgroup")) {
+		erreur("You tell me to remove the outgroup '$outgroup',".
+		       " however it is present in the file '".
+		       $name_corres.". Please, check your data.'\n", 0);
+	    }
 	}
-	
-	CheckCorrespondance($tree, $correspondance, $name_corres); 
-	
 	#print "\n";
-	
 	FusionBrNulles($tree->GetRoot());
 	# Structure changée, on recalcul...
 	FillHeight($tree->GetRoot(), 0);
@@ -1412,18 +1524,9 @@ sub main
 	
 
 	#$Data::Dumper::Indent = 0;
-	for my $tree (@trees) {
-
-	    if ($option_selected->("root")) {
-		$option_require->("rootmeth");
-		my $root_id=$option_value->("root");
-		my $rootmeth=$option_value->("rootmeth");
-		ManageRoot($tree, $root_id, $rootmeth);
-	    }
-	    if ($print_tree) {
-		PrintTree($tree);
-	    }
-
+	for my $file_tree (@trees) {
+	    my $tree=$file_tree->{"tree"};
+	    
 	    my ($b_t)=$tree->GetNbBrNonNulle();
 
 	    my $site=$tree->GetSite($s_site_nb);
@@ -1501,8 +1604,8 @@ altree [options]
     --second-input-file|j correspond_file
     --output-file|o outfile
     --data-type|t DNA|SNP
-    --rootmeth outgroup|ancestor
-    --root name of the ancestral sequence
+    --outgroup outgroup_name
+    --remove-outgroup 
     --tree-building-program|p phylip|paup|paml
     --splitmode|s nosplit|chi2split
     --prolongation|b
@@ -1560,13 +1663,13 @@ Output file
 
 Type of data: DNA (ATGCU) or SNP (0-1)
 
-=item B<--rootmeth>  C<outgroup|ancestor>
+=item B<--outgroup>  C<outgroup>
 
-Root the tree either on ancestor or on outgroup
+Root the tree with this outgroup
 
-=item B<--root number>
+=item B<--remove-outgroup>
 
-Name of the root sequence (ancestor or outgroup), used for association test
+Remove the outgroup of the tree before performing the tests
 
 =item B<--tree-building-program|p> C<phylip>|C<paup>|C<paml>
 
