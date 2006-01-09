@@ -1,0 +1,7 @@
+#!/bin/sh -x
+
+~/phase/phase.2.0.2.linux/PHASE -c-1 caco.phase caco.phase.out 100 1 100
+
+~/recherche/logiciel/alphy/altree-convert -i caco.phase.out -p paup \
+-t NUM -r phase -c nb_cas_control.txt -o caco.prepaup
+

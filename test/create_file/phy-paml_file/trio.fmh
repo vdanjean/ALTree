@@ -1,0 +1,136 @@
+File fam19_0 passed to main function.
+
+command: /home/cbardel/FAMHAP/FAMHAP15/famhap15 fam19_0 trio.fmh dp P 
+
+Input seems to have no column headings. Program proceeds.
+Infile has 26 columns. It is assumed to have 10 marker(s).
+300 individuals were read.
+100 families were read.
+
+Mendel Check successful. No distortions encountered.
+
+The following loci were selected: 1 2 3 4 5 6 7 8 9 10 
+Only families fully genotyped at these loci will be included into the frequency estimation.
+
+independent case chromosomes: 200 control chromosomes: 200
+Internal Recoding.
+
+CODING MARKER 1.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 2.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 3.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 4.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 5.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 6.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 7.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 8.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 9.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+CODING MARKER 10.
+Allele 0 Code 0
+Allele 1 Code 1
+Allele 2 Code 2
+
+HAPLOTYPE ESTIMATION WITH DOUBLED PARAMETER SET:
+
+Selected loci: 1 2 3 4 5 6 7 8 9 10 
+Number of alleles at the loci: 2 2 2 2 2 2 2 2 2 2 
+
+Haplotype parameters at beginning (not doubled): 1024
+
+Loglikelihood -1105.715154
+
+9 iterations were performed.
+
+1 1 1 1 1 2 2 2 2 1  HaploiD: 30 FreqAff 0.045000 FreqUnaff 0.015000
+1 1 1 1 2 1 1 1 1 1  HaploiD: 32 FreqAff 0.000000 FreqUnaff 0.040000
+1 1 1 1 2 1 2 2 2 1  HaploiD: 46 FreqAff 0.005000 FreqUnaff 0.025000
+1 1 1 1 2 2 1 1 1 2  HaploiD: 49 FreqAff 0.005000 FreqUnaff 0.010000
+1 1 1 1 2 2 2 1 2 1  HaploiD: 58 FreqAff 0.025000 FreqUnaff 0.050000
+1 1 1 1 2 2 2 2 2 1  HaploiD: 62 FreqAff 0.005000 FreqUnaff 0.010000
+1 1 2 1 1 1 1 1 1 1  HaploiD: 128 FreqAff 0.010000 FreqUnaff 0.000000
+1 1 2 1 2 1 1 1 1 1  HaploiD: 160 FreqAff 0.011593 FreqUnaff 0.040833
+1 1 2 1 2 1 1 1 1 2  HaploiD: 161 FreqAff 0.005373 FreqUnaff 0.014119
+1 1 2 1 2 1 2 2 2 1  HaploiD: 174 FreqAff 0.128034 FreqUnaff 0.180048
+1 1 2 1 2 1 2 2 2 2  HaploiD: 175 FreqAff 0.005000 FreqUnaff 0.000000
+1 1 2 2 2 1 1 1 1 1  HaploiD: 224 FreqAff 0.010000 FreqUnaff 0.010000
+1 1 2 2 2 1 2 2 1 1  HaploiD: 236 FreqAff 0.005000 FreqUnaff 0.005000
+1 2 2 2 2 1 1 1 1 1  HaploiD: 480 FreqAff 0.126493 FreqUnaff 0.191914
+1 2 2 2 2 1 1 1 1 2  HaploiD: 481 FreqAff 0.025000 FreqUnaff 0.045881
+1 2 2 2 2 1 1 1 2 1  HaploiD: 482 FreqAff 0.010000 FreqUnaff 0.030000
+1 2 2 2 2 1 1 2 1 1  HaploiD: 484 FreqAff 0.020000 FreqUnaff 0.000000
+1 2 2 2 2 1 2 2 2 1  HaploiD: 494 FreqAff 0.108507 FreqUnaff 0.097205
+2 1 1 1 1 2 2 1 2 1  HaploiD: 538 FreqAff 0.055000 FreqUnaff 0.010000
+2 1 1 1 2 1 1 1 1 1  HaploiD: 544 FreqAff 0.010000 FreqUnaff 0.015000
+2 1 1 1 2 1 2 2 2 1  HaploiD: 558 FreqAff 0.005000 FreqUnaff 0.000000
+2 1 2 1 1 2 1 2 2 1  HaploiD: 662 FreqAff 0.000000 FreqUnaff 0.005000
+2 1 2 1 1 2 2 2 2 1  HaploiD: 670 FreqAff 0.010000 FreqUnaff 0.010000
+2 1 2 1 2 1 1 1 1 2  HaploiD: 673 FreqAff 0.000000 FreqUnaff 0.005000
+2 1 2 2 1 1 1 1 1 2  HaploiD: 705 FreqAff 0.045000 FreqUnaff 0.005000
+2 1 2 2 1 1 2 2 2 1  HaploiD: 718 FreqAff 0.055000 FreqUnaff 0.010000
+2 1 2 2 1 2 1 1 1 1  HaploiD: 720 FreqAff 0.011914 FreqUnaff 0.017253
+2 1 2 2 1 2 1 1 1 2  HaploiD: 721 FreqAff 0.074627 FreqUnaff 0.025000
+2 1 2 2 1 2 2 1 2 1  HaploiD: 730 FreqAff 0.005000 FreqUnaff 0.000000
+2 1 2 2 1 2 2 2 1 1  HaploiD: 732 FreqAff 0.005000 FreqUnaff 0.000000
+2 1 2 2 1 2 2 2 2 1  HaploiD: 734 FreqAff 0.143459 FreqUnaff 0.092747
+2 1 2 2 1 2 2 2 2 2  HaploiD: 735 FreqAff 0.010000 FreqUnaff 0.010000
+2 1 2 2 2 1 1 1 1 1  HaploiD: 736 FreqAff 0.005000 FreqUnaff 0.015000
+2 1 2 2 2 1 1 1 1 2  HaploiD: 737 FreqAff 0.005000 FreqUnaff 0.000000
+2 1 2 2 2 1 2 2 2 1  HaploiD: 750 FreqAff 0.010000 FreqUnaff 0.015000
+
+200 independent case chromosomes could be incorporated into the analysis.
+200 independent control chromosomes could be incorporated into the analysis.
+
+
+
+The following families could be incorporated into the estimation:
+0 1 2 3 4 5 6 7 8 9 10 11 12 
+13 14 15 16 17 18 19 20 21 22 23 24 25 
+26 27 28 29 30 31 32 33 34 35 36 37 38 
+39 40 41 42 43 44 45 46 47 48 49 50 51 
+52 53 54 55 56 57 58 59 60 61 62 63 64 
+65 66 67 68 69 70 71 72 73 74 75 76 77 
+78 79 80 81 82 83 84 85 86 87 88 89 90 
+91 92 93 94 95 96 97 98 99 
+
+All families could be incorporated.
+
+
+NUMBER OF PARAMETERS DIFFERENT FROM ZERO-1 = 34.
+
+Total number of haplotype explanations:290
+

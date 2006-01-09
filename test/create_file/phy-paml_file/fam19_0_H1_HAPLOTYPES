@@ -1,0 +1,119 @@
+HAPLOTYPE EXPLANATIONS with weight >= 0.05 UNDER H1, i.e. depending on disease status.
+
+For nuclear families:
+HAPLO1=father's transmitted haplotype.
+HAPLO2=father's nontransmitted haplotype.
+HAPLO3=mother's transmitted haplotype.
+HAPLO4=mother's nontransmitted haplotype.
+Transmission is assigned with respect to first affected child of the family.
+Haplotpyes are coded as a single integer. See outputfile.
+
+Selected loci: 1 2 3 4 5 6 7 8 9 10 
+
+FID	PID	HAPLO1	HAPLO2	HAPLO3	HAPLO4	LIKELIHOOD_WEIGHT
+0	parental_haplotypes	721	721	174	224	1.000000
+1	parental_haplotypes	734	174	481	174	1.000000
+2	parental_haplotypes	58	62	750	32	1.000000
+3	parental_haplotypes	480	494	720	481	1.000000
+4	parental_haplotypes	734	734	30	480	1.000000
+5	parental_haplotypes	494	480	734	480	1.000000
+6	parental_haplotypes	174	480	236	480	1.000000
+7	parental_haplotypes	128	718	718	494	1.000000
+8	parental_haplotypes	721	46	480	236	1.000000
+9	parental_haplotypes	174	480	734	30	1.000000
+10	parental_haplotypes	30	482	480	736	1.000000
+11	parental_haplotypes	734	174	58	734	1.000000
+12	parental_haplotypes	174	482	480	482	1.000000
+13	parental_haplotypes	174	480	480	58	1.000000
+14	parental_haplotypes	670	480	480	721	1.000000
+15	parental_haplotypes	480	46	480	734	1.000000
+16	parental_haplotypes	494	480	494	494	1.000000
+17	parental_haplotypes	538	174	494	32	1.000000
+18	parental_haplotypes	174	494	480	161	0.681434
+18	parental_haplotypes	494	174	160	481	0.318566
+19	parental_haplotypes	49	480	734	174	1.000000
+20	parental_haplotypes	734	174	735	480	1.000000
+21	parental_haplotypes	481	734	160	750	1.000000
+22	parental_haplotypes	30	482	670	670	1.000000
+23	parental_haplotypes	494	480	494	480	1.000000
+24	parental_haplotypes	538	494	721	480	1.000000
+25	parental_haplotypes	174	721	735	32	1.000000
+26	parental_haplotypes	174	494	734	720	1.000000
+27	parental_haplotypes	734	174	480	538	1.000000
+28	parental_haplotypes	174	480	174	494	1.000000
+29	parental_haplotypes	718	481	718	494	1.000000
+30	parental_haplotypes	484	480	721	174	1.000000
+31	parental_haplotypes	174	30	750	174	1.000000
+32	parental_haplotypes	721	174	494	58	1.000000
+33	parental_haplotypes	734	174	480	720	1.000000
+34	parental_haplotypes	734	721	705	721	1.000000
+35	parental_haplotypes	734	734	224	58	1.000000
+36	parental_haplotypes	174	538	174	734	1.000000
+37	parental_haplotypes	480	160	494	750	1.000000
+38	parental_haplotypes	720	480	484	480	1.000000
+39	parental_haplotypes	718	49	721	58	1.000000
+40	parental_haplotypes	174	480	481	544	1.000000
+41	parental_haplotypes	538	481	721	718	1.000000
+42	parental_haplotypes	480	174	481	174	1.000000
+43	parental_haplotypes	494	30	732	734	1.000000
+44	parental_haplotypes	30	32	705	480	1.000000
+45	parental_haplotypes	734	480	734	480	1.000000
+46	parental_haplotypes	480	49	482	174	1.000000
+47	parental_haplotypes	705	481	734	480	1.000000
+48	parental_haplotypes	734	480	494	46	1.000000
+49	parental_haplotypes	721	736	721	705	1.000000
+50	parental_haplotypes	494	174	30	174	1.000000
+51	parental_haplotypes	174	734	538	46	1.000000
+52	parental_haplotypes	730	494	734	174	1.000000
+53	parental_haplotypes	481	160	46	734	1.000000
+54	parental_haplotypes	721	494	58	494	1.000000
+55	parental_haplotypes	58	174	544	482	1.000000
+56	parental_haplotypes	538	58	705	58	1.000000
+57	parental_haplotypes	558	480	30	494	1.000000
+58	parental_haplotypes	737	160	480	174	1.000000
+59	parental_haplotypes	734	481	721	174	0.857527
+59	parental_haplotypes	721	494	734	161	0.142473
+60	parental_haplotypes	174	58	30	480	1.000000
+61	parental_haplotypes	721	481	734	58	1.000000
+62	parental_haplotypes	734	735	734	480	1.000000
+63	parental_haplotypes	161	734	734	174	0.074654
+63	parental_haplotypes	721	174	174	734	0.925346
+64	parental_haplotypes	224	673	174	224	1.000000
+65	parental_haplotypes	718	174	544	480	1.000000
+66	parental_haplotypes	494	734	62	174	1.000000
+67	parental_haplotypes	480	174	494	720	0.450625
+67	parental_haplotypes	494	160	480	734	0.549375
+68	parental_haplotypes	718	32	484	174	1.000000
+69	parental_haplotypes	705	734	480	160	1.000000
+70	parental_haplotypes	538	480	494	161	1.000000
+71	parental_haplotypes	538	480	174	480	1.000000
+72	parental_haplotypes	538	32	705	481	1.000000
+73	parental_haplotypes	721	62	480	735	1.000000
+74	parental_haplotypes	494	494	480	480	1.000000
+75	parental_haplotypes	482	734	160	174	1.000000
+76	parental_haplotypes	174	58	174	494	1.000000
+77	parental_haplotypes	480	161	538	544	1.000000
+78	parental_haplotypes	538	174	480	480	1.000000
+79	parental_haplotypes	175	481	58	494	1.000000
+80	parental_haplotypes	480	480	734	720	1.000000
+81	parental_haplotypes	705	174	494	174	1.000000
+82	parental_haplotypes	734	482	718	480	1.000000
+83	parental_haplotypes	734	734	734	494	1.000000
+84	parental_haplotypes	494	32	718	174	1.000000
+85	parental_haplotypes	174	174	174	174	1.000000
+86	parental_haplotypes	480	494	734	160	0.617218
+86	parental_haplotypes	494	480	720	174	0.382782
+87	parental_haplotypes	538	58	480	174	1.000000
+88	parental_haplotypes	705	734	480	494	1.000000
+89	parental_haplotypes	494	480	161	480	1.000000
+90	parental_haplotypes	30	734	494	174	1.000000
+91	parental_haplotypes	734	160	494	174	1.000000
+92	parental_haplotypes	718	670	721	734	1.000000
+93	parental_haplotypes	128	480	174	46	1.000000
+94	parental_haplotypes	718	160	718	736	1.000000
+95	parental_haplotypes	174	734	736	494	1.000000
+96	parental_haplotypes	705	32	484	750	1.000000
+97	parental_haplotypes	174	494	30	174	1.000000
+98	parental_haplotypes	734	160	734	662	1.000000
+99	parental_haplotypes	480	544	494	481	1.000000
+
