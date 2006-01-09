@@ -93,24 +93,24 @@
 
 \chapter{Overview of the software}
 
-This software was designed to perform phylogeny based analysis: first,
+ This software was designed to perform phylogeny based analysis: first,
 it allows the detection of an association between a candidate gene and
 a disease, and second, it enables to make hypothesis about the
 susceptibility loci.
 
-
-\section{Copyright}
-This software is copyright (c) by Claire Bardel and Vincent Danjean
+%\section{Copyright}
+It is copyright (c) by Claire Bardel and Vincent Danjean
 You are free to distribute this software under the terms of the GNU
 General Public License.  The complete text of the GNU General Public
 License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
 
-
+It contains three programs: \newchitree, \rechaplo and
+\etHT. The connections between these programs are described in Figure~\ref{fig:altree}
 %\section{Short description of the programs available in \altree}
 \begin{figure}[htbp]
   \includegraphics[width=\linewidth]{overview.fig}\centering
   
-  \caption{\altree softwares}
+  \caption{\altree programs}
   \label{fig:altree}
 \end{figure}
 \section{\newchitree}
@@ -118,27 +118,30 @@ License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
 The test consists in performing series of nested homogeneity tests
 (\chisquare) comparing the number of cases and controls in the
 different clades defined on the tree. A global p-value is calculated
-for the tree by using a double permutation procedure.
+for the tree by using a permutation procedure such as the one
+described by \citet{Ge03} and \citet{Becker04}.
+
 \subsection{Localization of the susceptibility loci}
 To perform the localization analysis, for each haplotype $h$, the user
 must previously define a new character (called character $S$) whose
 state depends on the proportion of cases carrying haplotype $h$ and
 optimize it on the haplotype phylogeny.  The program \newchitree then
 looks for sites that co-mutates with the character S by calculating a
-co-mutation index called $V_{is}$ for each site $i$ and for each
-character state transition $s$. The highest the $V_{is}$ is, the
-highest the probability of $i$ being the susceptibility site is.
+co-mutation index called $V_{i}$ for each site $i$ and for each
+character state transition ($0 \rightarrow 1$ for example). The
+higher the $V_{i}$, the higher the probability of $i$ being the
+susceptibility site.
 
 \bigskip The method implemented in \newchitree has been fully
-described in~\cite{Bardel05}. Please refer to this article for a more
+described in~\citet{Bardel05}. Please refer to this article for a more
 complete description.
 
 \section{\rechaplo}
 Before running \newchitree, you will generally have to reconstruct
 haplotypes (see section \ref{sec:require} for a description of usable
 programs). The output of the haplotype reconstruction programs are
-totally different from the input files necessary for the phylogenetuc
-reconstruction programs. This program was then written to convert the
+totally different from the input files necessary for the phylogenetic
+reconstruction programs. \rechaplo was then written to convert the
 outputs of haplotype reconstruction programs to input files for
 phylogenetic reconstruction programs. It may be particularly useful if
 you want to use \paup because \paup has a very high number of options.
@@ -146,15 +149,15 @@ If you use \rechaplo, an input file with all the options necessary to
 further run \newchitree is produced.
 
 Currently, \rechaplo can deal with two haplotype reconstruction
-programs: \phase~\cite{Stephens01, Stephens03} and
-\famhap~\cite{Becker04} and can produce files for three phylogeny
-reconstruction programs: \paup~\cite{Swofford02},
-\phylip~\cite{Felsenstein04} and \paml~\cite{YangPAML}.
+programs: \phase~\citep{Stephens01, Stephens03} and
+\famhap~\citep{Becker04} and can produce files for three phylogeny
+reconstruction programs: \paup~\citep{Swofford02},
+\phylip~\citep{Felsenstein04} and \paml~\citep{YangPAML}.
 
 \section{\etHT}\label{description_etiquette}
 To perform the localization analysis, a new character $S$ must be
 added to each haplotype $h$. The state of $S$ depends on the
-proportion of cases carrying haplotype $h$. You can use your own
+proportion of cases carrying the haplotype $h$. You can use your own
 criterion to determine the state of $S$ and add it manually to the
 input file of the phylogeny reconstruction program that will optimize
 the character states changes on the tree.
@@ -169,7 +172,7 @@ proportion $p_0$ of cases in the whole sample.
   is coded ``C'' or ``0'' (high number of controls);
 \item if $p_h > p_0+\epsilon\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$
   is coded ``G'' or ``1'' (high number of cases);
-\item else, $S$ is coded ``?'' (missing data).
+\item else, $S$ is coded ``?'' (unknown data).
 \end{itemize}
 with $n_h$ being the number of individuals carrying the haplotype $h$.
 
@@ -180,7 +183,7 @@ with $n_h$ being the number of individuals carrying the haplotype $h$.
 
 \chapter{Installing the software}
 
-The software can run on various linux/Unix platform and on MacOS X.
+The software can run on various linux/Unix platform. %and on MacOS X.
 
 \section{Requirements}
 \label{sec:require}
@@ -193,8 +196,8 @@ Three phylogeny software are compatible with our program:
   \url{http://paup.csit.fsu.edu/}. This software is not free software
   and must be purchased (100\$ for the unix version).
 \item \phylip~\cite{Felsenstein04}: freely available at
-  \url{http://evolution.genetics.washington.edu/phylip.html} (only for
-  association test)
+  \url{http://evolution.genetics.washington.edu/phylip.html} (only
+  usable for the association test)
 \item \paml~\cite{YangPAML}: freely available at
   \url{http://abacus.gene.ucl.ac.uk/software/paml.html}. As stated by
   its author, \paml is not good at tree making. So we advise you to
@@ -218,9 +221,9 @@ tested.
 
 If you want to build the program from sources, you will also need a
 C compiler such as \prog{gcc} and the GNU \prog{make} program. They
-are available on most Unix plateforms. For MacOS X, \prog{gcc} and
-\prog{make} are available with other tools on the development CD of
-the OS.
+are available on most Unix plateforms. %For MacOS X, \prog{gcc} and
+%\prog{make} are available with other tools on the development CD of
+%the OS.
 
 \section{Installation on a linux platform} 
 To install this module type the following:\\
@@ -253,8 +256,8 @@ export PERL5LIB
 
 \vspace{0.5cm}
 
-Inclure les differentes platformes sur lesquelles ça tourne.\\
-Voir avec Vince; installation des bibliothèques perl, installation de la bibliothèque C. Avec Linux, paquet debian dispo sur page Vince. Voir si on peut compiler le C pour windows et/ou macOSX.
+%Inclure les differentes platformes sur lesquelles ça tourne.\\
+%Voir avec Vince; installation des bibliothèques perl, installation de la bibliothèque C. Avec Linux, paquet debian dispo sur page Vince. Voir si on peut compiler le C pour windows et/ou macOSX.
 
 \chapter{\rechaplo }
 This program converts the output of the haplotype reconstruction programs to input for phylogeny reconstruction programs.
@@ -265,14 +268,16 @@ This program converts the output of the haplotype reconstruction programs to inp
   \option{--short-help|-h}{brief help message}
   \option{--help}{help message with options descriptions}
   \option{--man}{full documentation}
-  \option{-i \ucode{file}}{Input file 1}
-  \option{-j \ucode{file}}{Input file 2 (not mandatory, see
+  \option{--first-input-file|-i \ucode{file}}{Input file 1}
+  \option{--second-input-file|-j \ucode{file}}{Input file 2 (not mandatory, see
     explanations below)}
-  \option{-o \ucode{file}}{Output file} 
-  \option{-r \ccode{phase|famhap}}{Name of the haplotype
+  \option{--output-file|-o \ucode{file}}{Output file} 
+  \option{--case-control-output|-c  \ucode{file}}{Output containing the
+    number of cases/controls}
+  \option{--reconstruct-prog|-r \ccode{phase|famhap}}{Name of the haplotype
     reconstruction program}
-  \option{-p \ccode{paup|phylip}}{Name of the phylogeny reconstruction program}
-  \option{-t \ccode{DNA|NUM}}{Type of data: DNA (ATGCU) or NUM (0-9)}
+  \option{--phylo-prog|-p \ccode{paup|phylip}}{Name of the phylogeny reconstruction program}
+  \option{--data-type|-t \ccode{DNA|NUM}}{Type of data: DNA (ATGCU) or NUM (0-9)}
 \end{options}
 
 \section{Input files}
@@ -288,12 +293,14 @@ Two different cases must be considered:
 \item The case-control status of each individual has not been specified in the input file for phase. In this case, two input files are necessary: the phase output file (out.phase) and another file which specifies the disease status for each individual (status.phase). This file consists in two rows: the first contains the individual's ID and the second, their disease status (0=control, 1=case). In this case, the program must be run like this: \\
 \begin{source}   
   \rechaploname -r \ccode{phase} -i \ucode{out.phase} -j
-  \ucode{status.phase} -other\_options 
+  \ucode{status.phase}  -other\_options 
 \end{source}
 \end{itemize}
 
 \subsection{Using \famhap output files}
-The program \rechaplo is designed to use files generated with \famhap15 (and not with \famhap12!). Two options are necessary: 
+The program \rechaplo is designed to use files generated with
+\famhap15 (and not with \famhap12!), \famhap16 has not been tested
+yet. Two options are necessary:
 \begin{description}
 \item [dp] : to take the disease status into account in the haplotype recconstruction
 \item [P] : to make sure that all the haplotypes are present in the output file
@@ -301,7 +308,8 @@ The program \rechaplo is designed to use files generated with \famhap15 (and not
 
 Two input files are necessary: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called input\_name\_H1\_HAPLOTYPES. In this case, the program must be run like this: \\
 \begin{source} 
-  \rechaploname -r \ccode{famhap} -i \ucode{out.famhap} -j \ucode{H1\_HAPLOTYPES} -other\_options 
+  \rechaploname -r \ccode{famhap} -i \ucode{out.famhap} -j
+  \ucode{H1\_HAPLOTYPES} -other\_options
 \end{source}
 
 \section{Output files}
@@ -314,27 +322,30 @@ The file generated is a nexus file containing the options for \paup
 necessary to run \newchitree after \paup. This is only an example of a
 paup file: we choose to root the tree using an ancestral sequence, but
 this is not necessary and this file should be modified according to
-your data.
+your data. Examples of \paup input files can be found in the test
+directory: they are labeled *.paup.  
 
-
-REVOIR FORMAT FICHIER
 In the output file, the name of each haplotype is formed by the
 concatenation of an haplotype number (Hxxx), and of the number of
-controls (cxxx) and cases (mxxx) carrying this haplotype. A character
-is added to each haplotype: its state is 2 or C for all the haplotypes
-and must be set to 1 or G for the ancestral sequence. This character is set only to be sure that the phylogeny reconstruction program correctly draw the tree. It does not change the results of the analysis, and it can be removed from the file. 
+cases (mxxx) and controls (cxxx) carrying this haplotype. 
+%A character
+%is added to each haplotype: its state is 2 or C for all the haplotypes
+%and must be set to 1 or G for the ancestral sequence. This character
+%is set only to be sure that the phylogeny reconstruction program
+%correctly draw the tree. It does not change the results of the
+%analysis, and it can be removed from the file.
 
-
-Some options are indicated within square brackets and must be
-added by the user before running \paup:
+The output file is not a valid \paup input file.  Some options are
+indicated within square brackets and must be specified by the user before
+running \paup:
 \begin{itemize}
 \item the sequence of the ancestral haplotype
-\item the maximum number of trees inferred(!! trouver autre terme) by \paup
-\item the optimization of the character changes (\acctran/\deltran)
+\item the maximum number of trees \paup can find
+\item the method to optimize character state changes (\acctran/\deltran)
 \item the name of the different files generated
 \item the number of trees described by paup in the log file (we advise
   you to keep all the trees, and to limit the number of trees that are
-  analyzed later, when running \newchitree.
+  analyzed later, when running \newchitree).
 \end{itemize}
 The chosen option must be put out of the square brackets because \paup
 ignores what is written within square brackets. 
