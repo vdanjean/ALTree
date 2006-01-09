@@ -1,0 +1,10 @@
+#!/bin/sh -x
+
+~/recherche/logiciel/alphy/altree-add-S -i trio2.phy -j \
+nb_cas_controls.txt  -o et_trio2.phy -e 1 -t DNA -p 0.5
+
+# ~/phyML/phyml_v2.4.4/exe/phyml_linux trio2.phy
+# The tree is reconstructed WITHOUT the S character
+# substitution model GTR
+
+#~/PAML/paml3.14/src/baseml

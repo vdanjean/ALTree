@@ -1,38 +1,38 @@
 #Nexus
 Begin data;
-dimension ntax=14 nchar=12;
-format symbols="0123456789" missing=?;
+dimension ntax=13 nchar=13;
+format symbols="0123456789CG" missing=?;
 matrix
-H002_test_log_pour_voir	112221111122
-'H010 (5) -+:_m'	222212222222
-H007_.autre_tes__pour_voir	222221111121
-H008qsllkjlkjlk	112221112112
-H014sfslkjjlkjl_	112221112222
-H013	222221122222
-H001	112222222222
-H003	221122222222
-H000	222222222222
-H005	221222222221
-H012_	222221111112
-H009	112221111121
-H006	112221111112
-H011	222221111122
+H002  112221111122?
+H010  222212222222?
+H007  2222211111210
+H008  1122211121121
+H014  112221112222?
+H013  222221122222?
+H001  112222222222?
+H003  221122222222?
+H005  221222222221?
+H012  2222211111120
+H009  1122211111211
+H006  1122211111121
+H011  2222211111221
 ;
 end;
 begin assumptions;
-[ancstates *anc vector = 2222222222221;]
+ancstates *anc vector = 222222222222?;
 end;
 begin paup;
+exclude 13; 
 set nowarnreset autoclose maxtrees = 2000 increase= no [- Auto AutoInc = 100] monitor = no taxlabels = full
-root=outgroup warnroot=no opt=deltran [- acctran];
-outgroup H000;
+root=lundberg warnroot=no opt=deltran [- acctran] ancstates=anc;
 hsearch;
 savetrees from=1 to=1000 file= test.tree root=yes format=altnexus;
 cleartrees nowarn=yes;
 gettrees rooted=yes file=test.tree;
 log file = test.res.log replace= yes [- no];
+include 13;
 describetrees all /plot=cladogram [- phylogram] brlens=yes 
-rootmethod=outgroup apolist=yes;
+rootmethod=lundberg apolist=yes;
 log stop;
 end;
 quit;

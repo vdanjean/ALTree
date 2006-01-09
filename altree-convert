@@ -443,7 +443,7 @@ sub BuildPHYLIP
     foreach $haplo (keys %{$hash_haplo}) {#### SI ON UTILISE PHYLIP? FAIRE UN TEST: on doit avoir du 0/1 ou du ATGCU... SInon, marche pas!
 	printf OUTPHYLIP "H%.3i%s\t%s\n", $hash_haplo->{$haplo}->[2],"      ", $haplo;#, $der;
     }
-    print OUTPHYLIP "H000_anc  ", "\t", "[ancestral sequence]\n";#$anc\n";
+   # print OUTPHYLIP "H000_anc  ", "\t", "[ancestral sequence]\n";#$anc\n";
     close(OUTPHYLIP);
    # print STDERR "Don't forget to prepare the ancestor file containing the ancestor sequence followed by the character $anc\n";
 }

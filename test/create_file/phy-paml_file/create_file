@@ -4,4 +4,4 @@
 
 ~/recherche/logiciel/alphy/altree-convert -i trio.fmh \
  -j fam19_0_H1_HAPLOTYPES -p phylip -r famhap -t NUM \
- -c nb_cas_control.txt -o trio.prephy
+ -c nb_cas_control.txt -o trio.phy

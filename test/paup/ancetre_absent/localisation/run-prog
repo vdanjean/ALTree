@@ -1,0 +1,11 @@
+#!/bin/sh -x
+
+~/recherche/logiciel/alphy/altree-add-S -i caco.paup -j \
+nb_cas_control.txt  -o et_caco.paup -e 1 -t SNP -p 0.5 
+
+paup et_caco.paup
+
+~/recherche/logiciel/alphy/altree -i test.res.log  \
+-j nb_cas_control.txt  -t SNP -p paup  --tree-to-analyse 89 \
+--s-site-number 13 --s-site-characters "0->1" \
+--co-evo double -l > caco.loc
