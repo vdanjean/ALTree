@@ -1233,7 +1233,9 @@ sub main
 	erreur("Should I perform the association test or the".
 	       " localisation test ?");
     }
-
+    #if ($opt_o) {
+	#open(STDOUT, '>', $opt_o) or die "Impossible to open $opt_o : $!" ;
+    #}
 
     my $datatype;
     my $ancetre="";
@@ -1600,9 +1602,9 @@ altree [options]
     --man            full documentation
     --association|a  perform the association test
     --s-localisation|l   perform the localisation using the S character
-    --first-input-file|i result_file
-    --second-input-file|j correspond_file
-    --output-file|o outfile
+    --first-input-file|i result_file from phylogeny reconstruction programs
+    --second-input-file|j file containing the nb of cases/controls carrying an haplotype
+    --output-file|o output_file
     --data-type|t DNA|SNP
     --outgroup outgroup_name
     --remove-outgroup 

@@ -2,8 +2,8 @@ H002	m008	c006
 # ceci est un commentaire
 ; cici aussi
 H010	cases_007	c005
-H007	m007	c013
-H008	m009	c002
+H007	m_007	c013
+H008	case009	c002
 H014	m004	c002
 H013	m002	c004
 H001	m011	c009
