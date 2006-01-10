@@ -1,0 +1,11 @@
+#!/bin/sh -x
+
+# To run paup
+paup caco.paup
+
+# To perform the association test
+# The outgroup is specified (option --outgroup) because the tree must be 
+# rooted for the test but it is removed before the tree analysis
+../../../../altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \
+ --outgroup H000 --remove-outgroup -p paup  -r 1 --tree-to-analyse 1\
+ -o 1_caco.asso
