@@ -84,12 +84,6 @@ Wagner parsimony method
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -239,12 +233,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -396,12 +384,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -551,12 +533,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -708,12 +684,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -863,12 +833,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -1020,12 +984,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -1175,12 +1133,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -1332,12 +1284,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -1487,12 +1433,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -1644,12 +1584,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -1799,12 +1733,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   4   4   2   4   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -1956,12 +1884,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -2112,12 +2034,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -2267,12 +2183,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -2424,12 +2334,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -2580,12 +2484,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -2735,12 +2633,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -2892,12 +2784,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -3048,12 +2934,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -3203,12 +3083,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -3360,12 +3234,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -3516,12 +3384,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -3671,12 +3533,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -3828,12 +3684,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -3983,12 +3833,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -4140,12 +3984,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -4295,12 +4133,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -4452,12 +4284,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -4607,12 +4433,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -4764,12 +4584,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -4919,12 +4733,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -5076,12 +4884,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -5231,12 +5033,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -5388,12 +5184,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   5   4   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -5543,12 +5333,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   5   4   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -5700,12 +5484,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   5   4   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -5855,12 +5633,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -6012,12 +5784,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -6167,12 +5933,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -6324,12 +6084,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -6479,12 +6233,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -6636,12 +6384,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -6791,12 +6533,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -6948,12 +6684,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -7103,12 +6833,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -7260,12 +6984,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -7415,12 +7133,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -7572,12 +7284,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   4   4
-   10!   6                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -7727,12 +7433,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   4   4
-   10!   6                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -7884,12 +7584,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   4   4
-   10!   6                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -8039,12 +7733,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       4   2   3   4   4   4   2   4   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -8196,12 +7884,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -8351,12 +8033,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -8508,12 +8184,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -8663,12 +8333,6 @@ root     27         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -8820,12 +8484,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -8975,12 +8633,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -9132,12 +8784,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -9287,12 +8933,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -9444,12 +9084,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -9599,12 +9233,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -9756,12 +9384,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -9911,12 +9533,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -10068,12 +9684,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -10223,12 +9833,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -10380,12 +9984,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -10535,12 +10133,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -10692,12 +10284,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -10847,12 +10433,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -11004,12 +10584,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -11159,12 +10733,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -11316,12 +10884,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -11471,12 +11033,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -11628,12 +11184,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -11783,12 +11333,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -11940,12 +11484,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -12095,12 +11633,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -12252,12 +11784,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -12407,12 +11933,6 @@ root     10         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -12564,12 +12084,6 @@ root     10         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -12720,12 +12234,6 @@ root     27         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -12875,12 +12383,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -13032,12 +12534,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -13187,12 +12683,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -13344,12 +12834,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -13499,12 +12983,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -13656,12 +13134,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -13811,12 +13283,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -13968,12 +13434,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -14124,12 +13584,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -14279,12 +13733,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -14436,12 +13884,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -14591,12 +14033,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -14748,12 +14184,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -14903,12 +14333,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -15060,12 +14484,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -15215,12 +14633,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
@@ -15372,12 +14784,6 @@ root      1         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   2   4   5   4   2   4   3
-   10!   7                                    
-
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
 
@@ -15527,12 +14933,6 @@ root      1         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   3   5   4   2   3   4
-   10!   7                                    
 
 From    To     Any Steps?    State at upper node
                              ( . means same as in the node below it on tree)
