@@ -1493,7 +1493,7 @@ sub main
 		    $corrected_values->{"chi2"}->[$i], "\n";
 		}
 		print "corrected minimal p_value in the tree: ", 
-		$corrected_values->{"pmin"}, " at level TODO\n";
+		$corrected_values->{"pmin"}, "\n";# at level TODO\n";
 	    } else {
 		die "invalid value for the number of permutation: $permutation\n";
 	    }

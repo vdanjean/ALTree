@@ -863,9 +863,9 @@ directory are the following:
 \item [trio.phy~:] the main \rechaplo output file. It is an input file
   for \phylip
 \item [nb\_cas\_control.txt~:] the \rechaplo output file containing the
-  number of cases and controls carrying each haplotype.
+  number of cases and controls carrying each haplotype
 \item [create\_file~:] a bash script containing the two command lines to
-  run respectively \famhap and \rechaplo.  
+  run respectively \famhap and \rechaplo 
 \end{description}
 % These example files correspond to two
 %situations:
@@ -874,94 +874,189 @@ directory are the following:
 %\item family data (100 trios: 2 parents + 1 affected child): they are analyzed using \phylip or \paml 
 %\end{itemize}
 
-\section{Case/Control data, analyzed using \paup}
-To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyze it using all the programs available in this software.
+\section{Analyzing \paup files}
+In the \fn{test/paup/} directory, six subdirectories can be found,
+each corresponding to a different ways to root (or not) the tree using
+\paup:
+\begin{itemize}
+\item \fn{ancestor\_absent}: In this directory, the tree is
+  rooted using an ancestral sequence which is not in the data set (it can be
+  a consensus sequence for example)
+\item \fn{ancestor\_present}: In this directory, the tree is
+  rooted using an ancestral sequence which is in the data set (it can
+  be the most frequent haplotype in the sample for example)
+\item \fn{outgr\_absent}: In this directory, the tree is
+  rooted using an outgroup which is not carried by case or controls
+  individuals (it can be an ape sequence for example)
+\item \fn{outgr\_present}: In this directory, the tree is
+  rooted using an outgroup which is in the data set
+\item \fn{unrooted\_absent}: In this directory, the tree is
+  not rooted with \paup. For the analysis, \newchitree roots the tree
+  using an outgroup (we choose the sequence H000), but \emph{do not} take the
+  outgroup into account for the association test 
+\item \fn{unrooted\_present}: In this directory, the tree is
+  not rooted with \paup. For the analysis, \newchitree roots the tree
+  using an outgroup (we choose the sequence H000), and this haplotype
+  \emph{is} taken into account for the association test
+\end{itemize}
 
-\subsection{Description of the example files}
-\paragraph{short description of the different files in the general directory:}
+All these directories are split in two sub-directories containing the
+files used to perform the association test (directory
+\fn{association}) or the localization test (directory \fn{localisation}) 
+
+
+\subsection{Association test}
+All the association directories contains the same files:
 \begin{description}
-\item [caco.phase] The file caco.phase is an input file for \phase containing the disease status information for each individual. \phase should be run this way:\\
-  \commande{phase -c-1 caco.phase caco.out 100 1 100}
-\item [caco.phase.out] This file is the \phase output file obtained with the preceding command line.
-\item [caco.phase.out\_*] These file are all the other \phase output file
-\item [caco.prepaup] This file is the output file of \rechaplo. It must be modified to become a valid \paup input file
-\item [caco.paup] This file is the valid \paup input file
-\item [caco.phy] This file is a \phylip format file that can be used by various phylogeny reconstruction program
+\item [caco.paup~:] the valid \paup file
+\item [nb\_cas\_control.txt~:] the file containing the number of time
+  each haplotype is carried by case and control individuals
+\item [test.res.log~:] the \paup output file which is used as an
+  \newchitree input file
+\item [test.tree:~] the other \paup output file, which is not useful
+  for \newchitree
+\item [1\_caco.asso:~] the \newchitree output file. The number of
+  permutation being limited to 1, the corrected p-value doesn't mean
+  anything!
+\item [run\_altree:~] a bash script containing the two command lines to
+  run respectively \paup and \newchitree (association test)
 \end{description}
 
-\paragraph{short description of the different files in the association directory:}
+\subsection{Localisation test}
+All the localisation directories contains the same files:
 \begin{description}
-\item [100\_caco.asso] This file contains the results of the association analysis 
-\item  [caco.paup]  This file is the valid \paup input file
-\item [correspond.txt] This file contains the number of cases and controls carrying each haplotype (for a more detailed description see section~\ref{description_correspond} 
-\item [test.res.log]  This file contains the equipasimonious trees, the table containing the branch length and the apomorphie list. This is the input file for \newchitree
-\item [test.tree] This file contains the list of the equiparsimonious trees reconstructed by \paup
-
+\item [caco.paup:~]  the valid \paup file
+\item [nb\_cas\_control.txt~:] the file containing the number of time
+  each haplotype is carried by case and control individuals
+\item [et\_caco.paup:~] the output file of \etHT. It is a valid \paup
+  input file in which the character S has been added
+ \item [test.res.log~:] the \paup output file which is used as an
+  \newchitree input file
+\item [test.tree:~] the other \paup output file, which is not useful
+  for \newchitree
+\item [caco.loc:~] the \newchitree output file, result of the
+  localisation test
+\item [run-prog:~] a bash script containing the three command lines to
+  run respectively \etHT, \paup and then \newchitree (localisation test)
 \end{description}
 
-\paragraph{short description of the different files in the localization directory:}
+\section{Analysing \phylip files}
+In the \fn{\phylip} directory, four sub-directories can be found,
+corresponding to various rooting methods. These directories are similar
+to the ones described for \paup. They also contains two
+sub-directories named \fn{association} and \fn{localisation}.
+
+\subsection{Association test}
+All the association directories contains almost the same files:
 \begin{description}
-\item [caco.paup] This file is the valid \paup input file
-\item [et\_caco.paup] This file is the \paup input file with the new character S, obtained with \etHT 
-\item [caco.tree] This file contains the list of the equiparsimonious trees reconstructed by \paup
-\item [caco.res.log] This file contains the equipasimonious trees, the table containing the branch length and the apomorphie list. This is the input file for \newchitree
-\item [correspond.txt] This file contains the number of cases and controls carrying each haplotype (for a more detailed description see section~\ref{description_correspond} 
-\item [caco.loc]  This file contains the results of the localization analysis
+\item [trio.phy:~] the \phylip input file
+\item [nb\_cas\_controls.txt:~] it contains the number of time
+  each haplotype is carried by case and control individuals
+\item [outfile:~]  the \phylip output file which is used as an
+  \newchitree input file
+  \item [outtre:~] the other \phylip output file, which is not useful
+  for \newchitree
+  \item [1\_trio\_phy.asso:~] the \newchitree output file, result of the
+    localisation test
+\item [run-altree:~] a bash script containing the two command lines to
+  run respectively \phylip and  \newchitree (association test)
+\item [ancestors:~] it contains the ancestral sequence. This file is
+  needed only if the tree is rooted using an ancestral sequence (\fn{ancestor\_absent} and \fn{ancestor\_present} directories)
 \end{description}
 
-The file \fn{caco.phase.out} is a \phase output file containing information on the disease status of each individual.
+\subsection{Localisation test}
 
-\subsection{Generating  \paup input file and running \paup}\label{description_paup}
-\fn{caco.phase.out} can be converted to an input file for \paup by running this command line:\\
-\commande{\rechaplo -i caco.phase.out -t NUM -p paup -r phase -o caco.prepaup}
-
-This command generates the file \fn{correspond.txt} and \fn{caco.prepaup}. The latter is not a valid paup input file: you have to modify it slightly according to your data and your analysis. In this example, we want to root the tree, but we do not know the real ancestral sequence and we do not have an outgroup sequence. So, we choose to root the tree on a consensus ancestral sequence formed by the combination of all the most frequent alleles. \fn{caco.paup} is the resulting paup input file. \paup should then be run like that:\\
-\commande{paup caco.paup}
-
-\subsection{Association analysis}
-The example files are in the directory /example\_file/case\_control/association/.In this example, we choose to root the tree using the consensus ancestor previously defined and we choose to perform 100 repetitions to estimate the p\_value (100 is too few for a correct estimate of the p\_value, but thus, the computation time is not too long). The program can be run using the following command line:
-
-\commande{\newchitree -i test.res.log -j correspond.txt  -a -t SNP -{}-root H000 -{}-rootmeth ancestor -p paup -b -r 100 > 100\_caco.asso}
-
-In this example, the simulated effect of the disease is very high, so the p\_value is very small and thus, set to 0. As the analyze is only performed on one tree randomly chosen, you will probably not obtain exactly the same output file even if you use the same options.
-
-\subsection{Localization analysis}
-\subsubsection{Addition of the character S}
-The file \fn{caco.paup} is  used as input file. The proportion of cases haplotypes remaining in the sample is $\frac{105}{181}=0.58$. The program is run using the following command line:\\
-\commande{\etHT -i caco.paup -o et\_caco.paup -t SNP -p 0.58 -s 1}
-
-\paup must then be run on the file \fn{et\_caco.paup} (see the directory /examplefiles/case\_control/localization) 
-
-\subsubsection{Localization with \newchitree}
-The example files are in the directory /example\_file/case\_control/localization/. In this example, the character S is the site 14, and its ancestral state is 0. We choose to use the option ``double''.
-
-\commande{\newchitree -l -i test.res.log  -t SNP -p paup -{}-trees-to-analyse 89 -{}-s-site-number 14 -{}-s-site-characters "0->1" -{}-co-evo double > caco.loc}
-
-The 2 sites with the highest $V_i$ are site 1 (changing from allele 2 to allele 1)  which is the simulated susceptibility site and site 2 (changing from allele 2 to allele 1)  which is in complete linkage disequilibrium with site 1. 
-
-\section{Trio data, analyzed with  \phylip}
-We simulate 100 trios (2 parents and one affected child) genotyped for 10 SNPs. The allele 1 of SNP5 (f=0.2?) is chosen to be the disease susceptibility (DS) allele. The penetrance of the disease is  0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). The haplotypes for all the individuals are reconstructed using \famhap (options dp and P). Two output files: trio.fmh and fam19\_0\_H1\_HAPLOTYPES are obtained
-
-\subsubsection{Generating phylip format file and running \phylip}
-The \phylip format file can be obtained by running the following command line:\\
-\commande{\rechaplo -i trio.fmh -j fam19\_0\_H1\_HAPLOTYPES -t NUM -p phylip -r famhap -o trio.prephy}
-
-This command generates the file \fn{correspond.txt} and \fn{trio.prephy}. The latter is not a valid phylip format file: you have to modify it slightly according to your data and your analysis. In this example, we choose to root the tree on a consensus ancestral sequence (see~\ref{description_paup}). So, we add this ancestral sequence in \fn{trio.prephy} to form the \fn{trio.phy} file and we build an \fn{ancestors} file, containing this sequence. \phylip is then run on \fn{trio.phy} with the options \cmd{0,37} (tree rooting), \cmd{5} (states at each node are written in the output file) and \cmd{a} (ancestral states must be used). We obtain two files: \fn{outtree} containing all the trees and \fn{outfile} containing the trees and the states at each nodes.  
-
-\subsection{Association analysis}
-altree -i outfile  -j correspond.txt  -a -t SNP -{}-root H000\_anc -{}-rootmeth ancestor -p phylip -b -r 100 -{}-anc-seq 11000100010 >100\_trio\_phy.asso
+\section{Analysing \paml files}
 
 
+%\section{Case/Control data, analyzed using \paup}
+%To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyze it using all the programs available in this software.%
 
-Faire un fichier d'ex pour chaque prog: avoir un fichier \famhap, un fichier \phase et fabriquer les .paup et les .phylip
+%\subsection{Description of the example files}
+%\paragraph{short description of the different files in the general directory:}
+%\begin{description}
+%\item [caco.phase] The file caco.phase is an input file for \phase containing the disease status information for each individual. \phase should be run this way:\\
+%  \commande{phase -c-1 caco.phase caco.out 100 1 100}
+%\item [caco.phase.out] This file is the \phase output file obtained with the preceding command line.
+%\item [caco.phase.out\_*] These file are all the other \phase output file
+%\item [caco.prepaup] This file is the output file of \rechaplo. It must be modified to become a valid \paup input file
+%\item [caco.paup] This file is the valid \paup input file
+%\item [caco.phy] This file is a \phylip format file that can be used by various phylogeny reconstruction program
+%\end{description}%
 
-Puis, montrer un vrai .paup tout complété qui marche. 
+%\paragraph{short description of the different files in the association directory:}
+%\begin{description}
+%\item [100\_caco.asso] This file contains the results of the association analysis 
+%\item  [caco.paup]  This file is the valid \paup input file
+%\item [correspond.txt] This file contains the number of cases and controls carrying each haplotype (for a more detailed description see section~\ref{description_correspond} 
+%\item [test.res.log]  This file contains the equipasimonious trees, the table containing the branch length and the apomorphie list. This is the input file for \newchitree
+%\item [test.tree] This file contains the list of the equiparsimonious trees reconstructed by \paup%
 
-avoir aussi les fichiers de sortie de \paup et de \phylip.
+%\end{description}
 
-Avoir un fichier apres passage par \etHT. 
+%\paragraph{short description of the different files in the localization directory:}
+%\begin{description}
+%\item [caco.paup] This file is the valid \paup input file
+%\item [et\_caco.paup] This file is the \paup input file with the new character S, obtained with \etHT 
+%\item [caco.tree] This file contains the list of the equiparsimonious trees reconstructed by \paup
+%\item [caco.res.log] This file contains the equipasimonious trees, the table containing the branch length and the apomorphie list. This is the input file for \newchitree
+%\item [correspond.txt] This file contains the number of cases and controls carrying each haplotype (for a more detailed description see section~\ref{description_correspond} 
+%\item [caco.loc]  This file contains the results of the localization analysis
+%\end{description}
 
-Avoir fichier de sortie de localisation et d'association
+%The file \fn{caco.phase.out} is a \phase output file containing information on the disease status of each individual.
+
+%\subsection{Generating  \paup input file and running \paup}\label{description_paup}
+%\fn{caco.phase.out} can be converted to an input file for \paup by running this command line:\\
+%\commande{\rechaplo -i caco.phase.out -t NUM -p paup -r phase -o caco.prepaup}%
+%
+%This command generates the file \fn{correspond.txt} and \fn{caco.prepaup}. The latter is not a valid paup input file: you have to modify it slightly according to your data and your analysis. In this example, we want to root the tree, but we do not know the real ancestral sequence and we do not have an outgroup sequence. So, we choose to root the tree on a consensus ancestral sequence formed by the combination of all the most frequent alleles. \fn{caco.paup} is the resulting paup input file. \paup should then be run like that:\\
+%\commande{paup caco.paup}ù
+
+%\subsection{Association analysis}
+%The example files are in the directory /example\_file/case\_control/association/.In this example, we choose to root the tree using the consensus ancestor previously defined and we choose to perform 100 repetitions to estimate the p\_value (100 is too few for a correct estimate of the p\_value, but thus, the computation time is not too long). The program can be run using the following command line:
+
+%\commande{\newchitree -i test.res.log -j correspond.txt  -a -t SNP -{}-root H000 -{}-rootmeth ancestor -p paup -b -r 100 > 100\_caco.asso}
+
+%In this example, the simulated effect of the disease is very high, so the p\_value is very small and thus, set to 0. As the analyze is only performed on one tree randomly chosen, you will probably not obtain exactly the same output file even if you use the same options.
+
+%\subsection{Localization analysis}
+%\subsubsection{Addition of the character S}
+%The file \fn{caco.paup} is  used as input file. The proportion of cases haplotypes remaining in the sample is $\frac{105}{181}=0.58$. The program is run using the following command line:\\
+%\commande{\etHT -i caco.paup -o et\_caco.paup -t SNP -p 0.58 -s 1}
+
+%\paup must then be run on the file \fn{et\_caco.paup} (see the directory /examplefiles/case\_control/localization) 
+
+%\subsubsection{Localization with \newchitree}
+%The example files are in the directory /example\_file/case\_control/localization/. In this example, the character S is the site 14, and its ancestral state is 0. We choose to use the option ``double''.
+
+%\commande{\newchitree -l -i test.res.log  -t SNP -p paup -{}-trees-to-analyse 89 -{}-s-site-number 14 -{}-s-site-characters "0->1" -{}-co-evo double > caco.loc}
+
+%The 2 sites with the highest $V_i$ are site 1 (changing from allele 2 to allele 1)  which is the simulated susceptibility site and site 2 (changing from allele 2 to allele 1)  which is in complete linkage disequilibrium with site 1. 
+
+%\section{Trio data, analyzed with  \phylip}
+%We simulate 100 trios (2 parents and one affected child) genotyped for 10 SNPs. The allele 1 of SNP5 (f=0.2?) is chosen to be the disease susceptibility (DS) allele. The penetrance of the disease is  0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). The haplotypes for all the individuals are reconstructed using \famhap (options dp and P). Two output files: trio.fmh and fam19\_0\_H1\_HAPLOTYPES are obtained
+
+%\subsubsection{Generating phylip format file and running \phylip}
+%The \phylip format file can be obtained by running the following command line:\\
+%\commande{\rechaplo -i trio.fmh -j fam19\_0\_H1\_HAPLOTYPES -t NUM -p phylip -r famhap -o trio.prephy}
+
+%This command generates the file \fn{correspond.txt} and \fn{trio.prephy}. The latter is not a valid phylip format file: you have to modify it slightly according to your data and your analysis. In this example, we choose to root the tree on a consensus ancestral sequence (see~\ref{description_paup}). So, we add this ancestral sequence in \fn{trio.prephy} to form the \fn{trio.phy} file and we build an \fn{ancestors} file, containing this sequence. \phylip is then run on \fn{trio.phy} with the options \cmd{0,37} (tree rooting), \cmd{5} (states at each node are written in the output file) and \cmd{a} (ancestral states must be used). We obtain two files: \fn{outtree} containing all the trees and \fn{outfile} containing the trees and the states at each nodes.  
+
+%\subsection{Association analysis}
+%altree -i outfile  -j correspond.txt  -a -t SNP -{}-root H000\_anc -{}-rootmeth ancestor -p phylip -b -r 100 -{}-anc-seq 11000100010 >100\_trio\_phy.asso
+
+
+
+%Faire un fichier d'ex pour chaque prog: avoir un fichier \famhap, un fichier \phase et fabriquer les .paup et les .phylip
+
+%Puis, montrer un vrai .paup tout complété qui marche. 
+
+%avoir aussi les fichiers de sortie de \paup et de \phylip.
+
+%Avoir un fichier apres passage par \etHT. 
+
+%Avoir fichier de sortie de localisation et d'association
 
 \chapter{URLs where programs can be downloaded}
 \section{Haplotype reconstruction programs}

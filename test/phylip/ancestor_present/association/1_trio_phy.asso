@@ -42,7 +42,7 @@
      |                                       \----* H026 case/control:1/0
      |                                                Site: 1 Sens: 1-->0
      |----* ANCE case/control:4/4
------* root+(1+(17)+(27+(35))) case/control:204/204
+-----* 1+(17)+(27+(35)) case/control:204/204
      | 
      | [0] ddl=4 chi2=7.12 p_value_chi2=0.105
      | [1] ddl=7 chi2=10.66 p_value_chi2=0.131
@@ -117,4 +117,4 @@ level 6 p-value (non corrected) 0
 level 7 p-value (non corrected) 0
 level 8 p-value (non corrected) 0
 level 9 p-value (non corrected) 0
-corrected minimal p_value in the tree: 0 at level TODO
+corrected minimal p_value in the tree: 0
