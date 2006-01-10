@@ -11,7 +11,7 @@ use Pod::Usage;
 our($opt_h, $opt_r, $opt_i, $opt_j, $opt_o, $opt_t, $opt_p, $opt_c);
 
 our $VERSION;
-$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
+$VERSION = sprintf "0.%03d", q$Revision$ =~ /(\d+)/g;
 
 
 ##### FONCTIONS ANNEXES GLOBALES POUR TOUS LES INPUTS ####

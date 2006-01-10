@@ -13,7 +13,7 @@ use Pod::Usage;
 our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j, $opt_a);
 
 our $VERSION;
-$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
+$VERSION = sprintf "0.%03d", q$Revision$ =~ /(\d+)/g;
 
 sub DefineAncDer {
     my $data_type=shift;

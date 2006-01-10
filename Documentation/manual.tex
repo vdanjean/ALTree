@@ -812,6 +812,67 @@ susceptibility sites.
 
 \chapter{Example files}
 
+The  \fn{test} directory contains example files for the three phylogeny
+reconstruction programs. The files are distributed  in four directories:
+\begin{itemize}
+\item \fn{create\_file} which contains files and instruction necessary to
+  obtain \paup or \paml/\phylip file formats
+\item \fn{\paup}, \fn{\phylip} and \fn{\paml} which contain files and
+  instructions necessary to perfom association and localisation tests  
+\end{itemize}
+
+\section{Obtention of input files for phylogeny reconstruction
+  programs}
+
+The \fn{create\_file} directory is divided into 2 directories:
+\fn{paup\_file} and \fn{phy-paml\_file}.
+
+\subsection{Creating \paup input files}
+The \fn{paup\_file} directory contains case/control data (12 SNPs
+genotyped for 100 case and 100 control individuals). The haplotypes
+are reconstructed using \phase and the \paup input file is generated
+using \rechaplo. The different files available in this directory are
+the following:
+\begin{description}
+\item [caco.phase~:] an input file for \phase containing the disease
+  status for each individual
+\item [caco.phase.out~:] the main \phase output file. It is used
+  as the input file for \rechaplo
+\item [caco.phase.out\_*~:] other \phase output files. They are not
+  useful to run \altree
+\item [caco.prepaup~:] the main \rechaplo output file. It must be
+  completed to become a valid \paup input file
+\item [nb\_cas\_control.txt~:] the \rechaplo output file containing the
+  number of cases and controls carrying each haplotype
+\item [create\_file~:] a bash script containing the two command lines to
+  run respectively \phase and \rechaplo
+\end{description}
+
+\subsection{Creating \phylip/\paml input files}
+The \fn{phy-paml\_file} directory contains family data (10 SNPs
+genotyped for 100 trios: 2 parents + 1 affected child). The haplotypes
+are reconstructed using \famhap and the \phylip/\paml input file is
+generated using \rechaplo. The different files available in this
+directory are the following:
+\begin{description}
+\item [fam19\_0~:] an input file for \famhap (linkage format without headers)
+\item [trio.fmh and fam19\_0\_H1\_HAPLOTYPES~:] the two \famhap output
+  file used by \rechaplo
+\item [fam19\_0\_*~:] all other \famhap output files. They are not
+  useful to run \altree
+\item [trio.phy~:] the main \rechaplo output file. It is an input file
+  for \phylip
+\item [nb\_cas\_control.txt~:] the \rechaplo output file containing the
+  number of cases and controls carrying each haplotype.
+\item [create\_file~:] a bash script containing the two command lines to
+  run respectively \famhap and \rechaplo.  
+\end{description}
+% These example files correspond to two
+%situations:
+%\begin{itemize}
+%\item case/control data (100 case and 100 control individuals): they are analyzed using \paup
+%\item family data (100 trios: 2 parents + 1 affected child): they are analyzed using \phylip or \paml 
+%\end{itemize}
 
 \section{Case/Control data, analyzed using \paup}
 To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyze it using all the programs available in this software.

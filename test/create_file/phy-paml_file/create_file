@@ -1,7 +1,9 @@
 #!/bin/sh -x
 
-#/home/cbardel/FAMHAP/FAMHAP15/famhap15 fam19_0 trio.fmh dp P
+# To run Famhap:
+~/FAMHAP/FAMHAP15/famhap15 fam19_0 trio.fmh dp P
 
-~/recherche/logiciel/alphy/altree-convert -i trio.fmh \
+# To obtain phylip/paml input files using altree-convert
+../../../altree-convert -i trio.fmh \
  -j fam19_0_H1_HAPLOTYPES -p phylip -r famhap -t NUM \
  -c nb_cas_control.txt -o trio.phy
