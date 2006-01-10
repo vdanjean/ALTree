@@ -8,6 +8,6 @@ phylip mix
 # have to specify it with the --anc-seq option 
 # Only one permutation is performed...
 
-../../../altree -i outfile  -j nb_cas_controls.txt \
+../../../../altree -i outfile  -j nb_cas_controls.txt \
  -a -t SNP -p phylip -r 1 \
  --tree-to-analyse 1 --anc-seq 1100010001 -o 1_trio_phy.asso
