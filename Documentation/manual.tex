@@ -71,13 +71,13 @@
 \end{alltt}%
 }
 
-\newenvironment{options}{%
+\newenvironment{options}[1][l]{%
   \noindent%
   \bgroup%
   \newcommand{\option}[2]{%
     \code{##1}& ##2 \\%
   }
-  \tabularx{\linewidth}{lX}
+  \tabularx{\linewidth}{#1X}
 }{%
   \endtabularx
   \egroup%
@@ -519,10 +519,12 @@ should be used if you have numerical data (characters coded from 0 to 9).
  \ref{description_etiquette}, page \pageref{description_etiquette}).
 
 \chapter{\newchitree}
-This program can perform either an association test or a localization test. Each option has a long name (which must be preceded by -{}-) and some of them also have a short name (which must be preceded by -).
+This program can perform either an association test or a localization
+test. Each option has a long name (which must be preceded by -{}-) and
+some of them also have a short name (which must be preceded by -).
 
 \section{Summary of the different options}
-\begin{options}
+\begin{options}[p{.5\linewidth}]
 \option{-{}-version}{program version}
 \option{-{}-short-help|-h}{brief help message}
 \option{-{}-help}{help message with options descriptions}
