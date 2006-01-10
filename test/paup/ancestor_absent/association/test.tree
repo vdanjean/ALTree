@@ -1,8 +1,8 @@
 #NEXUS 
 
-Begin trees;  [Treefile saved Wed Jan  4 21:59:16 2006]
+Begin trees;  [Treefile saved Tue Jan 10 20:41:04 2006]
 [!
->Data file = /home/cbardel/recherche/logiciel/alphy/test/paup/ancetre_absent/caco.paup
+>Data file = /home/cbardel/recherche/logiciel/altree/test/paup/ancestor_absent/association/caco.paup
 >Heuristic search settings:
 >  Optimality criterion = parsimony
 >    Character-status summary:

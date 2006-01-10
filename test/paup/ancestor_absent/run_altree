@@ -1,5 +1,0 @@
-#!/bin/sh -x
-
-
-../../../altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \
-  -p paup -b -r 1  --tree-to-analyse 1 > caco_1.asso

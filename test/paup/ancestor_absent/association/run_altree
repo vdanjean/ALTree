@@ -1,0 +1,8 @@
+#!/bin/sh -x
+
+#To run paup
+paup caco.paup
+
+#To perform the association test
+../../../../altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \
+  -p paup -r 1 --tree-to-analyse 1 -o 1_caco.asso
