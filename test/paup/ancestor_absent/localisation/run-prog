@@ -1,11 +1,16 @@
 #!/bin/sh -x
 
-~/recherche/logiciel/alphy/altree-add-S -i caco.paup -j \
-nb_cas_control.txt  -o et_caco.paup -e 1 -t SNP -p 0.5 
+# To add the character S 
+# p=102 case haplotypes/176 haplotypes
+../../../../altree-add-S -i caco.paup -j \
+nb_cas_control.txt  -o et_caco.paup -e 1 -t SNP -p 0.58 
 
+# To run paup on the file containing the character S
 paup et_caco.paup
 
+# To perform the localisation test
+# All 89 equiparsimonious trees are analysed
 ~/recherche/logiciel/alphy/altree -i test.res.log  \
 -j nb_cas_control.txt  -t SNP -p paup  --tree-to-analyse 89 \
 --s-site-number 13 --s-site-characters "0->1" \
---co-evo double -l > caco.loc
+--co-evo double -l -o caco.loc

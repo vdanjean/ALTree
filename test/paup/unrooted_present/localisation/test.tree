@@ -1,8 +1,8 @@
 #NEXUS 
 
-Begin trees;  [Treefile saved Thu Jan  5 18:29:04 2006]
+Begin trees;  [Treefile saved Tue Jan 10 21:25:45 2006]
 [!
->Data file = /home/cbardel/recherche/logiciel/alphy/test/paup/non_enracine_present/localisation/et_caco.paup
+>Data file = /home/cbardel/recherche/logiciel/altree/test/paup/unrooted_present/localisation/et_caco.paup
 >Heuristic search settings:
 >  Optimality criterion = parsimony
 >    Character-status summary:
@@ -27,7 +27,7 @@ Begin trees;  [Treefile saved Thu Jan  5 18:29:04 2006]
 >   Total number of rearrangements tried = 90406
 >   Score of best tree(s) found = 20
 >   Number of trees retained = 89
->   Time used = <1 sec (CPU time = 0.11 sec)
+>   Time used = 1 sec (CPU time = 0.12 sec)
 ]
 tree PAUP_1 = [&U] (H002,((((H010,H001,(H003,H005),H000),H013),H007,H012,H011),(H008,H014),H009,H006));
 tree PAUP_2 = [&U] (H002,((((((H010,(H003,H005),H000),H001),H013),H014),H008),(H007,H012,H011),H009,H006));

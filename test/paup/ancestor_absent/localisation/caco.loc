@@ -1,0 +1,27 @@
+Localisation method using S-character
+
+Results:
+site number 10		sens 2-->1	V_i = 3.47439614486152
+site number 9		sens 2-->1	V_i = 1.69733684958301
+site number 12		sens 1-->2	V_i = 0.87287156094397
+site number 3		sens 2-->1	V_i = -0.267261241912424
+site number 4		sens 2-->1	V_i = -0.267261241912424
+site number 8		sens 2-->1	V_i = -0.267261241912424
+site number 5		sens 2-->1	V_i = -0.267261241912424
+site number 3		sens 1-->2	V_i = -0.377964473009227
+site number 6		sens 2-->1	V_i = -0.377964473009227
+site number 4		sens 1-->2	V_i = -0.377964473009227
+site number 8		sens 1-->2	V_i = -0.377964473009227
+site number 10		sens 1-->2	V_i = -0.377964473009227
+site number 7		sens 2-->1	V_i = -0.377964473009227
+site number 5		sens 1-->2	V_i = -0.377964473009227
+site number 1		sens 2-->1	V_i = -0.462910049886276
+site number 1		sens 1-->2	V_i = -0.462910049886276
+site number 11		sens 2-->1	V_i = -0.462910049886276
+site number 11		sens 1-->2	V_i = -0.462910049886276
+site number 9		sens 1-->2	V_i = -0.462910049886276
+site number 2		sens 2-->1	V_i = -0.462910049886276
+site number 12		sens 2-->1	V_i = -0.462910049886276
+site number 2		sens 1-->2	V_i = -0.462910049886276
+site number 7		sens 1-->2	V_i = -0.534522483824849
+site number 6		sens 1-->2	V_i = -0.534522483824849

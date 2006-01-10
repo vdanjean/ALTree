@@ -1,0 +1,58 @@
+
+                    /----* H002 case/control:8/6
+                    |    /----* H007 case/control:7/13
+                    |    |        Site: 12 Sens: 2-->1
+                    |    |----* H012 case/control:1/4
+                    |    |        Site: 11 Sens: 2-->1
+                    |----* 15 case/control:13/18
+                    |    |   Site: 1 Sens: 1-->2
+                    |    |   Site: 2 Sens: 1-->2
+                    |    \----* H011 case/control:5/1
+               /----* 17 case/control:66/41
+               |    |   Site: 10 Sens: 2-->1
+               |    |   Site: 9 Sens: 2-->1
+               |    |    /----* H008 case/control:9/2
+               |    |    |        Site: 9 Sens: 1-->2
+               |    |----* 16 case/control:37/15
+               |    |    |   Site: 11 Sens: 2-->1
+               |    |    \----* H006 case/control:28/13
+               |    \----* H009 case/control:8/2
+               |             Site: 12 Sens: 2-->1
+          /----* 18 case/control:70/43
+          |    |   Site: 8 Sens: 2-->1
+          |    |   Site: 1 Sens: 2-->1
+          |    |   Site: 2 Sens: 2-->1
+          |    \----* H014 case/control:4/2
+     /----* 19 case/control:72/47
+     |    |   Site: 6 Sens: 2-->1
+     |    |   Site: 7 Sens: 2-->1
+     |    \----* H013 case/control:2/4
+     |----* H010 case/control:7/5
+     |        Site: 5 Sens: 2-->1
+     |----* H001 case/control:11/9
+     |        Site: 1 Sens: 2-->1
+     |        Site: 2 Sens: 2-->1
+-----* 21 case/control:200/200
+     | 
+     | [0] ddl=4 chi2=9.33 p_value_chi2=0.0535
+     | [1] ddl=6 chi2=11.24 p_value_chi2=0.083
+     | [2] ddl=7 chi2=11.30 p_value_chi2=0.112
+     | [3] ddl=10 chi2=19.46 p_value_chi2=0.035
+     | [4] ddl=13 chi2=25.55 p_value_chi2=0.015
+     |    /----* H003 case/control:5/6
+     |    |        Site: 4 Sens: 2-->1
+     |----* 20 case/control:12/13
+     |    |   Site: 3 Sens: 2-->1
+     |    \----* H005 case/control:7/7
+     |             Site: 12 Sens: 2-->1
+     \----* H000 case/control:98/126
+
+ Number of permutation: 1
+
+p_val for each level:
+level 1 p-value (non corrected) 0
+level 2 p-value (non corrected) 0
+level 3 p-value (non corrected) 0
+level 4 p-value (non corrected) 0
+level 5 p-value (non corrected) 0
+corrected minimal p_value in the tree: 0
