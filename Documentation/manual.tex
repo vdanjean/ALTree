@@ -28,7 +28,9 @@
 \usepackage{url}
 \usepackage{setspace}
 \usepackage{alltt}
+\usepackage{tabularx}
 
+\sloppy
 %\doublespacing
 
 %%%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,13 +72,14 @@
 }
 
 \newenvironment{options}{%
+  \noindent%
   \bgroup%
   \newcommand{\option}[2]{%
     \code{##1}& ##2 \\%
   }
-  \begin{tabular}{ll}
-  }{%
-  \end{tabular}
+  \tabularx{\linewidth}{lX}
+}{%
+  \endtabularx
   \egroup%
 }
 
@@ -262,41 +265,40 @@ export PERL5LIB
 \chapter{\rechaplo }
 This program converts the output of the haplotype reconstruction
 programs to input for phylogeny reconstruction programs. Each option
-has a long name (which must be preceded by --) and some of them also
+has a long name (which must be preceded by -{}-) and some of them also
 have a short name (which must be preceded by -).
 \section{Summary of the different options}
 
 \begin{options}
-  \option{--version}{program version}
-  \option{--short-help|-h}{brief help message}
-  \option{--help}{help message with options descriptions}
-  \option{--man}{full documentation}
-  \option{--first-input-file|-i \ucode{file}}{Input file 1}
-  \option{--second-input-file|-j \ucode{file}}{Input file 2 (not mandatory, see
+  \option{-{}-version}{program version}
+  \option{-{}-short-help|-h}{brief help message}
+  \option{-{}-help}{help message with options descriptions}
+  \option{-{}-man}{full documentation}
+  \option{-{}-first-input-file|-i \ucode{file}}{Input file 1}
+  \option{-{}-second-input-file|-j \ucode{file}}{Input file 2 (not mandatory, see
     explanations below)}
-  \option{--output-file|-o \ucode{file}}{Output file 1} 
-  \option{--case-control-output|-c  \ucode{file}}{Output containing the
+  \option{-{}-output-file|-o \ucode{file}}{Output file 1} 
+  \option{-{}-case-control-output|-c  \ucode{file}}{Output containing the
     number of cases/controls}
-  \option{--reconstruct-prog|-r \ccode{phase|famhap}}{Name of the haplotype
+  \option{-{}-reconstruct-prog|-r \ccode{phase|famhap}}{Name of the haplotype
     reconstruction program}
-  \option{--phylo-prog|-p \ccode{paup|phylip}}{Name of the phylogeny reconstruction program}
-  \option{--data-type|-t \ccode{DNA|NUM}}{Type of data: DNA (ATGCU) or NUM (0-9)}
+  \option{-{}-phylo-prog|-p \ccode{paup|phylip}}{Name of the phylogeny reconstruction program}
+  \option{-{}-data-type|-t \ccode{DNA|NUM}}{Type of data: DNA (ATGCU) or NUM (0-9)}
 \end{options}
-
 
 \section{How to get help?}\label{help}
 
-\subsection{option --short-help or -h}
+\subsection{option -{}-short-help or -h}
 This option displays a short help message which recapitulates all the
 options available.
 
-\subsection{option --help} 
+\subsection{option -{}-help} 
 This option displays a message with a description of the different options.
 
-\subsection{option --man}
+\subsection{option -{}-man}
 This option displays the man page for the program.
 
-\subsection{option --version}
+\subsection{option -{}-version}
 This option gives the number of the version currently used.
 
 \section{Input files}
@@ -420,12 +422,12 @@ always labeled ``nb\_cas\_control.txt''.
 \section{Other options}
 \subsection{The phylogeny reconstruction program}
 You must specify the name of the phylogeny reconstruction software
-that will be used after the -p or --phylo-prog option so that the
+that will be used after the -p or -{}-phylo-prog option so that the
 corresponding output file can be generated.
 
 \subsection{The haplotype reconstruction program}
 The name of the haplotype reconstruction program (\famhap or \phase)
-must be specified after the option -r or --recontruct-prog.
+must be specified after the option -r or -{}-recontruct-prog.
 
 \subsection{The type of data}
 The user must specify if the data are of type DNA (ATGC) or NUM
@@ -440,24 +442,24 @@ superior to 9 cannot be used). It must be specified after the -r option.
 \chapter{\etHT}
 This program adds a new character S to each haplotype corresponding to
 its disease status. Each option has a long name (which must be
-preceded by --) and some of them also have a short name (which must be
+preceded by -{}-) and some of them also have a short name (which must be
 preceded by -).
 
 \section{Summary of the different options}
 
 \begin{options}
-  \option{--version}{program version}
-  \option{--short-help|-h}{brief help message}
-  \option{--help}{help message with options descriptions}
-  \option{--man}{full documentation}
-  \option{--first-input-file|-i \ucode{file}}{Input file 1}
-  \option{--second-input-file|-j \ucode{file}}{Input file 2: nb cases/controls per haplotype}
-  \option{--output-file|-o \ucode{file}}{Output file} 
+  \option{-{}-version}{program version}
+  \option{-{}-short-help|-h}{brief help message}
+  \option{-{}-help}{help message with options descriptions}
+  \option{-{}-man}{full documentation}
+  \option{-{}-first-input-file|-i \ucode{file}}{Input file 1}
+  \option{-{}-second-input-file|-j \ucode{file}}{Input file 2: nb cases/controls per haplotype}
+  \option{-{}-output-file|-o \ucode{file}}{Output file} 
   %-r & Haplotype reconstruction program\\
-  \option{--proportion|-p \ucode{number}}{proportion of cases in the sample}
-  \option{--epsilon|-e \ucode{number}}{$\epsilon$ parameter}
-  \option{--data-type|t-t \ccode{DNA|SNP}}{data type: SNP or DNA}
-  \option{--low|l-l}{forces the state of character S to be ``?'' for haplotypes carried by 1 individual}
+  \option{-{}-proportion|-p \ucode{number}}{proportion of cases in the sample}
+  \option{-{}-epsilon|-e \ucode{number}}{$\epsilon$ parameter}
+  \option{-{}-data-type|t-t \ccode{DNA|SNP}}{data type: SNP or DNA}
+  \option{-{}-low|l-l}{forces the state of character S to be ``?'' for haplotypes carried by 1 individual}
 \end{options}
 
 %\section{Description}
@@ -517,39 +519,39 @@ should be used if you have numerical data (characters coded from 0 to 9).
  \ref{description_etiquette}, page \pageref{description_etiquette}).
 
 \chapter{\newchitree}
-This program can perform either an association test or a localization test. Each option has a long name (which must be preceded by --) and some of them also have a short name (which must be preceded by -).
+This program can perform either an association test or a localization test. Each option has a long name (which must be preceded by -{}-) and some of them also have a short name (which must be preceded by -).
 
 \section{Summary of the different options}
 \begin{options}
-\option{--version}{program version}
-\option{--short-help|-h}{brief help message}
-\option{--help}{help message with options descriptions}
-\option{--man}{full documentation}
-\option{--association|-a}{perform the association test}
-\option{--s-localisation|-l}{perform the localisation using the S character}
-\option{--first-input-file|-i \ucode{file}}{result file from phylogeny program}
-\option{--second-input-file|-j \ucode{file}}{nb cases/controls per haplotype}
-\option{--output-file|-o \ucode{file}}{output file}
-\option{--data-type|-t \ccode{DNA}|\ccode{SNP}}{type of data}
+\option{-{}-version}{program version}
+\option{-{}-short-help|-h}{brief help message}
+\option{-{}-help}{help message with options descriptions}
+\option{-{}-man}{full documentation}
+\option{-{}-association|-a}{perform the association test}
+\option{-{}-s-localisation|-l}{perform the localisation using the S character}
+\option{-{}-first-input-file|-i \ucode{file}}{result file from phylogeny program}
+\option{-{}-second-input-file|-j \ucode{file}}{nb cases/controls per haplotype}
+\option{-{}-output-file|-o \ucode{file}}{output file}
+\option{-{}-data-type|-t \ccode{DNA}|\ccode{SNP}}{type of data}
 
-\option{--remove-outgroup  }{remove the outgroup
+\option{-{}-remove-outgroup  }{remove the outgroup
   sequence for the analysis}
-\option{--outgroup \ucode{outgroup\_name}}{specify the name of the
+\option{-{}-outgroup \ucode{outgroup\_name}}{specify the name of the
   outgroup sequence}
 
-\option{--anc-seq \ucode{ancestral\_sequence}}{ancestral sequence (only
+\option{-{}-anc-seq \ucode{ancestral\_sequence}}{ancestral sequence (only
   useful with \phylip}
-\option{--tree-building-program|-p \ccode{PHYLIP}|\ccode{PAUP}|\ccode{PAML}}{phylip or paup or paml}
-%\option{--splitmode|-s \ccode{nosplit}|\ccode{chi2split}}{}
-\option{--prolongation|-b}{prolongation of branches}
-\option{--chi2-threshold|-n \ucode{value}}{threshold value}
-\option{--permutations|-r \ucode{number}}{number of permutations to perform}
-\option{--number-of-trees-to-analyze \ucode{number}}{total number of trees to analyze}
-\option{--tree-to-analyze \ucode{number}}{number of the tree to analyze}
-\option{--s-site-number \ucode{number}}{position of the $S$ character in the sequence}
-\option{--s-site-characters \ucode{anc\_state}->\ucode{der\_state}}{ancestral state -> derived state}
-\option{--co-evo|-e \ccode{simple}|\ccode{double}}{simple or double}
-\option{--print-tree}{print the tree with the character state changes in the output file}
+\option{-{}-tree-building-program|-p \ccode{PHYLIP}|\ccode{PAUP}|\ccode{PAML}}{phylip or paup or paml}
+%\option{-{}-splitmode|-s \ccode{nosplit}|\ccode{chi2split}}{}
+\option{-{}-prolongation|-b}{prolongation of branches}
+\option{-{}-chi2-threshold|-n \ucode{value}}{threshold value}
+\option{-{}-permutations|-r \ucode{number}}{number of permutations to perform}
+\option{-{}-number-of-trees-to-analyze \ucode{number}}{total number of trees to analyze}
+\option{-{}-tree-to-analyze \ucode{number}}{number of the tree to analyze}
+\option{-{}-s-site-number \ucode{number}}{position of the $S$ character in the sequence}
+\option{-{}-s-site-characters \ucode{anc\_state}->\ucode{der\_state}}{ancestral state -> derived state}
+\option{-{}-co-evo|-e \ccode{simple}|\ccode{double}}{simple or double}
+\option{-{}-print-tree}{print the tree with the character state changes in the output file}
 
 \end{options}
 
@@ -560,7 +562,7 @@ See the same section for the program \rechaplo (page \pageref{help}).
 \section{General options}
 These options are used both for association and for localization test.
 
-\subsection{First input file (option --first-input-file or -i)}
+\subsection{First input file (option -{}-first-input-file or -i)}
  This file is the output file of the phylogeny reconstruction
  program.  
 
@@ -589,7 +591,7 @@ options for \phylip depending on your rooting method:
 \item If you want to root the tree using an outgroup: you must root the tree on the chosen outgroup by using the option \cmd{o}.
 \item If you want to root the tree using the ancestral character states: you have to prepare a file named \fn{ancestors} containing the ancestral sequence. Then, when running \phylip, you must use the option \cmd{a} (see the \phylip manual for more information).\\
   %To run \newchitree, the ancestral sequence must be present in the sample, so we advise you to root the tree using this ancestral sequence as outgroup by using the option \cmd{o}. \\
- % In this case, you will have to use the option ``--anc-seq'' when running \newchitree.
+ % In this case, you will have to use the option ``-{}-anc-seq'' when running \newchitree.
 \end{itemize}
 
 Moreover, the states at all nodes of the tree must appear in the output file, so you must set the option \cmd{5} to \cmd{yes}.
@@ -598,7 +600,7 @@ Moreover, the states at all nodes of the tree must appear in the output file, so
 The input file for \newchitree is the output file named ``rst'' by
 \paml.
 
-\subsection{Second input file (option --second-input-file or -j)}
+\subsection{Second input file (option -{}-second-input-file or -j)}
 This input file consists in lines contains the label of each haplotype
 followed by the number of cases and controls carrying it separated by spaces
 or tabulations. The number of cases should be preceded by a ``m``(or the
@@ -608,40 +610,40 @@ should be preceded by the letter ``c'' (or the word ``control'').
 Example of such files are given in the test directory. These files are
 always labeled \fn{nb\_cas\_control.txt}.
 
-\subsection{Output file (option --output-file or -o)}
-The user can choose the name of the output file by using the --output-file or -o option. If this option is not used, the standard output is used. 
+\subsection{Output file (option -{}-output-file or -o)}
+The user can choose the name of the output file by using the -{}-output-file or -o option. If this option is not used, the standard output is used. 
 
-\subsection{Name of the phylogeny program used (option --tree-building-program or  -p )}
+\subsection{Name of the phylogeny program used (option -{}-tree-building-program or  -p )}
 After the -p, you should specify which phylogeny reconstruction
 program (\paup, \phylip or \paml) was used to generate the first input file.
 
-\subsection{Data type  (option --data-type or -t)}
+\subsection{Data type  (option -{}-data-type or -t)}
 The -t must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
 should be used if you have numerical data (from 0 to 9).
  \cmd{DNA} must be used if you have DNA data (A, T, G, C).
 Warning: the DNA option currently does not work if you have used phylip to
 reconstruct the phylogenetic tree.
 
-\subsection{Print tree (option --print-tree)}
+\subsection{Print tree (option -{}-print-tree)}
 If this option is specified, the tree with the character state changes
 along the branches will be written in the output file. It may
 especially be useful when you are performing the localization
 analysis, because in this case, the tree is not written in the output
 file by default.
 
-Warning: if several trees are analyzed, with the --print-tree option,
+Warning: if several trees are analyzed, with the -{}-print-tree option,
 they will \emph{all} be printed in the output file.
 
 
 
-\section{Association test (option  --association or -a)}
+\section{Association test (option  -{}-association or -a)}
 When the -a option is used, the program will perform the phylogeny
 based association test. 
  
 \subsection{Options specific to the association test}
 
-%\subsubsection{Root method (--root-method)}
-%To perform the association test, the tree must be rooted. Depending on your data, you may want to root either on an ancetral sequence (--root-method ancestor) or on an outgroup (--root-method outgroup).
+%\subsubsection{Root method (-{}-root-method)}
+%To perform the association test, the tree must be rooted. Depending on your data, you may want to root either on an ancetral sequence (-{}-root-method ancestor) or on an outgroup (-{}-root-method outgroup).
 
 %\begin{center}
 %%\begin{boxedminipage}[width=0.5\linewidth]
@@ -649,37 +651,37 @@ based association test.
 %%\end{boxedminipage}
 %\end{center}
 
-%\subsubsection{Name of the root (--root)}
+%\subsubsection{Name of the root (-{}-root)}
 %This option must be followed by the name of the sequence you choose to root the tree (either the outgroup or the ancestor).
-\subsubsection{Removing the outgroup (option --remove-outgroup)}
+\subsubsection{Removing the outgroup (option -{}-remove-outgroup)}
 The outgroup may either be a sequence of the sample for which the
 number of cases and controls carrying it is defined or a sequence for
 which we don't have any cases or controls (for example, an ape
 sequence). In this last case, the outgroup must be removed from the
 sample before the analysis. It is possible by specifying the option
---remove outgroup.
+-{}-remove outgroup.
 
-\subsubsection{Name of the outgroup (option --outgroup)}
+\subsubsection{Name of the outgroup (option -{}-outgroup)}
 This option will be useful in two cases:
 \begin{itemize}
 \item If you work on an unrooted tree (with \paml or \paup): for the
   association test, the tree \emph{must be rooted} because the
   analysis starts from the root. You must then specify the name of the
-  sequence you choose as outgroup after the --outgroup and \newchitree
+  sequence you choose as outgroup after the -{}-outgroup and \newchitree
   will perform the rooting.
 \item If you want to remove an outgroup from the analysis: if you work
   with \phylip, you will have to specify the name of the outgroup
-  which should be removed after the --outgroup. This is not necessary
+  which should be removed after the -{}-outgroup. This is not necessary
   with \paup because the outgroup is identified by a star in the paup
   output file, so \newchitree can find it.
 \end{itemize}
 
-\subsubsection{Number of permutations (option --permutations or -r)}
+\subsubsection{Number of permutations (option -{}-permutations or -r)}
 The program can compute a type I error corrected for multiple testing
 associated with the test by using a permutation procedure such as the
 one described in~\citet{Ge03} and in~\citet{Becker04}. In this case,
 the user must define the number of permutations to perform to evaluate
-the type I error by using the --permutation (or -r) option. This
+the type I error by using the -{}-permutation (or -r) option. This
 number should be high, but the higher it is, the longer the
 computation time will be. Depending on the studied data sets, we
 suggest this number to be chosen between 10000 and 100000.
@@ -687,9 +689,9 @@ suggest this number to be chosen between 10000 and 100000.
 \subsubsection{Threshold for chi-square significance (option chi2-threshold or -n)}
 If you do not want to compute the exact type I error by permutation, a
 significance threshold for the \chisquares can be chosen by the user
-using the --chi2-threshold (or -n) option.
+using the -{}-chi2-threshold (or -n) option.
  
-\subsubsection{Branch prolongation (option --prolongation or -b)}
+\subsubsection{Branch prolongation (option -{}-prolongation or -b)}
 If the -b option is specified in the command line, the different
 branches of the tree will be prolonged. (see
 figure~\ref{fig:option_b}). 
@@ -717,22 +719,22 @@ figure~\ref{fig:option_b}).
 \end{figure}
 
 Warning: This option is under development. At present, the program has only
-been tested with the -b (or --prolonge) option specified.
+been tested with the -b (or -{}-prolonge) option specified.
 If you choose not to, you may encounter some problems.
 
 
-\subsubsection{Ancestral sequence (option --anc-seq)}
+\subsubsection{Ancestral sequence (option -{}-anc-seq)}
 This option is only necessary when the tree is rooted using an
 ancestral sequencce with \phylip. In this case, the ancestral sequence
 not being in the output file of \phylip, \newchitree cannot read it
-directly. So, you have to enter it manually after the --anc-seq
+directly. So, you have to enter it manually after the -{}-anc-seq
 option.
 
 \subsubsection{Choice of the tree that will be analyzed (option
-  --tree-to-analyse)}
+  -{}-tree-to-analyse)}
 This option enables the user to specify the number of the tree that
 will be analyzed among all the equiparsimonious trees present in the
-input file (the  --tree-to-analyse must be followed by the number of
+input file (the  -{}-tree-to-analyse must be followed by the number of
 the chosen tree in the input file). If this option is not specified,
 the tree will be randomly drawn among all the equiparsimonious trees.
 
@@ -743,24 +745,24 @@ labelled *.asso.
 The output file shows the tree, with the number of cases an controls at each nodes. At the root of the tree, there is a list of the different tests performed on the tree: the level of the test is indicated within square brackets, followed by the number of degrees of freedom  (df=), the value of the \chisquare test and the corresponding p-value. In a second part of the file, a list of the p-values estimated by permutations (but non corrected for multiple testing) for each level of the tree is provided. Then, the last line gives the corrected p-value for the test.
 
 
-\section{Localization test (option --s-localization or -l)}
+\section{Localization test (option -{}-s-localization or -l)}
 
 \subsection{Options to specify}
-\subsubsection{Number of trees (option --number-of-trees-to-analyse)}
+\subsubsection{Number of trees (option -{}-number-of-trees-to-analyse)}
 With this option, you choose the number of trees to
 use in the localization test. These trees are randomly sampled without
 replacement among all the equiparsimonious trees in the first input file. 
 
-\subsubsection{--s-site-number }
+\subsubsection{-{}-s-site-number }
 With this option, you specify the position of the S character in the haplotypes. The first site is numbered 1.  
 
-\subsubsection{ --s-site-characters ancestral state -> derived state}
+\subsubsection{ -{}-s-site-characters ancestral state -> derived state}
 With this option, you specify which state is the ancestral state and which state is the derived state for the S character. The two states must be separated by the symbol ``->''. For example, if the S character has two states 1 and 2, 1 being the ancestral state, you will use the option as follows: \\
-\newchitree [other options ] --s-site-characters ``1->2''\\
+\newchitree [other options ] -{}-s-site-characters ``1->2''\\
 Be careful: this option is \emph{case sensitive} and the \emph{quotes
   are mandatory}.
 
-\subsubsection{ --co-evo|e simple|double}
+\subsubsection{ -{}-co-evo|e simple|double}
 This option enables to choose how the $V_{i}$ are calculated. 
 
 \paragraph{option ''simple''}
@@ -856,7 +858,7 @@ This command generates the file \fn{correspond.txt} and \fn{caco.prepaup}. The l
 \subsection{Association analysis}
 The example files are in the directory /example\_file/case\_control/association/.In this example, we choose to root the tree using the consensus ancestor previously defined and we choose to perform 100 repetitions to estimate the p\_value (100 is too few for a correct estimate of the p\_value, but thus, the computation time is not too long). The program can be run using the following command line:
 
-\commande{\newchitree -i test.res.log -j correspond.txt  -a -t SNP --root H000 --rootmeth ancestor -p paup -b -r 100 > 100\_caco.asso}
+\commande{\newchitree -i test.res.log -j correspond.txt  -a -t SNP -{}-root H000 -{}-rootmeth ancestor -p paup -b -r 100 > 100\_caco.asso}
 
 In this example, the simulated effect of the disease is very high, so the p\_value is very small and thus, set to 0. As the analyze is only performed on one tree randomly chosen, you will probably not obtain exactly the same output file even if you use the same options.
 
@@ -870,7 +872,7 @@ The file \fn{caco.paup} is  used as input file. The proportion of cases haplotyp
 \subsubsection{Localization with \newchitree}
 The example files are in the directory /example\_file/case\_control/localization/. In this example, the character S is the site 14, and its ancestral state is 0. We choose to use the option ``double''.
 
-\commande{\newchitree -l -i test.res.log  -t SNP -p paup --trees-to-analyse 89 --s-site-number 14 --s-site-characters "0->1" --co-evo double > caco.loc}
+\commande{\newchitree -l -i test.res.log  -t SNP -p paup -{}-trees-to-analyse 89 -{}-s-site-number 14 -{}-s-site-characters "0->1" -{}-co-evo double > caco.loc}
 
 The 2 sites with the highest $V_i$ are site 1 (changing from allele 2 to allele 1)  which is the simulated susceptibility site and site 2 (changing from allele 2 to allele 1)  which is in complete linkage disequilibrium with site 1. 
 
@@ -884,7 +886,7 @@ The \phylip format file can be obtained by running the following command line:\\
 This command generates the file \fn{correspond.txt} and \fn{trio.prephy}. The latter is not a valid phylip format file: you have to modify it slightly according to your data and your analysis. In this example, we choose to root the tree on a consensus ancestral sequence (see~\ref{description_paup}). So, we add this ancestral sequence in \fn{trio.prephy} to form the \fn{trio.phy} file and we build an \fn{ancestors} file, containing this sequence. \phylip is then run on \fn{trio.phy} with the options \cmd{0,37} (tree rooting), \cmd{5} (states at each node are written in the output file) and \cmd{a} (ancestral states must be used). We obtain two files: \fn{outtree} containing all the trees and \fn{outfile} containing the trees and the states at each nodes.  
 
 \subsection{Association analysis}
-altree -i outfile  -j correspond.txt  -a -t SNP --root H000\_anc --rootmeth ancestor -p phylip -b -r 100 --anc-seq 11000100010 >100\_trio\_phy.asso
+altree -i outfile  -j correspond.txt  -a -t SNP -{}-root H000\_anc -{}-rootmeth ancestor -p phylip -b -r 100 -{}-anc-seq 11000100010 >100\_trio\_phy.asso
 
 
 
@@ -912,7 +914,7 @@ Avoir fichier de sortie de localisation et d'association
 \paml  \url{http://abacus.gene.ucl.ac.uk/software/paml.html}
 
 \phyml \url{http://atgc.lirmm.fr/phyml/}
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 \bibliography{stage}
 \end{document}
 \annexe 
