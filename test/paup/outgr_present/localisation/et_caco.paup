@@ -1,0 +1,41 @@
+#Nexus
+Begin data;
+dimension ntax=14 nchar=13;
+format symbols="0123456789CG" missing=?;
+matrix
+H002  112221111122?
+H010  222212222222?
+H007  2222211111210
+H008  1122211121121
+H014  112221112222?
+H013  222221122222?
+H001  112222222222?
+H003  221122222222?
+H000  2222222222220
+H005  221222222221?
+H012  2222211111120
+H009  1122211111211
+H006  1122211111121
+H011  2222211111221
+;
+end;
+begin assumptions;
+[ancstates *anc vector = 2222222222221?;]
+end;
+begin paup;
+exclude 13; 
+set nowarnreset autoclose maxtrees = 2000 increase= no [- Auto AutoInc = 100] monitor = no taxlabels = full
+root=outgroup warnroot=no opt=deltran [- acctran];
+outgroup H000;
+hsearch;
+savetrees from=1 to=1000 file= test.tree root=yes format=altnexus;
+cleartrees nowarn=yes;
+gettrees rooted=yes file=test.tree;
+log file = test.res.log replace= yes [- no];
+include 13;
+describetrees all /plot=cladogram [- phylogram] brlens=yes 
+rootmethod=outgroup apolist=yes;
+log stop;
+end;
+quit;
+[WARNING, this file is designed for bi-allelic data. If it is not the case, you may have to modify this input file, for example by specifying the ordered option in the typeset command in the assumption block]
