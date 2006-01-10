@@ -37,7 +37,8 @@ sub ReadCorrespond
     my($name_correspond) =shift;
     my($ligne, @tableau);
     my(%correspondance);
-    open (CORRESP, '<', $name_correspond) || die "Unable to open file $name_correspond: $!\n";
+    open (CORRESP, '<', $name_correspond) 
+	or erreur("Unable to read file '$name_correspond': $!\n", 0);
     while ($ligne=<CORRESP>) {
 	chomp($ligne);
 	if ($ligne =~ /^\s*$/) {
@@ -207,7 +208,8 @@ sub ReadPAUP
     my($ligne);
     my @trees;
     
-    open (INPUT, '<', $filename) || die "Unable to open file $filename: $!\n";
+    open (INPUT, '<', $filename) 
+	or erreur("Unable to read file '$filename': $!\n", 0);
   TREE: 
     {
 	my(@tab_longbranche, @tab_infoapo);
@@ -370,7 +372,8 @@ sub ReadPHYLIP
     my($ligne);
     my @trees;
     
-    open (INPUT, '<', $filename) || die "Unable to open file $filename: $!\n";
+    open (INPUT, '<', $filename)
+	or erreur("Unable to read file '$filename': $!\n", 0);
   TREE: 
     {
 	my(@tab_longbranche);
@@ -482,7 +485,8 @@ sub ReadPAML
     my($ligne);
     my @trees;
     
-    open (INPUT, '<', $filename) || die "Unable to open file $filename: $!\n";
+    open (INPUT, '<', $filename)
+	or erreur("Unable to open read '$filename': $!\n", 0);
   TREE: 
     {
 	my(@tab_longbranche, @tab_infoapo);

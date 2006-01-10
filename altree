@@ -1187,7 +1187,7 @@ sub main
 	    if (defined($texte)) {
 		$msg.="\n".$texte;
 	    }		
-	    pod2usage("Error: option '$option' needed");
+	    pod2usage("Error: option '$option' required");
 	}
     };
     my $option_value = sub {
@@ -1231,11 +1231,14 @@ sub main
     my($s_loc)=$option_value->("s-localisation", 0);
     if (!$association && !$s_loc) {
 	erreur("Should I perform the association test or the".
-	       " localisation test ?");
+	       " localisation test ?\n(use option '--association'".
+	       " or '--s-localisation'.)\n", 1);
     }
-    #if ($opt_o) {
-	#open(STDOUT, '>', $opt_o) or die "Impossible to open $opt_o : $!" ;
-    #}
+    if ($option_selected->("output-file")) {
+	my $out=$option_value->("output-file");
+	open(STDOUT, '>', $out) 
+	    or erreur("Unable to write in '$out': $!\n", 0);
+    }
 
     my $datatype;
     my $ancetre="";
