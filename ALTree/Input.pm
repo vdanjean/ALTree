@@ -250,6 +250,10 @@ sub ReadPAUP
 		    last READ_LONGBRANCHE;
 		}
 		chomp($ligne);
+		if ($ligne =~ /^\s*[0-9]+\s+root\s+0\s+0\s+0\s*$/) {
+		    # On ignore la ligne root qui ne contient aucune mutation
+		    next;
+		}
 		my $son = substr($ligne,0,$pos-1);
 		#   print STDERR "son1:$son\n";
 		my $other_infos = substr($ligne,$pos);
