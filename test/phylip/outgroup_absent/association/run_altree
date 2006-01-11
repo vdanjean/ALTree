@@ -1,0 +1,14 @@
+#!/bin/sh -x
+
+# To run phylip
+# Options "5" and option "o - 36" (the 36th sequence is the outgroup)  
+phylip mix
+
+#To perform the association test. 
+# The outgroup is removed from the analysis (option 
+# --remove-outgroup). The name of the outgroup must be specified so that 
+# the program can identify the outgroup sequence
+
+../../../../altree -i outfile  -j nb_cas_controls.txt \
+ -a -t SNP  -p phylip --outgroup OUTG --remove-outgroup  -r 1 \
+ --tree-to-analyse 1  -o 1_trio_phy.asso
