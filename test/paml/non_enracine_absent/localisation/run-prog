@@ -13,3 +13,9 @@ nb_cas_controls.txt  -o et_trio2.phy -e 1 -t DNA -p 0.5 \
 # second input file) 
 ~/PAML/paml3.14/src/baseml
 
+
+# To perform the localisation test
+~/recherche/logiciel/alphy/altree -i rst  \
+-j nb_cas_control.txt  -t DNA -p paml  --tree-to-analyse 1 \
+--s-site-number 11 --s-site-characters "C->G" \
+--co-evo double -l -o trio2.loc
