@@ -124,11 +124,11 @@ different clades defined on the tree. A global p-value is calculated
 for the tree by using a permutation procedure such as the one
 described by \citet{Ge03} and \citet{Becker04}.
 
-\subsection{Localization of the susceptibility loci}
-To perform the localization analysis, for each haplotype $h$, the user
+\subsection{Localisation of the susceptibility loci}
+To perform the localisation analysis, for each haplotype $h$, the user
 must previously define a new character (called character $S$) whose
 state depends on the proportion of cases carrying haplotype $h$ and
-optimize it on the haplotype phylogeny.  The program \newchitree then
+optimise it on the haplotype phylogeny.  The program \newchitree then
 looks for sites that co-mutates with the character S by calculating a
 co-mutation index called $V_{i}$ for each site $i$ and for each
 character state transition ($0 \rightarrow 1$ for example). The
@@ -158,11 +158,11 @@ reconstruction programs: \paup~\citep{Swofford02},
 \phylip~\citep{Felsenstein04} and \paml~\citep{YangPAML}.
 
 \section{\etHT}\label{description_etiquette}
-To perform the localization analysis, a new character $S$ must be
+To perform the localisation analysis, a new character $S$ must be
 added to each haplotype $h$. The state of $S$ depends on the
 proportion of cases carrying the haplotype $h$. You can use your own
 criterion to determine the state of $S$ and add it manually to the
-input file of the phylogeny reconstruction program that will optimize
+input file of the phylogeny reconstruction program that will optimise
 the character states changes on the tree.
 
 If you do not want to add the S character manually, you can use \etHT.
@@ -372,11 +372,11 @@ running \paup:
 \begin{itemize}
 \item the sequence of the ancestral haplotype
 \item the maximum number of trees \paup can find
-\item the method to optimize character state changes (\acctran/\deltran)
+\item the method to optimise character state changes (\acctran/\deltran)
 \item the name of the different files generated
 \item the number of trees described by paup in the log file (we advise
   you to keep all the trees, and to limit the number of trees that are
-  analyzed later, when running \newchitree).
+  analysed later, when running \newchitree).
 \end{itemize}
 The chosen option must be put out of the square brackets because \paup
 ignores what is written within square brackets. 
@@ -458,8 +458,10 @@ preceded by -).
   %-r & Haplotype reconstruction program\\
   \option{-{}-proportion|-p \ucode{number}}{proportion of cases in the sample}
   \option{-{}-epsilon|-e \ucode{number}}{$\epsilon$ parameter}
-  \option{-{}-data-type|t-t \ccode{DNA|SNP}}{data type: SNP or DNA}
-  \option{-{}-low|l-l}{forces the state of character S to be ``?'' for haplotypes carried by 1 individual}
+  \option{-{}-data-type|-t \ccode{DNA|SNP}}{data type: SNP or DNA}
+  \option{-{}-outgroup|-g \ucode{outgroup\_name}} {Name of the
+    outgroup (if necessary)} 
+  \option{-{}-low|-l}{forces the state of character S to be ``?'' for haplotypes carried by 1 individual}
 \end{options}
 
 %\section{Description}
@@ -518,8 +520,15 @@ should be used if you have numerical data (characters coded from 0 to 9).
  the state of S will be chosen according to the formula (see section
  \ref{description_etiquette}, page \pageref{description_etiquette}).
 
+\subsection{Name of the outgroup}
+If the outgroup is not in the file containing the number of cases an
+controls but is in the file containing the sequences, the name of the
+outgroup must be provided to \etHT so that the program can identify
+the outgroup sequence. For this sequence, the state of the character
+$S$ will be ``?''.
+
 \chapter{\newchitree}
-This program can perform either an association test or a localization
+This program can perform either an association test or a localisation
 test. Each option has a long name (which must be preceded by -{}-) and
 some of them also have a short name (which must be preceded by -).
 
@@ -545,11 +554,11 @@ some of them also have a short name (which must be preceded by -).
   useful with \phylip)}
 \option{-{}-tree-building-program|-p \hspace*{\fill}\ccode{PHYLIP}|\ccode{PAUP}|\ccode{PAML}}{phylip or paup or paml}
 %\option{-{}-splitmode|-s \ccode{nosplit}|\ccode{chi2split}}{}
-\option{-{}-prolongation|-b}{prolongation of branches}
+\option{-{}-no-prolongation}{no prolongation of branches}
 \option{-{}-chi2-threshold|-n \ucode{value}}{threshold value}
 \option{-{}-permutations|-r \ucode{number}}{number of permutations to perform}
-\option{-{}-number-of-trees-to-analyze \ucode{number}}{total number of trees to analyze}
-\option{-{}-tree-to-analyze \ucode{number}}{number of the tree to analyze}
+\option{-{}-number-of-trees-to-analyse \ucode{number}}{total number of trees to analyse}
+\option{-{}-tree-to-analyse \ucode{number}}{number of the tree to analyse}
 \option{-{}-s-site-number \ucode{number}}{position of the $S$ character in the sequence}
 \option{-{}-s-site-characters \hspace*{\fill}\ucode{anc\_state}\ccode{->}\ucode{der\_state}}{ancestral state -> derived state}
 \option{-{}-co-evo|-e \ccode{simple}|\ccode{double}}{simple or double}
@@ -562,7 +571,7 @@ some of them also have a short name (which must be preceded by -).
 See the same section for the program \rechaplo (page \pageref{help}).
 
 \section{General options}
-These options are used both for association and for localization test.
+These options are used both for association and for localisation test.
 
 \subsection{First input file (option -{}-first-input-file or -i)}
  This file is the output file of the phylogeny reconstruction
@@ -629,11 +638,11 @@ reconstruct the phylogenetic tree.
 \subsection{Print tree (option -{}-print-tree)}
 If this option is specified, the tree with the character state changes
 along the branches will be written in the output file. It may
-especially be useful when you are performing the localization
+especially be useful when you are performing the localisation
 analysis, because in this case, the tree is not written in the output
 file by default.
 
-Warning: if several trees are analyzed, with the -{}-print-tree option,
+Warning: if several trees are analysed, with the -{}-print-tree option,
 they will \emph{all} be printed in the output file.
 
 
@@ -693,9 +702,9 @@ If you do not want to compute the exact type I error by permutation, a
 significance threshold for the \chisquares can be chosen by the user
 using the -{}-chi2-threshold (or -n) option.
  
-\subsubsection{Branch prolongation (option -{}-prolongation or -b)}
-If the -b option is specified in the command line, the different
-branches of the tree will be prolonged. (see
+\subsubsection{Branch prolongation (option -{}-no-prolongation)}
+If the --no-prolongation option is specified in the command line, the different
+branches of the tree will not be prolonged. (see
 figure~\ref{fig:option_b}). 
 
 
@@ -705,7 +714,7 @@ figure~\ref{fig:option_b}).
 \multicolumn{1}{c|}{}& \includegraphics[width=0.4\linewidth, subfig=1]{option_b.fig} &
 \includegraphics[width=0.4\linewidth, subfig=2]{option_b.fig} \\
 \cline{2-3}
-\multicolumn{1}{c|}{}& Without the -b option & With the -b option \\
+\multicolumn{1}{c|}{}& With the -{}-no-prolongation option & Without the -{}-no-prolongation option \\
 \cline{2-3}
 \multicolumn{1}{c|}{}&\multicolumn{2}{|c|}{The \chisquares are calculated between\footnote{The
     nosplit pattern of \chisquare is used}:} \\
@@ -721,7 +730,7 @@ figure~\ref{fig:option_b}).
 \end{figure}
 
 Warning: This option is under development. At present, the program has only
-been tested with the -b (or -{}-prolonge) option specified.
+been tested \emph{without} the \fn{-{}-no-prolongation} option specified.
 If you choose not to, you may encounter some problems.
 
 
@@ -732,10 +741,10 @@ not being in the output file of \phylip, \newchitree cannot read it
 directly. So, you have to enter it manually after the -{}-anc-seq
 option.
 
-\subsubsection{Choice of the tree that will be analyzed (option
+\subsubsection{Choice of the tree that will be analysed (option
   -{}-tree-to-analyse)}
 This option enables the user to specify the number of the tree that
-will be analyzed among all the equiparsimonious trees present in the
+will be analysed among all the equiparsimonious trees present in the
 input file (the  -{}-tree-to-analyse must be followed by the number of
 the chosen tree in the input file). If this option is not specified,
 the tree will be randomly drawn among all the equiparsimonious trees.
@@ -747,12 +756,12 @@ labelled *.asso.
 The output file shows the tree, with the number of cases an controls at each nodes. At the root of the tree, there is a list of the different tests performed on the tree: the level of the test is indicated within square brackets, followed by the number of degrees of freedom  (df=), the value of the \chisquare test and the corresponding p-value. In a second part of the file, a list of the p-values estimated by permutations (but non corrected for multiple testing) for each level of the tree is provided. Then, the last line gives the corrected p-value for the test.
 
 
-\section{Localization test (option -{}-s-localization or -l)}
+\section{Localisation test (option -{}-s-localisation or -l)}
 
 \subsection{Options to specify}
 \subsubsection{Number of trees (option -{}-number-of-trees-to-analyse)}
 With this option, you choose the number of trees to
-use in the localization test. These trees are randomly sampled without
+use in the localisation test. These trees are randomly sampled without
 replacement among all the equiparsimonious trees in the first input file. 
 
 \subsubsection{-{}-s-site-number }
@@ -870,11 +879,11 @@ directory are the following:
 % These example files correspond to two
 %situations:
 %\begin{itemize}
-%\item case/control data (100 case and 100 control individuals): they are analyzed using \paup
-%\item family data (100 trios: 2 parents + 1 affected child): they are analyzed using \phylip or \paml 
+%\item case/control data (100 case and 100 control individuals): they are analysed using \paup
+%\item family data (100 trios: 2 parents + 1 affected child): they are analysed using \phylip or \paml 
 %\end{itemize}
 
-\section{Analyzing \paup files}
+\section{Analysing \paup files}
 In the \fn{test/paup/} directory, six subdirectories can be found,
 each corresponding to a different ways to root (or not) the tree using
 \paup:
@@ -902,11 +911,15 @@ each corresponding to a different ways to root (or not) the tree using
 
 All these directories are split in two sub-directories containing the
 files used to perform the association test (directory
-\fn{association}) or the localization test (directory \fn{localisation}) 
+\fn{association}) or the localisation test (directory \fn{localisation}) 
 
+\emph{Warning: For the localisation test, as the rooting is not necessary,
+the question of the presence or not of an outgroup is irrelevant. The
+two localisation directories thus only correspond to two different data
+sets analysed with \altree.}
 
 \subsection{Association test}
-All the association directories contains the same files:
+All the association directories contain the same files:
 \begin{description}
 \item [caco.paup~:] the valid \paup file
 \item [nb\_cas\_control.txt~:] the file containing the number of time
@@ -923,7 +936,7 @@ All the association directories contains the same files:
 \end{description}
 
 \subsection{Localisation test}
-All the localisation directories contains the same files:
+All the localisation directories contain the same files:
 \begin{description}
 \item [caco.paup:~]  the valid \paup file
 \item [nb\_cas\_control.txt~:] the file containing the number of time
@@ -953,7 +966,7 @@ these ambiguities.
 
 
 \subsection{Association test}
-All the association directories contains almost the same files:
+All the association directories contain almost the same files:
 \begin{description}
 \item [trio.phy:~] the \phylip input file
 \item [nb\_cas\_controls.txt:~] it contains the number of time
@@ -979,8 +992,7 @@ In the directory \fn{\paml}, three sub-directories can be found:
   phylogenetic tree using the software \phyml~\citep{Guindon03}. The
   phylogenetic reconstruction step has been performed in this directory
 \item[\fn{unrooted\_absent} and \fn{unrooted\_present}:~] which are
-  similar to ones described for \paup. They are both divided in to
-  sub-directories: \fn{association} and \fn{localisation} 
+  similar to ones described for \paup.  
 \end{description}
 
 \subsection{Phylogenetic tree reconstruction using \phyml}
@@ -993,10 +1005,12 @@ following, we will only use the file \fn{trio2.phy\_phyml\_tree.txt}
 which contains the reconstructed phylogenetic tree.
 
 \subsection{Association test}
-The two \fn{association} directories contains the same files:
+The two \fn{association} directories contain the same files:
 \begin{description}
 \item [trio2.phy:~] the \phylip format file containing the
   sequences. It is used as an input file for \paml
+\item [nb\_cas\_controls.txt:~] it contains the number of time
+  each haplotype is carried by case and control individuals
 \item [trio2.phy\_phyml\_tree.txt:~] the output file of \phyml. It
   is also used as an input file for \paml
 \item [baseml.ctl:~] the parameter file used by \paml
@@ -1011,21 +1025,31 @@ The two \fn{association} directories contains the same files:
 \end{description}
 
 \subsection{Localisation test}
-All the \fn{localisation directories contains the same files:
-  \begin{description}
-  \item[trio2.phy:~] the \phylip format file containing the
+With \paml, only unrooted trees are obtained. These unrooted trees can
+be directly analysed with \newchitree, so the question of the presence
+or absence of an outgroup is irrelevant. Only one localisation
+directory exists, it is located in the directory \fn{unrooted\_present}. 
+
+The \fn{localisation} directory contains the following files:
+\begin{description}
+\item[trio2.phy:~] the \phylip format file containing the
   sequences. It is used as an input file for \paml
-  \item [trio2.phy\_phyml\_tree.txt:~] the output file of \phyml. It
+\item [nb\_cas\_controls.txt:~] it contains the number of time
+  each haplotype is carried by case and control individuals
+\item [trio2.phy\_phyml\_tree.txt:~] the output file of \phyml. It
   is also used as an input file for \paml
 \item [baseml.ctl:~] the parameter file used by \paml
 \item [rst:~] the \paml output file which will be used by
   \newchitree. It contains the apomorphy list and the tree structure
 \item[2base.t, lnf, mlb, rst1 and rub:~] they are all the other \paml
   output files. They are not useful for \newchitree
-  
-  \end{description}
-%\section{Case/Control data, analyzed using \paup}
-%To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyze it using all the programs available in this software.%
+\item [trio2.loc:~] the \newchitree output file, result of the
+  localisation test
+\item [run-prog:~] a bash script containing the three command lines to
+  run respectively \etHT, \paml and  \newchitree (localisation test) 
+\end{description}
+%\section{Case/Control data, analysed using \paup}
+%To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyse it using all the programs available in this software.%
 
 %\subsection{Description of the example files}
 %\paragraph{short description of the different files in the general directory:}
@@ -1049,14 +1073,14 @@ All the \fn{localisation directories contains the same files:
 
 %\end{description}
 
-%\paragraph{short description of the different files in the localization directory:}
+%\paragraph{short description of the different files in the localisation directory:}
 %\begin{description}
 %\item [caco.paup] This file is the valid \paup input file
 %\item [et\_caco.paup] This file is the \paup input file with the new character S, obtained with \etHT 
 %\item [caco.tree] This file contains the list of the equiparsimonious trees reconstructed by \paup
 %\item [caco.res.log] This file contains the equipasimonious trees, the table containing the branch length and the apomorphie list. This is the input file for \newchitree
 %\item [correspond.txt] This file contains the number of cases and controls carrying each haplotype (for a more detailed description see section~\ref{description_correspond} 
-%\item [caco.loc]  This file contains the results of the localization analysis
+%\item [caco.loc]  This file contains the results of the localisation analysis
 %\end{description}
 
 %The file \fn{caco.phase.out} is a \phase output file containing information on the disease status of each individual.
@@ -1073,23 +1097,23 @@ All the \fn{localisation directories contains the same files:
 
 %\commande{\newchitree -i test.res.log -j correspond.txt  -a -t SNP -{}-root H000 -{}-rootmeth ancestor -p paup -b -r 100 > 100\_caco.asso}
 
-%In this example, the simulated effect of the disease is very high, so the p\_value is very small and thus, set to 0. As the analyze is only performed on one tree randomly chosen, you will probably not obtain exactly the same output file even if you use the same options.
+%In this example, the simulated effect of the disease is very high, so the p\_value is very small and thus, set to 0. As the analyse is only performed on one tree randomly chosen, you will probably not obtain exactly the same output file even if you use the same options.
 
-%\subsection{Localization analysis}
+%\subsection{Localisation analysis}
 %\subsubsection{Addition of the character S}
 %The file \fn{caco.paup} is  used as input file. The proportion of cases haplotypes remaining in the sample is $\frac{105}{181}=0.58$. The program is run using the following command line:\\
 %\commande{\etHT -i caco.paup -o et\_caco.paup -t SNP -p 0.58 -s 1}
 
 %\paup must then be run on the file \fn{et\_caco.paup} (see the directory /examplefiles/case\_control/localization) 
 
-%\subsubsection{Localization with \newchitree}
-%The example files are in the directory /example\_file/case\_control/localization/. In this example, the character S is the site 14, and its ancestral state is 0. We choose to use the option ``double''.
+%\subsubsection{Localisation with \newchitree}
+%The example files are in the directory /example\_file/case\_control/localisation/. In this example, the character S is the site 14, and its ancestral state is 0. We choose to use the option ``double''.
 
 %\commande{\newchitree -l -i test.res.log  -t SNP -p paup -{}-trees-to-analyse 89 -{}-s-site-number 14 -{}-s-site-characters "0->1" -{}-co-evo double > caco.loc}
 
 %The 2 sites with the highest $V_i$ are site 1 (changing from allele 2 to allele 1)  which is the simulated susceptibility site and site 2 (changing from allele 2 to allele 1)  which is in complete linkage disequilibrium with site 1. 
 
-%\section{Trio data, analyzed with  \phylip}
+%\section{Trio data, analysed with  \phylip}
 %We simulate 100 trios (2 parents and one affected child) genotyped for 10 SNPs. The allele 1 of SNP5 (f=0.2?) is chosen to be the disease susceptibility (DS) allele. The penetrance of the disease is  0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). The haplotypes for all the individuals are reconstructed using \famhap (options dp and P). Two output files: trio.fmh and fam19\_0\_H1\_HAPLOTYPES are obtained
 
 %\subsubsection{Generating phylip format file and running \phylip}

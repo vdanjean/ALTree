@@ -112,7 +112,7 @@ sub travail
 	    if ($ligne =~ /dimension ntax=([0-9]+) nchar=([0-9]+);/) {
 		$num_car=$2+1;
 		print "dimension ntax=$1 nchar=", $num_car, ";\n";
-	    } elsif ($ligne =~ /format symbols=\"([0-9ATGCU]+)\"/) {
+	    }elsif ($ligne =~ /format symbols=\"([0-9ATGCU]+)\"/) {
 		my($format)=$1;
 		my($format_old)=$1;
 		$format =~ tr/GC//d;
@@ -144,7 +144,10 @@ sub travail
 	} elsif ($ici==1) {
 	    if ($ligne =~ /^\s+$/) {
 		next;
-	    } else {
+	    }  elsif ($ligne =~ /^\s*\[.+\]$/) {
+	#	print STDERR "TTTTT\n";
+		next;
+	    } 	    else {
 		@tableau=split(/\s+/, $ligne);
 		$sequence=$tableau[1];
 		$nom=$tableau[0];
