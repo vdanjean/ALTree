@@ -1,11 +1,8 @@
 #!/bin/sh -x
 
 # To obtain the file containing the sequences WITH the character S
-# The outgroup is not in the file nb_cas_controls.txt. Its name must be 
-# specified with the option --outgroup
 ../../../../altree-add-S -i trio2.phy -j \
-nb_cas_controls.txt  -o et_trio2.phy -e 1 -t DNA -p 0.5 \
---outgroup OUTG
+nb_cas_controls.txt  -o et_trio2.phy -e 1 -t DNA -p 0.5 
 
 # paml is run on the tree reconstructed by phyml WITHOUT the character 
 # S (file "trio2.phy_phyml_tree.txt" as first input file), but the 
@@ -15,8 +12,7 @@ nb_cas_controls.txt  -o et_trio2.phy -e 1 -t DNA -p 0.5 \
 
 
 # To perform the localisation test
-# The presence of the outgroup does not matter for the localisation
 ~/recherche/logiciel/alphy/altree -i rst  \
 -j nb_cas_control.txt  -t DNA -p paml  --tree-to-analyse 1 \
 --s-site-number 11 --s-site-characters "C->G" \
---co-evo double -l -o trio2.loc 
+--co-evo double -l -o trio2.loc

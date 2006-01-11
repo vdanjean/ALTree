@@ -1,6 +1,6 @@
 #Nexus
 Begin data;
-dimension ntax=14 nchar=12;
+dimension ntax=13 nchar=12;
 format symbols="0123456789" missing=?;
 matrix
 H002	112221111122
@@ -16,7 +16,7 @@ H012	222221111112
 H009	112221111121
 H006	112221111112
 H011	222221111122
-H000    222222222222
+[H000    222222222222]
 ;
 end;
 begin assumptions;

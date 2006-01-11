@@ -1,10 +1,8 @@
 #!/bin/sh -x
 
 # To obtain the paup input file containing the character S
-# The outgroup is not in the file nb_cas_control.txt. It must be 
-# specified with the option --outgroup (or -g)
 ../../../../altree-add-S -i caco.paup -j nb_cas_control.txt \
-  -o et_caco.paup -e 1 -t SNP -p 0.58 --outgroup H000
+  -o et_caco.paup -e 1 -t SNP -p 0.58 
 
 # To run paup
 paup et_caco.paup
