@@ -1,4 +1,0 @@
-#!/bin/sh -x
-
-../../../altree -i rst  -j nb_cas_control.txt  -a -t SNP --outgroup OUTG \
- -p paml -b -r 1 > 1_trio_ML.asso
