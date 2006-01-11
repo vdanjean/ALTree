@@ -10,7 +10,7 @@ use Getopt::Long; # qw(:config permute);
 use Pod::Usage;
 #use Getopt::Std;
 
-our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j, $opt_a);
+our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j, $opt_g);
 
 our $VERSION;
 $VERSION = sprintf "0.%03d", q$Revision$ =~ /(\d+)/g;
@@ -46,7 +46,7 @@ sub ReadCorrespond
 	    $tableau[2]=~ s/c//;
 	    $tableau[1]=~ s/m//;
 	    if ($tableau[1] =~ /c/ || $tableau[2] =~ /m/) {
-		die "You have probably changed the order of cases and controls in file correspond.txt. It should be: haplo_name m_case_number c_control_number\n";
+		die "You have probably exchanged the order of cases and controls in file $name_correspond. It should be: haplo_name m_case_number c_control_number\n";
 		}
 	    $correspondance{$tableau[0]}->{"case"}=$tableau[1]+0;
 	    $correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;	
@@ -69,7 +69,7 @@ sub travail
     my($proportion_malades)=shift;
     my $low =shift;
     my $name_correspond=shift;
-#    my $anc_name = shift;
+    my $outgroup = shift;
     my($ligne);
     my($temoin, $malade, $sequence, $nom, $debut, $ancetre);
     my($anc, $num_car, $prop_mal, $prop_tem);
@@ -81,7 +81,7 @@ sub travail
 #	print "$clefs case ", $correspondance->{$clefs}->{"case"}, "\n";
 #    	print "$clefs, control ",$correspondance->{$clefs}->{"control"}, "\n";
 #    }
-    my $found_anc=0;
+    my $found_outgroup=0;
     my $ici = 0;
     my $phylo_prog= "Phylip";
     my $compteur=0;
@@ -147,12 +147,13 @@ sub travail
 	    } else {
 		@tableau=split(/\s+/, $ligne);
 		$sequence=$tableau[1];
-		$debut=$tableau[0];
-		#    if ($debut eq $anc_name){
-		#	$ancetre=$sequence."?";
-		#	print "$debut  $ancetre\n";
-		#	$found_anc++;
-		#	next;
+		$nom=$tableau[0];
+		if ($nom eq $outgroup){
+		    #	$ancetre=$sequence."?";
+		    print "$nom  $sequence?\n";
+		    $found_outgroup++;
+		    next;
+		}
 		#    } else {
 		#if ($debut =~ /^\s*H[0-9]{3}_m[0-9]{3}_c[0-9]{3}/) {
 		#   @tab2=split(/_/,$debut);
@@ -168,10 +169,16 @@ sub travail
 #		if ($debut eq $anc_name){
 #		    $found_anc++;
 #		}	
-		$nom=$tableau[0];
+		#$nom=$tableau[0];
 		#	print "$nom\n";
+		if (not exists ($correspondance->{$nom})){
+		    print STDERR "$nom is not found in the file $name_correspond. Assuming it is the outgroup.\nThe number of cases and controls affected to this sequence is set to 0\n";
+		  $correspondance->{$nom}->{"case"}=0;
+		  $correspondance->{$nom}->{"control"}=0;  
+		}
 		$malade=$correspondance->{$nom}->{"case"};
 		$temoin=$correspondance->{$nom}->{"control"};
+		
 		if ($malade == 0 && $temoin == 0) {
 		    print STDERR "$nom is carried by 0 cases and 0 controls. The state ? has been attributed to the S character\n";
 		    $sequence.="?";
@@ -217,13 +224,13 @@ sub travail
 	} 
     }
     #print "anc? $found_anc\n";
-#   if ($found_anc==0 && $anc_name ne "noanc") {
-#	die "ancestor not found in the file\n";
-#    } elsif ($found_anc ==1 && $anc_name eq "noanc") {
-#	die " false ancestor found\n";
-#    } elsif ($found_anc > 1) {
-#	die "Too many ancestor found ($found_anc ancestors)";
-#    }
+   if ($found_outgroup==0 && $outgroup ne "nooutgroup") {
+	die "outgroup not found in the file\n";
+    } elsif ($found_outgroup ==1 && $outgroup eq "noanc") {
+	die " false outgroup found\n";
+    } elsif ($found_outgroup > 1) {
+	die "Too many outgroups found ($found_outgroup outgroup)";
+    }
 }
 
 sub usage {
@@ -240,7 +247,7 @@ sub usage {
 # ancienne option -t test: 0= mal-tem>seuil 1= seuil proportion0+/-sqr(pq/n)]
     print STDERR "     -p   proportion of cases in the whole data set\n";
     print STDERR "     -e   epsilon parameter\n";
-   # print STDERR "    [-a]  name of the ancestral haplotype\n"; 
+    print STDERR "    [-g]  name of the outgroup\n"; 
     print STDERR "    [-l]  if -l is present, it forces the state of S to be ? for haplotypes carried by only one individual\n"; 
 }
 
@@ -256,7 +263,7 @@ sub main
 	"epsilon" => \$opt_e,
 	"data-type" => \$opt_t,
 	"proportion" => \$opt_p,
-#	"ancestor" => \$opt_a,
+	"outgroup" => \$opt_g,
 	"low" => \$opt_l,
 	);
     	
@@ -272,7 +279,7 @@ sub main
 		"epsilon|e=s",
 		"data-type|t=s",
 		"proportion|p=s",
-	#	"ancestor|a=s",
+		"outgroup|g=s",
 		"low|l!",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
@@ -342,11 +349,11 @@ sub main
 	    $low=0;
 	}
 	
-#	my $anc_name="noanc";
-#	if ($opt_a) {
-#	    $anc_name = $opt_a;
-#	}    
-	travail($seuil, $data_type,  $proportion, $low, $correspond_name);#, $anc_name);
+	my $outgroup="nooutgroup";
+	if ($opt_g) {
+	    $outgroup = $opt_g;
+	}    
+	travail($seuil, $data_type,  $proportion, $low, $correspond_name, $outgroup);
 	
     }
 }
@@ -365,18 +372,20 @@ altree-add-S - Title...
 altree-add-S [options]
 
  Options:
-    --version            program version
-    --short-help|h       brief help message
-    --help               help message with options descriptions
-    --man                full documentation
-    --first-input-file|i input file 1
+    --version             program version
+    --short-help|h        brief help message
+    --help                help message with options descriptions
+    --man                 full documentation
+    --first-input-file|i  input file 1
     --second-input-file|j input file 2 nb cases/controls per haplotypes
-    --output-file|o      output file
-    --epsilon|e          espilon value
-    --data-type|t        data type: SNP or DNA
-    --proportion|p       proportion of cases in the sample
-    --ancestor|a         name of ancestral haplotype
-    --low|l              disease statut for haplotype carried by one individual
+    --output-file|o       output file
+    --epsilon|e           epsilon value
+    --data-type|t         data type: SNP or DNA
+    --proportion|p        proportion of cases in the sample
+    --ancestor|a          name of ancestral haplotype
+    [--outgroup|g]        name of the outgroup
+    [--low|l]             disease statut for haplotype carried by one individual
+    
 
 =head1 OPTIONS
 
@@ -422,9 +431,9 @@ Type of data: DNA (ATGCU) or SNP (0-1)
 
 Proportion of case individuals in the sample
 
-=item B<--ancestor|a>
+=item B<--outgroup|g>
 
-Name of the ancestral haplotype (if there is one)
+Name of the outgroup (if it is not in the file containing the number of cases and controls per haplotype)
 
 =item B<--low|l>
 

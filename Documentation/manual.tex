@@ -942,9 +942,15 @@ All the localisation directories contains the same files:
 
 \section{Analysing \phylip files}
 In the \fn{\phylip} directory, four sub-directories can be found,
-corresponding to various rooting methods. These directories are similar
-to the ones described for \paup. They also contains two
-sub-directories named \fn{association} and \fn{localisation}.
+corresponding to various rooting methods. These directories are
+similar to the ones described for \paup. They contains only one
+sub-directory named \fn{association}. For the moment, \altree cannot
+deal with \phylip files as input files for the localisation test
+because when there are  ambiguities in the apomorphie reconstructions,
+\phylip keeps them in the output file and the state ``?'' is assigned
+to the ambiguous character. At present, \altree cannot deal with
+these ambiguities.
+
 
 \subsection{Association test}
 All the association directories contains almost the same files:
@@ -964,11 +970,60 @@ All the association directories contains almost the same files:
   needed only if the tree is rooted using an ancestral sequence (\fn{ancestor\_absent} and \fn{ancestor\_present} directories)
 \end{description}
 
-\subsection{Localisation test}
-
 \section{Analysing \paml files}
 
+In the directory \fn{\paml}, three sub-directories can be found:
+\begin{description}
+\item [tree\_building\_using\_phyML:~]   as stated by its author, \paml is not a very good tool for tree
+  reconstruction. In this example, we choose to reconstruct the
+  phylogenetic tree using the software \phyml~\citep{Guindon03}. The
+  phylogenetic reconstruction step has been performed in this directory
+\item[\fn{unrooted\_absent} and \fn{unrooted\_present}:~] which are
+  similar to ones described for \paup. They are both divided in to
+  sub-directories: \fn{association} and \fn{localisation} 
+\end{description}
 
+\subsection{Phylogenetic tree reconstruction using \phyml}
+The files necessary for the phylogenetic reconstruction can be found
+in the directory \fn{tree\_building\_using\_phyML}. The input file for
+\phyml is the phylip format file named \fn{trio2.phy}. The options
+used to run \phyml are specified in the file \fn{run\_phyml}. The
+other files in the directory are \phyml output files. In the
+following, we will only use the file \fn{trio2.phy\_phyml\_tree.txt}
+which contains the reconstructed phylogenetic tree.
+
+\subsection{Association test}
+The two \fn{association} directories contains the same files:
+\begin{description}
+\item [trio2.phy:~] the \phylip format file containing the
+  sequences. It is used as an input file for \paml
+\item [trio2.phy\_phyml\_tree.txt:~] the output file of \phyml. It
+  is also used as an input file for \paml
+\item [baseml.ctl:~] the parameter file used by \paml
+\item [rst:~] the \paml output file which will be used by
+  \newchitree. It contains the apomorphy list and the tree structure
+\item[2base.t, lnf, mlb, rst1 and rub:~] they are all the other \paml
+  output files. They are not useful for \newchitree
+\item [1\_trio\_ML.asso:~] the \newchitree output file, result of the
+    association test 
+\item [run\_altree:~] a bash script containing the two command lines to
+  run respectively \phylip and  \newchitree (association test)
+\end{description}
+
+\subsection{Localisation test}
+All the \fn{localisation directories contains the same files:
+  \begin{description}
+  \item[trio2.phy:~] the \phylip format file containing the
+  sequences. It is used as an input file for \paml
+  \item [trio2.phy\_phyml\_tree.txt:~] the output file of \phyml. It
+  is also used as an input file for \paml
+\item [baseml.ctl:~] the parameter file used by \paml
+\item [rst:~] the \paml output file which will be used by
+  \newchitree. It contains the apomorphy list and the tree structure
+\item[2base.t, lnf, mlb, rst1 and rub:~] they are all the other \paml
+  output files. They are not useful for \newchitree
+  
+  \end{description}
 %\section{Case/Control data, analyzed using \paup}
 %To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyze it using all the programs available in this software.%
 

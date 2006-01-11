@@ -1,10 +1,15 @@
 #!/bin/sh -x
 
-~/recherche/logiciel/alphy/altree-add-S -i trio2.phy -j \
-nb_cas_controls.txt  -o et_trio2.phy -e 1 -t DNA -p 0.5
+# To obtain the file containing the sequences WITH the character S
+# The outgroup is not in the file nb_cas_controls.txt. Its name must be 
+# specified with the option --outgroup
+../../../../altree-add-S -i trio2.phy -j \
+nb_cas_controls.txt  -o et_trio2.phy -e 1 -t DNA -p 0.5 \
+--outgroup OUTG
 
-# ~/phyML/phyml_v2.4.4/exe/phyml_linux trio2.phy
-# The tree is reconstructed WITHOUT the S character
-# substitution model GTR
+# paml is run on the tree reconstructed by phyml WITHOUT the character 
+# S (file "trio2.phy_phyml_tree.txt" as first input file), but the 
+# character S is included in the apomorphy list (file "et_trio2.phy as 
+# second input file) 
+~/PAML/paml3.14/src/baseml
 
-#~/PAML/paml3.14/src/baseml

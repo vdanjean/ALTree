@@ -88,12 +88,6 @@ Wagner parsimony method
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -255,12 +249,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -424,12 +412,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -591,12 +573,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -760,12 +736,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -927,12 +897,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -1096,12 +1060,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -1263,12 +1221,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -1432,12 +1384,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -1599,12 +1545,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -1768,12 +1708,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -1935,12 +1869,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -2104,12 +2032,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -2271,12 +2193,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -2440,12 +2356,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -2607,12 +2517,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -2776,12 +2680,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -2943,12 +2841,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -3112,12 +3004,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -3279,12 +3165,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -3448,12 +3328,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -3615,12 +3489,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -3784,12 +3652,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -3951,12 +3813,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -4120,12 +3976,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -4287,12 +4137,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -4456,12 +4300,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -4623,12 +4461,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -4792,12 +4624,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   3   4   4   2   5   3
-   10!   7                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -4959,12 +4785,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   4   3   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -5128,12 +4948,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -5295,12 +5109,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -5464,12 +5272,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -5631,12 +5433,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -5800,12 +5596,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -5967,12 +5757,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -6136,12 +5920,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       5   2   3   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -6304,12 +6082,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -6471,12 +6243,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -6640,12 +6406,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -6807,12 +6567,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -6976,12 +6730,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -7144,12 +6892,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -7311,12 +7053,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -7480,12 +7216,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -7647,12 +7377,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -7816,12 +7540,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -7983,12 +7701,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -8152,12 +7864,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -8319,12 +8025,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -8488,12 +8188,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -8655,12 +8349,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -8824,12 +8512,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -8991,12 +8673,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -9160,12 +8836,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -9327,12 +8997,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -9496,12 +9160,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -9663,12 +9321,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -9832,12 +9484,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -9999,12 +9645,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -10168,12 +9808,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -10335,12 +9969,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -10504,12 +10132,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -10671,12 +10293,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -10840,12 +10456,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   2   4   4   4   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -11007,12 +10617,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -11176,12 +10780,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -11344,12 +10942,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -11511,12 +11103,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -11680,12 +11266,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -11847,12 +11427,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -12016,12 +11590,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -12183,12 +11751,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -12352,12 +11914,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -12519,12 +12075,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -12688,12 +12238,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -12855,12 +12399,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -13024,12 +12562,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -13192,12 +12724,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -13359,12 +12885,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -13528,12 +13048,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -13695,12 +13209,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -13864,12 +13372,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   4   4
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -14031,12 +13533,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -14200,12 +13696,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -14367,12 +13857,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -14536,12 +14020,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -14703,12 +14181,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -14872,12 +14344,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -15039,12 +14505,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -15208,12 +14668,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -15375,12 +14829,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -15544,12 +14992,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -15711,12 +15153,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -15880,12 +15316,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   4   2   5   3
-   10!   5                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -16047,12 +15477,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   3   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -16216,12 +15640,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   3   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -16383,12 +15801,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   3   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
@@ -16552,12 +15964,6 @@ root     35         no     ..... .....
 
 requires a total of     38.000
 
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   3   2   5   3
-   10!   6                                    
-
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
      *--------------------
@@ -16719,12 +16125,6 @@ root     35         no     ..... .....
 
 
 requires a total of     38.000
-
-steps in each character:
-         0   1   2   3   4   5   6   7   8   9
-     *-----------------------------------------
-    0!       6   2   3   4   4   3   2   5   3
-   10!   6                                    
 
 best guesses of ancestral states:
        0 1 2 3 4 5 6 7 8 9
