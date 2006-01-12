@@ -29,7 +29,7 @@
      |----* H001 case/control:11/9
      |        Site: 1 Sens: 2-->1
      |        Site: 2 Sens: 2-->1
------* root+(20+(19)) case/control:102/74
+-----* 20+(19) case/control:102/74
      | 
      | [0] ddl=3 chi2=1.41 p_value_chi2=0.704
      | [1] ddl=5 chi2=3.37 p_value_chi2=0.643

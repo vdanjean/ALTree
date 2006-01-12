@@ -7,3 +7,10 @@ paup caco.paup
 #test.res.log
 ../../../../altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \
  -p paup -r 1 --tree-to-analyse 1 -o 1_caco.asso
+
+
+# To perform the association test without the permutation test (using  
+# a theshold for the chi2)
+#../../../../altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \  
+#-p paup  --tree-to-analyse 1 --chi2-threshold 0.05  -r 0 \
+#-o 1_caco.asso

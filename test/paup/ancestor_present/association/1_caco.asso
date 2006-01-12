@@ -36,7 +36,7 @@
      |    |   Site: 3 Sens: 2-->1
      |    \----* H005 case/control:7/7
      |             Site: 12 Sens: 2-->1
------* root+(22+(21)) case/control:200/200
+-----* 22+(21) case/control:200/200
      | 
      | [0] ddl=4 chi2=9.33 p_value_chi2=0.0535
      | [1] ddl=6 chi2=11.24 p_value_chi2=0.07
