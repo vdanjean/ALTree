@@ -87,7 +87,8 @@
 \begin{document}
 \pagestyle{empty}
 \pagestyle{myheadings}
-\title{}
+\title{ALTree: Association and Localisation tests using haplotype
+  phylogenetic Trees }
 \author{Claire Bardel, Vincent Danjean, Pierre Darlu and Emmanuelle Génin}
 
 \maketitle
@@ -96,26 +97,34 @@
 
 \chapter{Overview of the software}
 
- This software was designed to perform phylogeny based analysis: first,
+ This software is designed to perform phylogeny-based analysis: first,
 it allows the detection of an association between a candidate gene and
 a disease, and second, it enables to make hypothesis about the
 susceptibility loci.
 
 %\section{Copyright}
-It is copyright (c) by Claire Bardel and Vincent Danjean
-You are free to distribute this software under the terms of the GNU
-General Public License.  The complete text of the GNU General Public
-License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
+
 
 It contains three programs: \newchitree, \rechaplo and
 \etHT. The connections between these programs are described in Figure~\ref{fig:altree}
 %\section{Short description of the programs available in \altree}
 \begin{figure}[htbp]
   \includegraphics[width=\linewidth]{overview.fig}\centering
-  
   \caption{\altree programs}
   \label{fig:altree}
 \end{figure}
+  
+This program is copyright (c) by Claire Bardel and Vincent Danjean
+and is distributed under the GNU General Public License. You are
+free to re-distribute it under the same license.
+
+This software comes with no warranty whatsoever. If you encounter any
+problem, please, send a bug report to Claire Bardel at the foolowing
+e-mail: bardel@vjf.inserm.fr
+                                %The complete text of the GNU General Public
+                                %License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
+  
+
 \section{\newchitree}
 \subsection{Association test}
 The test consists in performing series of nested homogeneity tests
@@ -141,8 +150,9 @@ complete description.
 
 \section{\rechaplo}
 Before running \newchitree, you will generally have to reconstruct
-haplotypes (see section \ref{sec:require} for a description of usable
-programs). The output of the haplotype reconstruction programs are
+haplotypes %(see section \ref{sec:require} for a description of usable
+%programs). 
+The output of the haplotype reconstruction programs are
 totally different from the input files necessary for the phylogenetic
 reconstruction programs. \rechaplo was then written to convert the
 outputs of haplotype reconstruction programs to input files for
@@ -158,6 +168,7 @@ reconstruction programs: \paup~\citep{Swofford02},
 \phylip~\citep{Felsenstein04} and \paml~\citep{YangPAML}.
 
 \section{\etHT}\label{description_etiquette}
+\enlargethispage{1cm}
 To perform the localisation analysis, a new character $S$ must be
 added to each haplotype $h$. The state of $S$ depends on the
 proportion of cases carrying the haplotype $h$. You can use your own
@@ -186,7 +197,7 @@ with $n_h$ being the number of individuals carrying the haplotype $h$.
 
 \chapter{Installing the software}
 
-The software can run on various linux/Unix platform. %and on MacOS X.
+The software can run on various Linux/Unix platform. %and on MacOS X.
 
 \section{Requirements}
 \label{sec:require}
@@ -210,7 +221,7 @@ Three phylogeny software are compatible with our program:
 \end{itemize}
 
 \paragraph{Note:}
-Currently, only parsimony methods implemented in \paup (command
+Currently, only the parsimony methods implemented in \paup (command
 \texttt{set}, option \texttt{criterion} set to ``parsimony'') and in
 \phylip (program \texttt{mix}) have been tested. If you want to use
 maximum likelihood (ML), we suggest you to use your favorite software
@@ -219,9 +230,10 @@ character states at each node.
 
 \subsection{Required tools}
 \prog{perl} is required to run \altree. \prog{perl} version 5.8.7 or
-higher should work. Lower version can work, but it has not been
+higher should work. Lower versions can work, but they have not been
 tested.
 
+%TODO voir Vince, c'est bien obligatoire ça?
 If you want to build the program from sources, you will also need a
 C compiler such as \prog{gcc} and the GNU \prog{make} program. They
 are available on most Unix plateforms. %For MacOS X, \prog{gcc} and
@@ -272,7 +284,7 @@ have a short name (which must be preceded by -).
 \begin{options}
   \option{-{}-version}{program version}
   \option{-{}-short-help|-h}{brief help message}
-  \option{-{}-help}{help message with options descriptions}
+  \option{-{}-help}{help message with option descriptions}
   \option{-{}-man}{full documentation}
   \option{-{}-first-input-file|-i \ucode{file}}{Input file 1}
   \option{-{}-second-input-file|-j \ucode{file}}{Input file 2 (not mandatory, see
@@ -302,7 +314,11 @@ This option displays the man page for the program.
 This option gives the number of the version currently used.
 
 \section{Input files}
-This program takes as input files the output files of the haplotype recontruction programs. Currently, only \phase (for case/control data) and \famhap (for family data) output files are allowed, but we plan to extend the number of haplotype recontruction programs usable. The haplotype reconstruction program used to generate the input file must be specified after the -r option.
+This program takes as input files the output files of the haplotype
+recontruction programs. Currently, only \phase (for case/control data)
+and \famhap (for family data) output files are allowed, but we plan to
+extend the number of haplotype recontruction programs usable. The name
+of the haplotype reconstruction program used to generate the input files must be specified after the -r option.
 
 \subsection{Using \phase output file}
 Two different cases must be considered:
@@ -327,7 +343,7 @@ yet. Two options are necessary:
 \item [P] : to make sure that all the haplotypes are present in the output file
 \end{description}
 
-Two input files are necessary: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called input\_name\_H1\_HAPLOTYPES. In this case, the program must be run like this: \\
+Two input files are necessary for \rechaplo: the \famhap output file whose name has been chosen by the user (let's call it out.famhap), and the output file called input\_name\_H1\_HAPLOTYPES. In this case, the program must be run like this: \\
 \begin{source} 
   \rechaploname -r \ccode{famhap} -i \ucode{out.famhap} -j
   \ucode{H1\_HAPLOTYPES} -other\_options
@@ -356,9 +372,9 @@ this is not necessary and this file should be modified according to
 your data. Examples of \paup input files can be found in the test
 directory: they are labeled *.paup.  
 
-In the output file, the name of each haplotype is formed by the
-concatenation of an haplotype number (Hxxx), and of the number of
-cases (mxxx) and controls (cxxx) carrying this haplotype. 
+%In the output file, the name of each haplotype is formed by the
+%concatenation of an haplotype number (Hxxx), and of the number of
+%cases (mxxx) and controls (cxxx) carrying this haplotype. 
 %A character
 %is added to each haplotype: its state is 2 or C for all the haplotypes
 %and must be set to 1 or G for the ancestral sequence. This character
@@ -371,7 +387,7 @@ indicated within square brackets and must be specified by the user before
 running \paup:
 \begin{itemize}
 \item the sequence of the ancestral haplotype
-\item the maximum number of trees \paup can find
+\item the maximum number of trees \paup must find 
 \item the method to optimise character state changes (\acctran/\deltran)
 \item the name of the different files generated
 \item the number of trees described by paup in the log file (we advise
@@ -422,7 +438,7 @@ always labeled ``nb\_cas\_control.txt''.
 \section{Other options}
 \subsection{The phylogeny reconstruction program}
 You must specify the name of the phylogeny reconstruction software
-that will be used after the -p or -{}-phylo-prog option so that the
+that will be used  after the option -p or -{}-phylo-prog option so that the
 corresponding output file can be generated.
 
 \subsection{The haplotype reconstruction program}
@@ -440,17 +456,17 @@ superior to 9 cannot be used). It must be specified after the -r option.
 
  
 \chapter{\etHT}
-This program adds a new character S to each haplotype corresponding to
-its disease status. Each option has a long name (which must be
-preceded by -{}-) and some of them also have a short name (which must be
-preceded by -).
+This program adds a new character (named $S$) to each haplotype
+corresponding to its disease status. Each option has a long name
+(which must be preceded by -{}-) and some of them also have a short
+name (which must be preceded by -).
 
 \section{Summary of the different options}
 
 \begin{options}
   \option{-{}-version}{program version}
   \option{-{}-short-help|-h}{brief help message}
-  \option{-{}-help}{help message with options descriptions}
+  \option{-{}-help}{help message with option descriptions}
   \option{-{}-man}{full documentation}
   \option{-{}-first-input-file|-i \ucode{file}}{Input file 1}
   \option{-{}-second-input-file|-j \ucode{file}}{Input file 2: nb cases/controls per haplotype}
@@ -484,7 +500,7 @@ description of the last haplotype in the data block includes a semi colon only.
 
 \section{Output file (-o option)}
 The name of the output file can be specified after the -o option. If
-the -o option is not used, the standard output is used.
+the -o option is not present, the standard output is used.
 
 The output file is a \paup or \paml input file. The S character is
 coded ``G'' or ``1'' for cases and ``C'' or ``0'' for controls.  In
@@ -498,14 +514,15 @@ the S-character to \paml to obtain the apomorphie list.
 
 \section{Other options}
 
-\subsection{The -h option: help}
-If the program is run with the option -h, a quick help is provided. In this help, the user will find summary of the different options.
 
 \subsection{Proportion of cases in the sample}
 The proportion of cases in the sample must be specified after the -p option
 
 \subsection{The epsilon value}
-It corresponds to the parameter $\epsilon$ (see the description of the program in section \ref{description_etiquette}). If $\epsilon$ is high, haplotypes will more often have a s-character coded ``?''. To give an idea, in our article~\cite{Bardel05}, $\epsilon$ was set to 1.
+It corresponds to the parameter $\epsilon$ (see the description of the
+program in section \ref{description_etiquette}, page
+\pageref{description_etiquette}). If $\epsilon$ is high, haplotypes
+will more often have a character $S$ coded ``?''. To give an idea, in our article~\citep{Bardel05}, $\epsilon$ was set to 1.
 
 \subsection{Data type}
 The -t option must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
@@ -521,7 +538,7 @@ should be used if you have numerical data (characters coded from 0 to 9).
  \ref{description_etiquette}, page \pageref{description_etiquette}).
 
 \subsection{Name of the outgroup}
-If the outgroup is not in the file containing the number of cases an
+If the outgroup  is not specified in the file containing the number of cases an
 controls but is in the file containing the sequences, the name of the
 outgroup must be provided to \etHT so that the program can identify
 the outgroup sequence. For this sequence, the state of the character
@@ -536,11 +553,11 @@ some of them also have a short name (which must be preceded by -).
 \begin{options}[p{.54\linewidth}]
 \option{-{}-version}{program version}
 \option{-{}-short-help|-h}{brief help message}
-\option{-{}-help}{help message with options descriptions}
+\option{-{}-help}{help message with option descriptions}
 \option{-{}-man}{full documentation}
 \option{-{}-association|-a}{perform the association test}
-\option{-{}-s-localisation|-l}{perform the localisation using the S character}
-\option{-{}-first-input-file|-i \ucode{file}}{result file from phylogeny program}
+\option{-{}-s-localisation|-l}{perform the localisation test}
+\option{-{}-first-input-file|-i \ucode{file}}{output file from phylogeny program}
 \option{-{}-second-input-file|-j \ucode{file}}{nb cases/controls per haplotype}
 \option{-{}-output-file|-o \ucode{file}}{output file}
 \option{-{}-data-type|-t \ccode{DNA}|\ccode{SNP}}{type of data}
@@ -560,7 +577,8 @@ some of them also have a short name (which must be preceded by -).
 \option{-{}-number-of-trees-to-analyse \ucode{number}}{total number of trees to analyse}
 \option{-{}-tree-to-analyse \ucode{number}}{number of the tree to analyse}
 \option{-{}-s-site-number \ucode{number}}{position of the $S$ character in the sequence}
-\option{-{}-s-site-characters \hspace*{\fill}\ucode{anc\_state}\ccode{->}\ucode{der\_state}}{ancestral state -> derived state}
+\option{-{}-s-site-characters
+  \hspace*{\fill}\ucode{anc\_state}\ccode{->}\ucode{der\_state}}{ancestral state -> derived state for $S$}
 \option{-{}-co-evo|-e \ccode{simple}|\ccode{double}}{simple or double}
 \option{-{}-print-tree}{print the tree with the character state changes in the output file}
 
@@ -580,7 +598,7 @@ These options are used both for association and for localisation test.
 \subsubsection{If \paup is used}
 To run \newchitree, some informations must be present in the input
 file for \newchitree (=output file of \paup). In particular, the
-apomorphy list and a table containing branch lengths must be present.
+apomorphy list and a table contining branch lengths must be present.
 For these information to be present, in the \cmd{describetrees}
 command you must use the following options: \cmd{brlens=yes} and
 \cmd{apolist=yes};
@@ -612,28 +630,29 @@ The input file for \newchitree is the output file named ``rst'' by
 \paml.
 
 \subsection{Second input file (option -{}-second-input-file or -j)}
-This input file consists in lines contains the label of each haplotype
-followed by the number of cases and controls carrying it separated by spaces
-or tabulations. The number of cases should be preceded by a ``m``(or the
-word ``case'', possibly followed by a ``\_''), the number of controls
-should be preceded by the letter ``c'' (or the word ``control''). 
+This input file consists in lines containing the label of each
+haplotype followed by the number of cases and controls carrying it
+separated by spaces or tabulations. The number of cases should be
+preceded by a ``m``(or the word ``case'', possibly followed by a
+``\_''), the number of controls should be preceded by the letter ``c''
+(or the word ``control'', possibly followed by a ``\_'').
 
 Example of such files are given in the test directory. These files are
 always labeled \fn{nb\_cas\_control.txt}.
 
 \subsection{Output file (option -{}-output-file or -o)}
-The user can choose the name of the output file by using the -{}-output-file or -o option. If this option is not used, the standard output is used. 
+You can choose the name of the output file by using the -{}-output-file or -o option. If this option is not specified, the standard output is used. 
 
 \subsection{Name of the phylogeny program used (option -{}-tree-building-program or  -p )}
-After the -p, you should specify which phylogeny reconstruction
+After the option -p, you must specify which phylogeny reconstruction
 program (\paup, \phylip or \paml) was used to generate the first input file.
 
 \subsection{Data type  (option -{}-data-type or -t)}
-The -t must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
+The option -t must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
 should be used if you have numerical data (from 0 to 9).
  \cmd{DNA} must be used if you have DNA data (A, T, G, C).
-Warning: the DNA option currently does not work if you have used phylip to
-reconstruct the phylogenetic tree.
+Warning: the DNA option currently does not work if you have
+reconstructed the phylogeny with phylip.
 
 \subsection{Print tree (option -{}-print-tree)}
 If this option is specified, the tree with the character state changes
@@ -642,14 +661,13 @@ especially be useful when you are performing the localisation
 analysis, because in this case, the tree is not written in the output
 file by default.
 
-Warning: if several trees are analysed, with the -{}-print-tree option,
-they will \emph{all} be printed in the output file.
+\textit{Warning: if several trees are analysed, with the -{}-print-tree option,
+they will \emph{all} be printed in the output file.}
 
 
 
 \section{Association test (option  -{}-association or -a)}
-When the -a option is used, the program will perform the phylogeny
-based association test. 
+When the -a option is used, the program will perform the phylogeny-based association test. 
  
 \subsection{Options specific to the association test}
 
@@ -700,10 +718,11 @@ suggest this number to be chosen between 10000 and 100000.
 \subsubsection{Threshold for chi-square significance (option chi2-threshold or -n)}
 If you do not want to compute the exact type I error by permutation, a
 significance threshold for the \chisquares can be chosen by the user
-using the -{}-chi2-threshold (or -n) option.
+using the -{}-chi2-threshold (or -n) option. In this case, you must
+put the -{}-permutation option to zero.
  
 \subsubsection{Branch prolongation (option -{}-no-prolongation)}
-If the --no-prolongation option is specified in the command line, the different
+If the -{}-no-prolongation option is specified in the command line, the different
 branches of the tree will not be prolonged. (see
 figure~\ref{fig:option_b}). 
 
@@ -729,9 +748,10 @@ figure~\ref{fig:option_b}).
 \label{fig:option_b}
 \end{figure}
 
-Warning: This option is under development. At present, the program has only
-been tested \emph{without} the \fn{-{}-no-prolongation} option specified.
-If you choose not to, you may encounter some problems.
+\textit{Warning: This option is currently  under development. At present, the
+  program has only been tested \emph{without} the
+  \fn{-{}-no-prolongation} option specified.
+If you choose not to, you may encounter some problems.}
 
 
 \subsubsection{Ancestral sequence (option -{}-anc-seq)}
@@ -758,7 +778,7 @@ The output file shows the tree, with the number of cases an controls at each nod
 
 \section{Localisation test (option -{}-s-localisation or -l)}
 
-\subsection{Options to specify}
+\subsection{Options specific to the localisation}
 \subsubsection{Number of trees (option -{}-number-of-trees-to-analyse)}
 With this option, you choose the number of trees to
 use in the localisation test. These trees are randomly sampled without
@@ -822,21 +842,29 @@ susceptibility sites.
 \chapter{Example files}
 
 The  \fn{test} directory contains example files for the three phylogeny
-reconstruction programs. The files are distributed  in four directories:
+reconstruction programs. The files are grouped  in four directories:
 \begin{itemize}
-\item \fn{create\_file} which contains files and instruction necessary to
-  obtain \paup or \paml/\phylip file formats
+\item \fn{create\_file} which contains files and instructions necessary to
+  obtain \paup or \paml/\phylip file formats from output files of the
+haplotype reconstruction program. 
 \item \fn{\paup}, \fn{\phylip} and \fn{\paml} which contain files and
   instructions necessary to perfom association and localisation tests  
 \end{itemize}
 
+In each directory, all the input and output files for all the programs
+and a bash script containing the different command lines are provided.
+ % TODO Ajouter le changement des chemins!! 
+
 \section{Obtention of input files for phylogeny reconstruction
   programs}
 
-The \fn{create\_file} directory is divided into 2 directories:
-\fn{paup\_file} and \fn{phy-paml\_file}.
+The \fn{create\_file} directory is divided into 2 sub-directories:
+\fn{paup\_file} and \fn{phy-paml\_file}. In these directories, we
+present how to obtain input files for \paup and \phylip (or \paml)
+from output files of the haplotype reconstruction programs \phase
+and \famhap.
 
-\subsection{Creating \paup input files}
+\subsection{Creating \paup input files from \phase output file}
 The \fn{paup\_file} directory contains case/control data (12 SNPs
 genotyped for 100 case and 100 control individuals). The haplotypes
 are reconstructed using \phase and the \paup input file is generated
@@ -856,8 +884,15 @@ the following:
 \item [create\_file~:] a bash script containing the two command lines to
   run respectively \phase and \rechaplo
 \end{description}
+\begin{figure}[htb]
+  \includegraphics[width=\linewidth]{create_file_paup.fig}\centering  
+  \caption{Summary of the files and programs used to obtain input
+    files for \paup}
+  \label{fig:create_paup}
+\end{figure}
 
-\subsection{Creating \phylip/\paml input files}
+
+\subsection{Creating \phylip/\paml input files from \famhap output files}
 The \fn{phy-paml\_file} directory contains family data (10 SNPs
 genotyped for 100 trios: 2 parents + 1 affected child). The haplotypes
 are reconstructed using \famhap and the \phylip/\paml input file is
@@ -866,7 +901,7 @@ directory are the following:
 \begin{description}
 \item [fam19\_0~:] an input file for \famhap (linkage format without headers)
 \item [trio.fmh and fam19\_0\_H1\_HAPLOTYPES~:] the two \famhap output
-  file used by \rechaplo
+  files used by \rechaplo
 \item [fam19\_0\_*~:] all other \famhap output files. They are not
   useful to run \altree
 \item [trio.phy~:] the main \rechaplo output file. It is an input file
@@ -883,9 +918,17 @@ directory are the following:
 %\item family data (100 trios: 2 parents + 1 affected child): they are analysed using \phylip or \paml 
 %\end{itemize}
 
+\begin{figure}[htb]
+  \includegraphics[width=0.9\linewidth]{create_file_phy.fig}\centering  
+  \caption{Summary of the files and programs used to obtain input
+    files for \phylip or \paml}
+  \label{fig:create_phy}
+\end{figure}
+
+
 \section{Analysing \paup files}
-In the \fn{test/paup/} directory, six subdirectories can be found,
-each corresponding to a different ways to root (or not) the tree using
+In the \fn{``test/paup/''} directory, six sub-directories can be found,
+each corresponding to a different way to root (or not) the tree using
 \paup:
 \begin{itemize}
 \item \fn{ancestor\_absent}: In this directory, the tree is
@@ -895,7 +938,7 @@ each corresponding to a different ways to root (or not) the tree using
   rooted using an ancestral sequence which is in the data set (it can
   be the most frequent haplotype in the sample for example)
 \item \fn{outgr\_absent}: In this directory, the tree is
-  rooted using an outgroup which is not carried by case or controls
+  rooted using an outgroup which is not carried by case or control
   individuals (it can be an ape sequence for example)
 \item \fn{outgr\_present}: In this directory, the tree is
   rooted using an outgroup which is in the data set
@@ -914,8 +957,9 @@ files used to perform the association test (directory
 \fn{association}) or the localisation test (directory \fn{localisation}) 
 
 \emph{Warning: For the localisation test, as the rooting is not necessary,
-the question of the presence or not of an outgroup is irrelevant. The
-two localisation directories thus only correspond to two different data
+the question of the presence or not of an outgroup is irrelevant
+put the -{}-permutation to zero(directories unrooted\_absent and unrooted\_present). The
+two localisation sub-directories thus only correspond to two different data
 sets analysed with \altree.}
 
 \subsection{Association test}
@@ -935,6 +979,14 @@ All the association directories contain the same files:
   run respectively \paup and \newchitree (association test)
 \end{description}
 
+\begin{figure}[htb]
+  \includegraphics[width=0.95\linewidth]{association_paup.fig}\centering  
+  \caption{Summary of the different files and programs  used for the
+    association test (using \paup)}
+  \label{fig:paup_asso}
+\end{figure}
+
+
 \subsection{Localisation test}
 All the localisation directories contain the same files:
 \begin{description}
@@ -953,6 +1005,13 @@ All the localisation directories contain the same files:
   run respectively \etHT, \paup and then \newchitree (localisation test)
 \end{description}
 
+\begin{figure}[htb]
+  \includegraphics[width=\linewidth]{localisation_paup.fig}\centering  
+  \caption{Summary of the different files and programs  used for the
+    localisation test (using \paup)}
+  \label{fig:paup_loc}
+\end{figure}
+
 \section{Analysing \phylip files}
 In the \fn{\phylip} directory, four sub-directories can be found,
 corresponding to various rooting methods. These directories are
@@ -968,7 +1027,7 @@ these ambiguities.
 \subsection{Association test}
 All the association directories contain almost the same files:
 \begin{description}
-\item [trio.phy:~] the \phylip input file
+\item [trio.phy:~] the \phylip input file 
 \item [nb\_cas\_controls.txt:~] it contains the number of time
   each haplotype is carried by case and control individuals
 \item [outfile:~]  the \phylip output file which is used as an
@@ -982,6 +1041,15 @@ All the association directories contain almost the same files:
 \item [ancestors:~] it contains the ancestral sequence. This file is
   needed only if the tree is rooted using an ancestral sequence (\fn{ancestor\_absent} and \fn{ancestor\_present} directories)
 \end{description}
+
+\begin{figure}[htb]
+  \centering  
+  \includegraphics[width=0.9\linewidth]{association_phylip.fig}  
+  \caption{Summary of the different files and programs  used for the
+    association test (using \phylip)}
+  \label{fig:phylip_asso}
+\end{figure}
+
 
 \section{Analysing \paml files}
 
@@ -1016,13 +1084,21 @@ The two \fn{association} directories contain the same files:
 \item [baseml.ctl:~] the parameter file used by \paml
 \item [rst:~] the \paml output file which will be used by
   \newchitree. It contains the apomorphy list and the tree structure
-\item[2base.t, lnf, mlb, rst1 and rub:~] they are all the other \paml
+\item[2base.t, lnf, mlb, rst1 and rub:~]  all the other \paml
   output files. They are not useful for \newchitree
 \item [1\_trio\_ML.asso:~] the \newchitree output file, result of the
     association test 
 \item [run\_altree:~] a bash script containing the two command lines to
-  run respectively \phylip and  \newchitree (association test)
+  run respectively \paml and  \newchitree (association test)
 \end{description}
+
+\begin{figure}[htb]
+  \includegraphics[width=0.9\linewidth]{association_paml.fig}\centering  
+  \caption{Summary of the different files and programs  used for the
+    association test (using \paml)}
+  \label{fig:paml_asso}
+\end{figure}
+
 
 \subsection{Localisation test}
 With \paml, only unrooted trees are obtained. These unrooted trees can
@@ -1032,22 +1108,33 @@ directory exists, it is located in the directory \fn{unrooted\_present}.
 
 The \fn{localisation} directory contains the following files:
 \begin{description}
-\item[trio2.phy:~] the \phylip format file containing the
-  sequences. It is used as an input file for \paml
-\item [nb\_cas\_controls.txt:~] it contains the number of time
+\item[trio2.phy:~] the \phylip format file without the character $S$
+\item [et\_trio2.phy:~] the \phylip format file including the character
+  $S$. It is one of the input file for \paml
+\item [nb\_cas\_controls.txt:~] contains the number of time
   each haplotype is carried by case and control individuals
-\item [trio2.phy\_phyml\_tree.txt:~] the output file of \phyml. It
-  is also used as an input file for \paml
+\item [trio2.phy\_phyml\_tree.txt:~] the output file of \phyml (tree
+  reconstructed without taking the character $S$ into account). It
+  is also an input file for \paml
 \item [baseml.ctl:~] the parameter file used by \paml
 \item [rst:~] the \paml output file which will be used by
   \newchitree. It contains the apomorphy list and the tree structure
-\item[2base.t, lnf, mlb, rst1 and rub:~] they are all the other \paml
+\item[2base.t, lnf, mlb, rst1 and rub:~]  all the other \paml
   output files. They are not useful for \newchitree
 \item [trio2.loc:~] the \newchitree output file, result of the
   localisation test
 \item [run-prog:~] a bash script containing the three command lines to
   run respectively \etHT, \paml and  \newchitree (localisation test) 
 \end{description}
+
+\begin{figure}[htb]
+  \includegraphics[width=\linewidth]{localisation_paml.fig}\centering  
+  \caption{Summary of the different files and programs  used for the
+    localisation test (using \paml)}
+  \label{fig:paml_loc}
+\end{figure}
+
+
 %\section{Case/Control data, analysed using \paup}
 %To build these example file, we simulate a data set from real haplotypes (12 SNPs) from 23 European individual described in the Variation discovery resource project~\cite{SeattleSNPs} (IL13 data). We choose the allele 1 of the first SNP to be the disease susceptibility (DS) allele (frequency: 0.196). Pairs of haplotypes are randomly sampled with replacement to form genotypes and the disease status is obtained by applying the penetrance 0.03 (0 DS allele), 0.06 (1 DS allele) and 0.3 (2 DS allele). This process is carried on until two samples of 100 individuals are obtained. We suppose the phase unknown and we reconstruct it using \phase. Then, we analyse it using all the programs available in this software.%
 
@@ -1143,7 +1230,7 @@ The \fn{localisation} directory contains the following files:
 
 \phase \url{http://www.stat.washington.edu/stephens/software.html}
 
-\section{Phylogeny reconstruction program}
+\section{Phylogeny reconstruction programs}
 \paup  \url{http://paup.csit.fsu.edu/}
 
 \phylip \url{http://evolution.genetics.washington.edu/phylip.html}
@@ -1151,8 +1238,10 @@ The \fn{localisation} directory contains the following files:
 \paml  \url{http://abacus.gene.ucl.ac.uk/software/paml.html}
 
 \phyml \url{http://atgc.lirmm.fr/phyml/}
+
 \bibliographystyle{plainnat}
 \bibliography{stage}
+
 \end{document}
 \annexe 
 \chapter{GNU GENERAL PUBLIC LICENSE}
