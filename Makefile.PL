@@ -6,7 +6,7 @@ WriteMakefile(
     NAME              => 'altree',
     PMLIBDIRS         => [ 'ALTree' ],
     DIR               => [ 'CUtils' ],
-    VERSION	      => '1.0.0',
+    VERSION	      => '1.0.1',
     PREREQ_PM         => {}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'altree', # retrieve abstract from module
