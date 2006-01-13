@@ -74,7 +74,13 @@ test/create_file/phy-paml_file/fam19_0_LDmeasuresCONTROLS.xt
 test/create_file/phy-paml_file/nb_cas_control.txt
 test/create_file/phy-paml_file/NUM
 test/create_file/phy-paml_file/trio.fmh
+test/create_file/phy-paml_file/trio.phy
 test/create_file/phy-paml_file/trio.prephy
+test/paml/tree_building_using_phyML/run_phyML
+test/paml/tree_building_using_phyML/trio2.phy
+test/paml/tree_building_using_phyML/trio2.phy_phyml_lk.txt
+test/paml/tree_building_using_phyML/trio2.phy_phyml_stat.txt
+test/paml/tree_building_using_phyML/trio2.phy_phyml_tree.txt
 test/paml/unrooted_absent/association/1_trio_ML.asso
 test/paml/unrooted_absent/association/2base.t
 test/paml/unrooted_absent/association/baseml.ctl
@@ -144,9 +150,13 @@ test/paup/outgr_absent/association/nb_cas_control.txt
 test/paup/outgr_absent/association/run_altree
 test/paup/outgr_absent/association/test.res.log
 test/paup/outgr_absent/association/test.tree
+test/paup/outgr_absent/localisation/caco.loc
 test/paup/outgr_absent/localisation/caco.paup
+test/paup/outgr_absent/localisation/et_caco.paup
 test/paup/outgr_absent/localisation/nb_cas_control.txt
 test/paup/outgr_absent/localisation/run-prog
+test/paup/outgr_absent/localisation/test.res.log
+test/paup/outgr_absent/localisation/test.tree
 test/paup/outgr_present/association/1_caco.asso
 test/paup/outgr_present/association/caco.paup
 test/paup/outgr_present/association/nb_cas_control.txt
@@ -206,6 +216,7 @@ test/phylip/outgroup_absent/association/outfile
 test/phylip/outgroup_absent/association/outtree
 test/phylip/outgroup_absent/association/run_altree
 test/phylip/outgroup_absent/association/trio.phy
+test/phylip/outgroup_present/association/1_trio_phy.asso
 test/phylip/outgroup_present/association/nb_cas_controls.txt
 test/phylip/outgroup_present/association/outfile
 test/phylip/outgroup_present/association/outtree

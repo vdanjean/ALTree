@@ -32,3 +32,5 @@
 # Other
 .*\.o$
 ^make-release$
+^Documentation/example_files
+^altree_enleve$
