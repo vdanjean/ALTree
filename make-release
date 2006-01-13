@@ -1,0 +1,111 @@
+#!/bin/sh
+
+set -e
+
+VERSION=$(cat Makefile.PL | \
+	sed -e '/VERSION/s/.*'"'"'\([0-9a-ZA-Z._-]\+\)'"'"'.*/\1/p;d')
+
+FORCE=""
+
+while [ $# != 0 ]; do
+  case "$1" in
+  --force)
+    echo "--force enabled. Disabling sanity check..."
+    FORCE=yes
+    ;;
+  --dry-run|-n)
+    echo "--dry-run enabled. No real release will be done."
+    DRYRUN="echo DRY-RUN: "
+    ;;
+  --)
+    shift
+    break
+    ;;
+  -*)
+    echo "Unknown option $1"
+    echo "Aborting"
+    exit 1
+    ;;
+  *)
+    break;
+    ;;
+  esac
+  shift
+done
+
+if [ "$VERSION" != "$1" ]; then
+   echo "Asking to create version '$1' whereas version '$VERSION is present'"
+   echo "Stopping"
+   exit 1
+fi
+
+echo "Creating version '$VERSION'"
+
+set -x
+[ -f Makefile ] || perl Makefile.PL
+make Makefile || true
+make realclean
+make -C Documentation distclean
+set +x
+
+if [ "$(svn st)" != "" ]; then
+   echo "************************************"
+   echo "* Not all files are commited/cleaned"
+   echo "* Please correct before creating a release"
+   echo "* (use 'svn st' to look for problematic files"
+   echo "************************************"
+   if [ "$FORCE" ]; then
+     echo "* !!! WARNING: --force enabled : continuing"
+     echo "************************************"
+   else
+     exit 1
+   fi
+fi
+  
+perl Makefile.PL
+
+if [ "$(make distcheck 2>&1 1>/dev/null)" != "" ]; then
+   echo "************************************"
+   echo "* Not all files are in MANIFEST (or removed from it)"
+   echo "* Please correct before creating a release"
+   echo "* (use 'make distcheck' to look for problematic files"
+   echo "************************************"
+   if [ "$FORCE" ]; then
+     echo "* !!! WARNING: --force enabled : continuing"
+     echo "************************************"
+   else
+     exit 1
+   fi
+fi
+  
+make disttest
+make dist
+
+D=svn+ssh://labri/usr/labri/danjean/svnroot/claire/altree/tags/release-$VERSION
+if svn ls "$D" > /dev/null; then
+   echo "************************************"
+   echo "* Tag for revision $VERSION already exists"
+   echo "* Did you really increase the revision number in Makefile.PL ?"
+   echo "************************************"
+   if [ "$FORCE" ]; then
+     echo "* !!! WARNING: --force enabled : skipping creation tag"
+     echo "************************************"
+   else
+     exit 1
+   fi
+else
+  $DRYRUN svn copy -m "Release $VERSION" \
+    svn+ssh://labri/usr/labri/danjean/svnroot/claire/altree/trunk \
+    "$D"
+fi
+
+echo "************************************"
+echo "* SUCCESS !"
+echo "************************************"
+echo "* Release created in altree-$VERSION.tar.gz"
+echo "* You need to copy this file to the web site"
+echo "* and tell Vince to update the debian package"
+echo "************************************"
+
+
+
