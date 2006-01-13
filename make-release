@@ -74,9 +74,6 @@ if [ "$(make distcheck 2>&1 1>/dev/null | grep -v "^No such file: META.yml$")" !
    fi
 fi
   
-make disttest
-make dist
-
 D=svn+ssh://labri/usr/labri/danjean/svnroot/claire/altree/tags/release-$VERSION
 if svn ls "$D" > /dev/null; then
    echo "************************************"
@@ -88,10 +85,18 @@ if svn ls "$D" > /dev/null; then
      echo "* !!! WARNING: --force enabled : type 'ENTER to continue'"
      echo "************************************"
      read a
+     DO_TAG=false
    else
      exit 1
    fi
 else
+  DO_TAG=true
+fi
+
+make disttest
+make dist
+
+if [ "$DO_TAG" = true ]; then
   $DRYRUN svn copy -m "Release $VERSION" \
     svn+ssh://labri/usr/labri/danjean/svnroot/claire/altree/trunk \
     "$D"
