@@ -3,6 +3,8 @@
 \bCVS\b
 ,v$
 .cvsignore$
+^\.svn\b
+/\.svn\b
 
 # Makemaker generated files and dirs.
 ^MANIFEST\.
@@ -27,3 +29,4 @@
 ^Documentation/fig/.*_[0-9]+\.fig$
 
 # Other
+.*\.o$
