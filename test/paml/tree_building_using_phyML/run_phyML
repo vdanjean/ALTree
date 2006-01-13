@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# In this example, we choose the substitution model GTR (option M 
+# selected three times). For the other options, we keep the default 
+# values 
+phyml_linux

@@ -1,0 +1,47 @@
+
+- PHYML v2.4.4 -
+
+. Sequence file : [trio2.phy]
+
+. Model of nucleotides substitution : GTR
+
+. Initial tree : [BIONJ]
+
+. Number of taxa : 36
+
+
+. Likelihood : loglk = -125.92293
+
+. Discrete gamma model : No
+
+. Nucleotides frequencies :
+
+  - f(A)= 0.00000
+  - f(C)= 0.53889
+  - f(G)= 0.46111
+  - f(T)= 0.00000
+
+. GTR relative rate parameters : 
+
+A <-> C    1.00000
+A <-> G    1.00000
+A <-> T    1.00000
+C <-> G    1.00000
+C <-> T    1.00000
+G <-> T   1.0 (fixed)
+
+
+. Instantaneous rate matrix : 
+
+[A---------C---------G---------T------]
+-2.01217   1.08434   0.92784   0.00000  
+ 0.00000  -0.92784   0.92784   0.00000  
+ 0.00000   1.08434  -1.08434   0.00000  
+ 0.00000   1.08434   0.92784  -2.01217  
+
+eg., the instantaneous rate of change from 'C' to 'A' is  0.00000 x  1.00000 =  0.00000
+
+. Time used 0h0m8s
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
