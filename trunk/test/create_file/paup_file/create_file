@@ -1,0 +1,12 @@
+#!/bin/sh -x
+
+
+# To run phase
+~/phase/phase.2.0.2.linux/PHASE -c-1 caco.phase caco.phase.out 100 1 100
+
+# To obtain a paup input file 
+../../../altree-convert -i caco.phase.out -p paup \
+-t NUM -r phase -c nb_cas_control.txt -o caco.prepaup
+
+# Warning: the file caco.prepaup is not a valid paup input file. 
+# You must select options, file names, etc before running paup

@@ -1,0 +1,11 @@
+#!/bin/sh -x
+
+# To run paup
+paup caco.paup
+
+# To perform the association test (on the first tree found in the file 
+# test.res.log)
+# The outgroup is removed from the file before analysis 
+# (option --remove-outgroup)
+../../../../altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \
+ --remove-outgroup -p paup -r 1 --tree-to-analyse 1 -o 1_caco.asso

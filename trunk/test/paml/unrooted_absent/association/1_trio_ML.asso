@@ -1,0 +1,118 @@
+
+     /----* H006 case/control:23/19
+     |        Site: 2 Sens: C-->G
+     |              /----* H031 case/control:1/0
+     |              |        Site: 8 Sens: G-->C
+     |              |----* H005 case/control:2/2
+     |              |        Site: 10 Sens: C-->G
+     |              |    /----* H032 case/control:0/1
+     |              |    |        Site: 7 Sens: G-->C
+     |              |----* 68 case/control:2/3
+     |              |    |   Site: 4 Sens: G-->C
+     |              |    \----* H016 case/control:2/2
+     |         /----* 64+(65+(66+(67))) case/control:34/24
+     |         |    |   Site: 6 Sens: C-->G
+     |         |    |----* H008 case/control:28/19
+     |         |    \----* H024 case/control:1/0
+     |         |             Site: 9 Sens: G-->C
+     |    /----* 63 case/control:45/26
+     |    |    |   Site: 5 Sens: G-->C
+     |    |    \----* H004 case/control:11/2
+     |----* 62 case/control:47/29
+     |    |   Site: 1 Sens: C-->G
+     |    \----* H025 case/control:2/3
+-----* 60+(61)+(42) case/control:200/200
+     | 
+     | [0] ddl=3 chi2=6.69 p_value_chi2=0.0824
+     | [1] ddl=7 chi2=11.30 p_value_chi2=0.102
+     | [2] ddl=11 chi2=24.02 p_value_chi2=0.007
+     | [3] ddl=20 chi2=39.11 p_value_chi2=0.001
+     | [4] ddl=24 chi2=54.71 p_value_chi2=0.001
+     | [5] ddl=28 chi2=63.21 p_value_chi2=0
+     | [6] ddl=32 chi2=65.94 p_value_chi2=0
+     | [7] ddl=33 chi2=67.18 p_value_chi2=0
+     | [8] ddl=34 chi2=68.34 p_value_chi2=0
+     |                             /----* H010 case/control:1/3
+     |                        /----* 53 case/control:1/4
+     |                        |    |   Site: 10 Sens: C-->G
+     |                        |    \----* H033 case/control:0/1
+     |                        |             Site: 1 Sens: C-->G
+     |                        |    /----* H027 case/control:1/2
+     |                        |    |        Site: 6 Sens: C-->G
+     |                        |    |        Site: 10 Sens: C-->G
+     |                        |    |----* H017 case/control:0/8
+     |                        |----* 54+(55) case/control:3/13
+     |                        |    |   Site: 3 Sens: G-->C
+     |                        |    \----* H014 case/control:2/3
+     |                        |             Site: 1 Sens: C-->G
+     |                   /----* 50+(51+(52)) case/control:9/25
+     |                   |    |   Site: 4 Sens: G-->C
+     |                   |    |----* H011 case/control:3/8
+     |                   |    \----* H003 case/control:2/0
+     |                   |             Site: 5 Sens: G-->C
+     |                   |----* H018 case/control:2/2
+     |              /----* 48+(49) case/control:40/39
+     |              |    |   Site: 2 Sens: G-->C
+     |              |    |              /----* H022 case/control:9/1
+     |              |    |         /----* 58 case/control:27/9
+     |              |    |         |    |   Site: 5 Sens: G-->C
+     |              |    |         |    |    /----* H013 case/control:15/5
+     |              |    |         |    \----* 59 case/control:18/8
+     |              |    |         |         |   Site: 6 Sens: C-->G
+     |              |    |         |         \----* H019 case/control:3/3
+     |              |    |         |                  Site: 10 Sens: G-->C
+     |              |    |    /----* 57 case/control:28/9
+     |              |    |    |    |   Site: 10 Sens: C-->G
+     |              |    |    |    \----* H034 case/control:1/0
+     |              |    \----* 56 case/control:29/12
+     |              |         |   Site: 1 Sens: C-->G
+     |              |         \----* H029 case/control:1/3
+     |              |----* H020 case/control:5/9
+     |              |        Site: 10 Sens: C-->G
+     |         /----* 45+(46+(47)) case/control:71/93
+     |         |    |   Site: 8 Sens: G-->C
+     |         |    |----* H001 case/control:24/39
+     |         |    \----* H015 case/control:2/6
+     |         |             Site: 9 Sens: C-->G
+     |    /----* 44 case/control:75/93
+     |    |    |   Site: 7 Sens: G-->C
+     |    |    |   Site: 2 Sens: C-->G
+     |    |    \----* H028 case/control:4/0
+     |----* 43 case/control:76/94
+     |    |   Site: 9 Sens: G-->C
+     |    \----* H030 case/control:1/1
+     |    /----* H035 case/control:1/0
+     |    |        Site: 10 Sens: C-->G
+     |    |----* H007 case/control:25/36
+     \----* 41+(40) case/control:54/58
+          |   Site: 4 Sens: G-->C
+          |    /----* H026 case/control:1/0
+          |    |        Site: 1 Sens: C-->G
+          |    |----* H023 case/control:1/5
+          \----* 39+(69) case/control:28/22
+               |   Site: 3 Sens: G-->C
+               |    /----* H012 case/control:1/2
+               |    |    /----* H021 case/control:11/2
+               |    |    |        Site: 8 Sens: G-->C
+               |    |    |        Site: 1 Sens: C-->G
+               |    |----* 70 case/control:20/5
+               |    |    |   Site: 5 Sens: G-->C
+               |    |    \----* H002 case/control:9/3
+               \----* 38+(37) case/control:26/17
+                    |   Site: 6 Sens: C-->G
+                    \----* H009 case/control:5/10
+                             Site: 8 Sens: G-->C
+
+ Number of permutation: 1
+
+p_val for each level:
+level 1 p-value (non corrected) 0
+level 2 p-value (non corrected) 0
+level 3 p-value (non corrected) 0
+level 4 p-value (non corrected) 0
+level 5 p-value (non corrected) 0
+level 6 p-value (non corrected) 0
+level 7 p-value (non corrected) 0
+level 8 p-value (non corrected) 0
+level 9 p-value (non corrected) 0
+corrected minimal p_value in the tree: 0

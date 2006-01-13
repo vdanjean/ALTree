@@ -1,0 +1,16 @@
+#!/bin/sh -x
+
+# To obtain the apomorphy list corresponding to the tree whose topology 
+# has been reconstructed by phyML
+# paml uses the baseml.ctl file as the parameter file
+baseml
+
+
+#To perform the association test
+# The tree is not rooted so we have to specify the name of the 
+# outgroup sequence to perform the association analysis which needs a 
+# rooted tree. 
+# The outgroup sequence is removed before the analysis
+../../../../altree -i rst  -j nb_cas_control.txt  -a -t SNP \
+ --remove-outgroup --outgroup OUTG  -p paml -r 1 -o 1_trio_ML.asso
+

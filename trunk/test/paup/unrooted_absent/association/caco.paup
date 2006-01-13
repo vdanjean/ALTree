@@ -1,0 +1,36 @@
+#Nexus
+Begin data;
+dimension ntax=14 nchar=12;
+format symbols="0123456789" missing=?;
+matrix
+H002	112221111122
+H010	222212222222
+H007	222221111121
+H008	112221112112
+H014	112221112222
+H013	222221122222
+H001	112222222222
+H003	221122222222
+[H000	222222222222]
+H005	221222222221
+H012	222221111112
+H009	112221111121
+H006	112221111112
+H011	222221111122
+H000    222222222222
+;
+end;
+begin assumptions;
+end;
+begin paup;
+set nowarnreset autoclose maxtrees = 2000 increase= no [- Auto AutoInc = 100] monitor = no taxlabels = full  warnroot=no opt=deltran [- acctran];
+hsearch;
+savetrees from=1 to=1000 file= test.tree root=no format=altnexus;
+cleartrees nowarn=yes;
+gettrees rooted=no file=test.tree;
+log file = test.res.log replace= yes [- no];
+describetrees all /plot=cladogram [- phylogram] brlens=yes  apolist=yes;
+log stop;
+end;
+quit;
+[WARNING, this file is designed for bi-allelic data. If it is not the case, you may have to modify this input file, for example by specifying the ordered option in the typeset command in the assumption block]

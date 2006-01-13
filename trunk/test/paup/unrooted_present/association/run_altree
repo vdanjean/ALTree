@@ -1,0 +1,12 @@
+#!/bin/sh -x
+
+# to run paup
+paup caco.paup
+
+# to perform the association test.
+# only one permutation is done: the corrected p_value doesn't mean 
+# anything!
+# the --outgroup option is specified because the tree must be rooted for 
+# the association test
+../../../../altree -i test.res.log  -j nb_cas_control.txt -a -t SNP \
+ --outgroup H000 -p paup -r 1  --tree-to-analyse 1 -o 1_caco.asso

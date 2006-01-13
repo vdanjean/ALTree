@@ -1,0 +1,13 @@
+#!/bin/sh -x
+
+#To run phylip options a and 5 were selected
+phylip mix
+
+# to run the association test.
+# The ancestral sequence is not in the phylip output file, that's why we 
+# have to specify it with the --anc-seq option 
+# Only one permutation is performed...
+
+../../../../altree -i outfile  -j nb_cas_controls.txt \
+ -a -t SNP -p phylip -r 1 \
+ --tree-to-analyse 1 --anc-seq 1100010001 -o 1_trio_phy.asso
