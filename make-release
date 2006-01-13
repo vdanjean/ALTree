@@ -33,12 +33,6 @@ while [ $# != 0 ]; do
   shift
 done
 
-if [ "$VERSION" != "$1" ]; then
-   echo "Asking to create version '$1' whereas version '$VERSION is present'"
-   echo "Stopping"
-   exit 1
-fi
-
 echo "Creating version '$VERSION'"
 
 set -x
