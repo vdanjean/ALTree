@@ -49,8 +49,9 @@ if [ "$(svn st)" != "" ]; then
    echo "* (use 'svn st' to look for problematic files"
    echo "************************************"
    if [ "$FORCE" ]; then
-     echo "* !!! WARNING: --force enabled : continuing"
+     echo "* !!! WARNING: --force enabled : type 'ENTER to continue'"
      echo "************************************"
+     read a
    else
      exit 1
    fi
@@ -58,15 +59,16 @@ fi
   
 perl Makefile.PL
 
-if [ "$(make distcheck 2>&1 1>/dev/null)" != "" ]; then
+if [ "$(make distcheck 2>&1 1>/dev/null | grep -v "^No such file: META.yml$")" != "" ]; then
    echo "************************************"
    echo "* Not all files are in MANIFEST (or removed from it)"
    echo "* Please correct before creating a release"
    echo "* (use 'make distcheck' to look for problematic files"
    echo "************************************"
    if [ "$FORCE" ]; then
-     echo "* !!! WARNING: --force enabled : continuing"
+     echo "* !!! WARNING: --force enabled : type 'ENTER to continue'"
      echo "************************************"
+     read a
    else
      exit 1
    fi
@@ -82,8 +84,10 @@ if svn ls "$D" > /dev/null; then
    echo "* Did you really increase the revision number in Makefile.PL ?"
    echo "************************************"
    if [ "$FORCE" ]; then
-     echo "* !!! WARNING: --force enabled : skipping creation tag"
+     echo "* !!! WARNING: skipping creation tag"
+     echo "* !!! WARNING: --force enabled : type 'ENTER to continue'"
      echo "************************************"
+     read a
    else
      exit 1
    fi
