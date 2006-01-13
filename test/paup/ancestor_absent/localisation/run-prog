@@ -10,7 +10,7 @@ paup et_caco.paup
 
 # To perform the localisation test
 # All 89 equiparsimonious trees are analysed
-~/recherche/logiciel/alphy/altree -i test.res.log  \
+../../../../altree -i test.res.log  \
 -j nb_cas_control.txt  -t SNP -p paup  --tree-to-analyse 89 \
 --s-site-number 13 --s-site-characters "0->1" \
 --co-evo double -l -o caco.loc

@@ -8,11 +8,11 @@ nb_cas_controls.txt  -o et_trio2.phy -e 1 -t DNA -p 0.5
 # S (file "trio2.phy_phyml_tree.txt" as first input file), but the 
 # character S is included in the apomorphy list (file "et_trio2.phy as 
 # second input file) 
-~/PAML/paml3.14/src/baseml
+baseml
 
 
 # To perform the localisation test
-~/recherche/logiciel/alphy/altree -i rst  \
+../../../../altree -i rst  \
 -j nb_cas_control.txt  -t DNA -p paml  --tree-to-analyse 1 \
 --s-site-number 11 --s-site-characters "C->G" \
 --co-evo double -l -o trio2.loc

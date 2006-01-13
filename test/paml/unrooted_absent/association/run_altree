@@ -3,7 +3,7 @@
 # To obtain the apomorphy list corresponding to the tree whose topology 
 # has been reconstructed by phyML
 # paml uses the baseml.ctl file as the parameter file
-~/PAML/paml3.14/src/baseml
+baseml
 
 
 #To perform the association test
