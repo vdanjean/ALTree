@@ -162,6 +162,9 @@ sub ReadInputFile1
 				     $datatype, $ancetre);
     }
     $file{"nb_trees"}=$index;
+    if ($index == 0) {
+	erreur("No tree in file '$input_file'\nAborting.\n", 0);
+    }
     return (\%file);
 }
 
