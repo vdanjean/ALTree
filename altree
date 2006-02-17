@@ -1132,7 +1132,7 @@ sub manage_options
 		"outgroup=s",
                 "tree-building-program|p=s",
                 "splitmode|s=s",
-		"prolongation|b!",
+		"no-prolongation!",
 		"chi2-threshold|n=f",
 		"permutations|r=i",
 		"number-of-trees-to-analyse=i",
@@ -1613,7 +1613,7 @@ altree [options]
     --remove-outgroup 
     --tree-building-program|p phylip|paup|paml
     --splitmode|s nosplit|chi2split
-    --prolongation|b
+    --no-prolongation
     --chi2-threshold|n value
     --permutations|r number
     --number-of-trees-to-analyse number
@@ -1684,9 +1684,9 @@ Phylogeny reconstruction program
     
 how tests are performed from a level to another
 
-=item B<--prolongation|b>
+=item B<--no-prolongation>
 
-Prolongation of branches in the tree
+No prolongation of branches in the tree
 
 =item B<--chi2-threshold|n> value
 
