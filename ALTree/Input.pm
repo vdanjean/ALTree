@@ -98,7 +98,45 @@ sub ReadCorrespond
     #}
     return(\%correspondance);
 }
-
+sub ReadCorrespondQuanti
+{
+    my($name_correspond) =shift;
+    my($ligne, @tableau);
+    my(%correspondance);
+    open (CORRESP, '<', $name_correspond) 
+	or erreur("Unable to read file '$name_correspond': $!\n", 0);
+    while ($ligne=<CORRESP>) {
+	chomp($ligne);
+	if ($ligne =~ /^\s*$/) {
+	    next;
+	}
+	# On peut mettre '#' ou ';' pour introduire une ligne de commentaire
+	my $di="#";
+	if ($ligne =~ /^\s*[$di;]/) {
+	    next;
+	}
+	@tableau=split(/\s+/, $ligne);
+	my $id=shift @tableau;
+	if ($id !~ /^[a-zA-Z0-9]+$/) {
+	    ALTree::Utils::erreur("The haplotype name '$id' contains".
+				  "unauthorized characters\n".
+				  "in $name_correspond at".
+				  " line $.:\n$ligne\nPlease, check the syntax.\n",0);
+	}
+	
+	for(my $i=0; $i<=$#tableau; $i++) {
+	    $correspondance->{$id}->[$i]=$tableau[$i];
+	    
+	}
+    }
+    #my($clefs);
+    #DEBUG
+    #foreach $clefs (keys %correspondance) {
+    #print "$clefs case: ", $correspondance{$clefs}->{"case"}, "\n";
+    #	print "$clefs, control: ",$correspondance{$clefs}->{"control"}, "\n";
+    #}
+    return(\%correspondance);
+}
 # return :
 # Hash of
 #   "filename" => String

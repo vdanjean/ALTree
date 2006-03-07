@@ -69,6 +69,11 @@ use constant P_VAL_CHI2 => 0.01;
 use constant P_VAL_TESTPROP => 0.01;
 use constant ONLY_CASE  => 3;
 
+package DataQual;
+use constant QUALI   => 0;
+use constant QUANTI => 1;
+
+
 package main;
 
 ###########################################
@@ -1070,6 +1075,10 @@ sub manage_options
 		{ "snp" => DataType::SNP,
 		  "dna" => DataType::DNA,
 	        },
+		 "data-qual" => 
+		{ "quantitative" => DataQual::QUANTI,
+		  "qualitative" => DataQual::QUALI,
+	        },   
 		"rootmeth" => 
 		{ "outgroup" => RootMeth::OUTG,
 		  "ancestor" => RootMeth::ANC,
@@ -1128,6 +1137,7 @@ sub manage_options
                 "second-input-file|j=s",
                 "output-file|o=s",
                 "data-type|t=s",
+		"data-qual|q=s",
 		"remove-outgroup!",
 		"outgroup=s",
                 "tree-building-program|p=s",
@@ -1249,7 +1259,11 @@ sub main
 	    $ancetre=$option_value->("anc-seq");
 	}
     }
-
+    
+    if ($association) {
+	$option_require->("data-qual");
+	my $dataqual = $option_value->("data-qual");
+    }
     ###########################################################
     # Récupération et précalcul des arbres qu'on va utiliser
     ###########################################################
@@ -1419,8 +1433,16 @@ sub main
 	# name of the file containing haploID, nb case and nb control
 	my($name_corres)=$option_value->("second-input-file", "correspond.txt");
 	my($correspondance); # ref on a hash containing haploID refferring to
-	# a hash containing nb case and nb control
-	$correspondance=ALTree::Input::ReadCorrespond($name_corres);
+	# a hash containing nb case and nb control 
+        # or to a tab containing the different quantitative values
+
+	if ($dataqual == DataQual::QUALI) {
+	    $correspondance=ALTree::Input::ReadCorrespond($name_corres);
+	} elsif ($dataqual == DataQual::QUANTI) {
+	    $correspondance=ALTree::Input::ReadCorrespondQuanti($name_corres);
+	} else {	
+	    erreur("invalid choice for option data-qual, $dataqual. It should be either qualitative or quantitative", 0);
+	}
 	
 	my($file_tree)=$trees[0];
 	my($tree)=$file_tree->{"tree"};
@@ -1609,6 +1631,7 @@ altree [options]
     --second-input-file|j file containing the nb of cases/controls carrying an haplotype
     --output-file|o output_file
     --data-type|t DNA|SNP
+    --data-qual|q qualitative|quantitative
     --outgroup outgroup_name
     --remove-outgroup 
     --tree-building-program|p phylip|paup|paml
@@ -1667,6 +1690,12 @@ Output file
 =item B<--data-type|t> C<DNA>|C<SNP>
 
 Type of data: DNA (ATGCU) or SNP (0-1)
+
+=item B<--data-qual|q> C<qualitative|quantitative>
+
+Analyse qualitative (case/control) or quantitative data
+It is only valid for the association test
+The localization test cannot deal with quantitative data
 
 =item B<--outgroup>  C<outgroup>
 
