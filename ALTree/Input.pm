@@ -102,9 +102,10 @@ sub ReadCorrespondQuanti
 {
     my($name_correspond) =shift;
     my($ligne, @tableau);
-    my(%correspondance);
+    my($correspondance);
     open (CORRESP, '<', $name_correspond) 
 	or erreur("Unable to read file '$name_correspond': $!\n", 0);
+    my $numhaplo=0;
     while ($ligne=<CORRESP>) {
 	chomp($ligne);
 	if ($ligne =~ /^\s*$/) {
@@ -116,6 +117,7 @@ sub ReadCorrespondQuanti
 	    next;
 	}
 	@tableau=split(/\s+/, $ligne);
+	$numhaplo++;
 	my $id=shift @tableau;
 	if ($id !~ /^[a-zA-Z0-9]+$/) {
 	    ALTree::Utils::erreur("The haplotype name '$id' contains".
@@ -125,8 +127,9 @@ sub ReadCorrespondQuanti
 	}
 	
 	for(my $i=0; $i<=$#tableau; $i++) {
-	    $correspondance->{$id}->[$i]=$tableau[$i];
-	    
+	    $correspondance->{$id}->[$i]->[0]=$tableau[$i]; 
+	    $correspondance->{$id}->[$i]->[1]=$numhaplo; 
+	    # $numhaplo sert pour les anova 2 facteurs emboités (2eme facteur)
 	}
     }
     #my($clefs);
@@ -135,8 +138,9 @@ sub ReadCorrespondQuanti
     #print "$clefs case: ", $correspondance{$clefs}->{"case"}, "\n";
     #	print "$clefs, control: ",$correspondance{$clefs}->{"control"}, "\n";
     #}
-    return(\%correspondance);
+    return($correspondance);
 }
+
 # return :
 # Hash of
 #   "filename" => String

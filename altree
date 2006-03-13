@@ -180,9 +180,9 @@ sub CheckCorrespondance
     return $ret;
 }
 
-##################################################
-########  PARCOURS ET REMPLISSAGE ARBRE  #########
-##################################################
+#################################################
+########  PARCOURS ET REMPLISSAGE ARBRE #########
+#################################################
 
 sub ClassicalChi2
 {
@@ -421,6 +421,34 @@ sub FillCaseControl
     
 }
 
+######## QUANTITATIF ########
+sub FillQuanti
+{
+    my($present_node)=shift;
+    my($correspondance)=shift;
+    if ($present_node->NbChildren()==0)  {
+	my($id);
+	$id=$present_node->{"id"};
+	if (not defined $present_node->{"quanti"}) {# car sinon, pb pour H000
+	    push (@{$present_node->{"quanti"}}, $correspondance->{$id});
+	}
+	if (not defined $present_node->{"control"}) {
+	   $present_node->{"control"} = $correspondance->{$id}->{"control"};
+	}
+	#print $present_node->{"id"}, " m:", $present_node->{"case"}, " c:", $present_node->{"control"}, " ";
+    } else {
+	my($child);
+	# print $present_node->{"id"}, " "; #123456
+	for $child ($present_node->GetChildrenList()) { 
+	    FillCaseControl($child, $correspondance);
+	    $present_node->{"case"}+=$child->{"case"};
+	    $present_node->{"control"}+=$child->{"control"};
+	}
+	#print $present_node->{"id"}, " m:", $present_node->{"case"}," c:", $present_node->{"control"}," ";
+    }
+    
+}
+########## GENERAL ##########
 
 sub FillLevel
 {
@@ -1238,6 +1266,7 @@ sub main
     my $input_file=$option_value->("first-input-file");
 
     my($association)=$option_value->("association", 0);
+       
     my($s_loc)=$option_value->("s-localisation", 0);
     if (!$association && !$s_loc) {
 	erreur("Should I perform the association test or the".
@@ -1260,9 +1289,10 @@ sub main
 	}
     }
     
-    if ($association) {
+    my $dataqual="";
+    if ($association == 1) {
 	$option_require->("data-qual");
-	my $dataqual = $option_value->("data-qual");
+        $dataqual = $option_value->("data-qual");
     }
     ###########################################################
     # Récupération et précalcul des arbres qu'on va utiliser
