@@ -221,12 +221,13 @@ Three phylogeny software are compatible with our program:
 \end{itemize}
 
 \paragraph{Note:}
-Currently, only the parsimony methods implemented in \paup (command
-\texttt{set}, option \texttt{criterion} set to ``parsimony'') and in
-\phylip (program \texttt{mix}) have been tested. If you want to use
-maximum likelihood (ML), we suggest you to use your favorite software
-to compute the ML tree and then, to use \paml to estimate the
-character states at each node.
+Currently, only the outputs from the parsimony method implemented in
+\paup (command \texttt{set}, option \texttt{criterion} set to
+``parsimony'') and in \phylip (program \texttt{mix}) are compatible
+with our software.  If you want to use maximum likelihood (ML), we
+suggest you to use your favorite software to compute the ML tree and
+then, to use \paml to estimate the character states at each node.
+
 
 \subsection{Required tools}
 \prog{perl} is required to run \altree. \prog{perl} version 5.8.7 or
@@ -598,10 +599,12 @@ These options are used both for association and for localisation test.
 \subsubsection{If \paup is used}
 To run \newchitree, some informations must be present in the input
 file for \newchitree (=output file of \paup). In particular, the
-apomorphy list and a table contining branch lengths must be present.
-For these information to be present, in the \cmd{describetrees}
+apomorphy list and a table contining branch lengths must be present
+(though branch lengths are not taken into account in the analysis,
+they are juste used to check if they are consistent with the apomorphy
+list). For these information to be present, in the \cmd{describetrees}
 command you must use the following options: \cmd{brlens=yes} and
-\cmd{apolist=yes};
+\cmd{apolist=yes}.
 
 
 Examples of \paup input files containing the options necessary to
