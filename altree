@@ -429,15 +429,21 @@ sub FillQuanti
     if ($present_node->NbChildren()==0)  {
 	my($id);
 	$id=$present_node->{"id"};
+	print STDERR "correspondance->{$id}=\n", 
+		Dumper($correspondance->{$id}), "\n";
 	if (not defined $present_node->{"quanti"}) {# car sinon, pb pour H000
-	    push (@{$present_node->{"quanti"}}, $correspondance->{$id});
+	    $present_node->{"quanti"}=[];
+	    push @{$present_node->{"quanti"}}, @{$correspondance->{$id}};
+	    print STDERR "quanti=\n",
+	       Dumper($present_node->{"quanti"}), "\n";
 	}
 	print STDERR $id, " " ;
 	for (my $i=0; $i< scalar (@{$present_node->{"quanti"}}); $i++) {
-	    print STDERR $present_node->{"quanti"}->[$i]->[0]->[0], " ";
+	    print STDERR $present_node->{"quanti"}->[$i]->[0], " ";
 	}
 	print STDERR "\n";
-	print Dumper($present_node->{"quanti"});;
+	print STDERR Dumper($present_node->{"quanti"});;
+	exit 1;
     } else {
 	my($child);
 #	# print $present_node->{"id"}, " "; #123456
