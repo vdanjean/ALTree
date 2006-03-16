@@ -432,19 +432,20 @@ sub FillQuanti
 	if (not defined $present_node->{"quanti"}) {# car sinon, pb pour H000
 	    push (@{$present_node->{"quanti"}}, $correspondance->{$id});
 	}
-	if (not defined $present_node->{"control"}) {
-	   $present_node->{"control"} = $correspondance->{$id}->{"control"};
+	print STDERR $id, " " ;
+	for (my $i=0; $i< scalar (@{$present_node->{"quanti"}}); $i++) {
+	    print STDERR $present_node->{"quanti"}->[$i]->[0], " ";
 	}
-	#print $present_node->{"id"}, " m:", $present_node->{"case"}, " c:", $present_node->{"control"}, " ";
+	print STDERR "\n";
     } else {
 	my($child);
-	# print $present_node->{"id"}, " "; #123456
+#	# print $present_node->{"id"}, " "; #123456
 	for $child ($present_node->GetChildrenList()) { 
-	    FillCaseControl($child, $correspondance);
-	    $present_node->{"case"}+=$child->{"case"};
-	    $present_node->{"control"}+=$child->{"control"};
+	    FillQuanti($child, $correspondance);
+	    push (@{$present_node->{"quanti"}}, @{$child->{"quanti"}});
+#	    $present_node->{"control"}+=$child->{"control"};
 	}
-	#print $present_node->{"id"}, " m:", $present_node->{"case"}," c:", $present_node->{"control"}," ";
+    #print $present_node->{"id"}, " m:", $present_node->{"case"}," c:", $present_node->{"control"}," ";
     }
     
 }
@@ -1499,8 +1500,12 @@ sub main
 	# Structure changée, on recalcul...
 	FillHeight($tree->GetRoot(), 0);
 	FillLevel($tree->GetRoot(), 0);
-	FillCaseControl($tree->GetRoot(),$correspondance); 
-
+	
+	if ($dataqual == DataQual::QUALI) {
+	    FillCaseControl($tree->GetRoot(),$correspondance); 
+	} else {
+	    FillQuanti($tree->GetRoot(),$correspondance); 
+	}
 	print "\n";
 	
 	my $racine=$tree->GetRoot();

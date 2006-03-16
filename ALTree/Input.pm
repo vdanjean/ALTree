@@ -134,10 +134,11 @@ sub ReadCorrespondQuanti
     }
     #my($clefs);
     #DEBUG
-    #foreach $clefs (keys %correspondance) {
-    #print "$clefs case: ", $correspondance{$clefs}->{"case"}, "\n";
-    #	print "$clefs, control: ",$correspondance{$clefs}->{"control"}, "\n";
+    #foreach my $clefs (keys %{$correspondance}) {
+	#for (my $i=0; $i<scalar (@{$correspondance->{$clefs}}); $i++) {
+	#    print STDERR "$clefs  ", $correspondance->{$clefs}->[$i]->[1], "\n";
     #}
+#}
     return($correspondance);
 }
 
