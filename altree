@@ -429,30 +429,27 @@ sub FillQuanti
     if ($present_node->NbChildren()==0)  {
 	my($id);
 	$id=$present_node->{"id"};
-	print STDERR "correspondance->{$id}=\n", 
-		Dumper($correspondance->{$id}), "\n";
 	if (not defined $present_node->{"quanti"}) {# car sinon, pb pour H000
 	    $present_node->{"quanti"}=[];
 	    push @{$present_node->{"quanti"}}, @{$correspondance->{$id}};
-	    print STDERR "quanti=\n",
-	       Dumper($present_node->{"quanti"}), "\n";
 	}
-	print STDERR $id, " " ;
+	
+	print STDERR $present_node->{"id"}, " " ;
 	for (my $i=0; $i< scalar (@{$present_node->{"quanti"}}); $i++) {
-	    print STDERR $present_node->{"quanti"}->[$i]->[0], " ";
+	    print STDERR $present_node->{"quanti"}->[$i]->[0], " (" ,$present_node->{"quanti"}->[$i]->[1], ") ";
 	}
 	print STDERR "\n";
-	print STDERR Dumper($present_node->{"quanti"});;
-	exit 1;
     } else {
 	my($child);
-#	# print $present_node->{"id"}, " "; #123456
 	for $child ($present_node->GetChildrenList()) { 
 	    FillQuanti($child, $correspondance);
 	    push (@{$present_node->{"quanti"}}, @{$child->{"quanti"}});
-#	    $present_node->{"control"}+=$child->{"control"};
 	}
-    #print $present_node->{"id"}, " m:", $present_node->{"case"}," c:", $present_node->{"control"}," ";
+	print STDERR $present_node->{"id"}, " " ;
+	for (my $i=0; $i< scalar (@{$present_node->{"quanti"}}); $i++) {
+	    print STDERR $present_node->{"quanti"}->[$i]->[0], " (" ,$present_node->{"quanti"}->[$i]->[1], ") ";
+	}
+	print STDERR "\n";
     }
     
 }
@@ -1525,6 +1522,8 @@ sub main
 	my $permutation=$option_value->("permutations");
 	my($sign_util);
 	if ($permutation==0) {
+
+	    #TODO, passer quanti
 	    my($seuil_chi2)=$option_value->("chi2-threshold", 0.01, 
 					    "Using default chi2 threshold 0.01");
 	    ALTree::Chi2::definition_p_chi2($seuil_chi2, 0.01); # mettre une option 
