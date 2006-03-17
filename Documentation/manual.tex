@@ -129,9 +129,30 @@ e-mail: bardel@vjf.inserm.fr
 \subsection{Association test}
 The test consists in performing series of nested homogeneity tests
 (\chisquare) comparing the number of cases and controls in the
-different clades defined on the tree. A global p-value is calculated
+different clades defined on the tree. The nested algorithm is detailed
+on Figure~\ref{fig:nesting_algo} (figure from \citet{Bardel05},
+slightly modified). A global p-value is calculated
 for the tree by using a permutation procedure such as the one
 described by \citet{Ge03} and \citet{Becker04}.
+
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=0.6\linewidth]{Analysis_Temp2.fig}
+    \caption{Description of the nested clade analysis (without the
+      permutation procedure)}
+    \label{fig:nesting_algo}
+  \end{center}
+  \vspace{-0.4cm}
+  {\small (A) shows the homogeneity test performed at level k (between clades
+    $C_1$ and $C_2$). If it is not significant (B), a test will be
+    performed at the following level (k+1), between all the sub-clades
+    descending from clades $C_1$ and $C_2$, i.e between clades $C_{1.1}$,
+    $C_{1.2}$, $C_{2.1}$ and $C_{2.2}$ (3 degree of freedom). If it is
+    significant the analysis ends because an association is detected.
+    When the permutation procedure is used, all the tests are considered
+    as non significant and the p-values are evaluated \textit{a posteriori}.
+  }
+\end{figure}
 
 \subsection{Localisation of the susceptibility loci}
 To perform the localisation analysis, for each haplotype $h$, the user
@@ -190,6 +211,36 @@ proportion $p_0$ of cases in the whole sample.
 \end{itemize}
 with $n_h$ being the number of individuals carrying the haplotype $h$.
 
+\section{Computation time}
+
+We measured the computation time on a Pentium III, 930 MHz, 512 Mo of
+RAM. We used the Crohn data set: 363 individuals genotyped for 7 SNPs
+defining 33 different haplotypes. The reconstructed phylogenetic tree
+possessed 6 levels. On this data set, the association test runs in
+about 24 hours (p-value evaluated by 100~000 permutations, the complexity
+of the program being linear with respect to the number of
+permutations). The localisation test runs in about 10 seconds
+(2~000 equiparsimonious trees analysed, the complexity of the program
+being linear with respect to the number of analysed trees). 
+
+In fact, for the association test, the computation time increases with
+the number of permutation and with the number of levels in the tree
+(the number of levels being tightly linked to the number of haplotypes
+in the data sets, which depends on the number of SNPs and of the LD
+between the SNPs). We tested the software for up to 1000 SNPs
+corresponding to 417 haplotypes. In this case, the association test
+runs in about 6 minutes (for one permutation only). Three to four
+minutes should be added per supplementary permutation. With such a
+data set, we can see that the evaluation of the p-values with the
+permutation procedure (10~000 to 100~000 are required) is not
+realistic on this kind of computer. However, the software can be used
+to look for association without using the permutation procedure. 
+
+The localisation test runs very quickly and depends on the number of
+equiparsimonious trees analysed. On the data set with 1000 SNPs, the
+localisation test runs in 10 seconds for one tree. 
+
+
 \chapter{Installing the software}
 
 The software can run on various Linux/Unix platform. %and on MacOS X.
@@ -215,14 +266,14 @@ Three phylogeny software are compatible with our program:
   character states at each node.
 \end{itemize}
 
-\paragraph{Note:}
+\textit{\paragraph{Note:}
 Currently, only the outputs from the parsimony method implemented in
 \paup (command \texttt{set}, option \texttt{criterion} set to
 ``parsimony'') and in \phylip (program \texttt{mix}) are compatible
 with our software.  If you want to use maximum likelihood (ML), we
 suggest you to use your favorite software to compute the ML tree and
 then, to use \paml to estimate the character states at each node.
-
+}
 
 \subsection{Required tools}
 \prog{perl} is required to run \altree. \prog{perl} version 5.8.7 or
