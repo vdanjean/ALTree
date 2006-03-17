@@ -30,6 +30,7 @@ use ALTree::Import;
 use ALTree::Utils qw(erreur);
 use ALTree::Input qw(PrepareTree);
 #use Newchi2treeUtils;
+use TamuAnova;
 
 ###########################################
 ########  GLOBAL VARIABLES        #########
@@ -453,6 +454,101 @@ sub FillQuanti
     }
     
 }
+
+sub ParcoursQuanti
+{
+    my($tabnodes_a_traiter)=shift;
+    my($prolonge)=shift;
+    my($splitmode)=shift;
+    my($node_ecriture)=shift;
+    my($sign_util)=shift; # vaut 1 si on a besoin de la significativité, 0 sinon
+    my($node, $child, @tab_noeuds_suivants);
+    my($val)=0;
+    my($test, $p_val);
+    my($test_results);
+ 
+#    $test_results->{"ddl"}=scalar(@{$tabnodes_a_traiter})-1; # Nb branches -1
+    my @valeurs;
+    my @facteurs;
+    my $i=0;
+#DEBUG    print STDERR "TTTT ", scalar (@{$tabnodes_a_traiter}), "\n";
+    foreach $node (@{$tabnodes_a_traiter}) {
+	$i++;
+	foreach my $case (@{$node->{"quanti"}}) {
+	    push (@valeurs, $case->[0]);
+	    push (@facteurs, $i);
+	}
+    } 
+    
+# DEBUG    print STDERR "node ";
+#    for (my $i=0; $i<=$#valeurs; $i++) {
+#	print STDERR " $valeurs[$i]";
+#	print STDERR " ($facteurs[$i])";
+#    }
+#    print STDERR "\n";
+    
+    
+   if ($sign_util==SignUtil::YES) {
+	($test, $p_val)=CalculAnova($tabnodes_a_traiter, \@valeur, \@facteur, $test_results, SignUtil::YES );
+    } elsif ($sign_util==SignUtil::NO) { 
+	($p_val)=CalculAnova($tabnodes_a_traiter, \@valeur, \@facteur, $test_results, SignUtil::NO);
+    }
+    $test_results->{"node_teste"}=$node_ecriture;
+    push (@{$node_ecriture->{"res_test"}}, $test_results);
+    $test_results->{"level"}=scalar(@{$node_ecriture->{"res_test"}})-1;
+    
+
+######
+
+    if ($sign_util== SignUtil::YES && $test==1 && $splitmode == SplitMode::CHI2SPLIT) { # sign et que on on est en chi2split
+	foreach $node (@{$tabnodes_a_traiter}) {
+	    if (NbFils($node) != 0) {
+		my @children=$node->GetChildrenList();
+		parcours_nosplit_chi2split(\@children, 
+					   $prolonge, $splitmode, $node);
+	    }
+	}
+    } elsif ($sign_util== SignUtil::NO || $test==0 || $splitmode == SplitMode::NOSPLIT) { # ou alors on est en nosplit
+	foreach $node (@{$tabnodes_a_traiter}) {
+	    if (NbFils($node) != 0) {
+		$val=1;
+		foreach $child ($node->GetChildrenList()) {
+		    push (@tab_noeuds_suivants, $child);
+		}
+	    } else {
+		if ($prolonge == 1) {
+		    push (@tab_noeuds_suivants, $node);
+		}
+	    }
+	}
+	if ($val==1) {
+	    parcours_nosplit_chi2split(\@tab_noeuds_suivants, 
+				       $prolonge, $splitmode, $node_ecriture, $sign_util);
+	} else {
+	    return;
+	}
+    }
+}
+
+sub CalculAnova
+{
+    my $tabnodes_a_traiter=shift;
+    my $valeur=shift;
+    my $facteur=shift;
+    my $test_results =shift;
+    my $sign_util=shift;
+    
+    my $significatif;
+
+    if (scalar (@{$tabnodes_a_traiter}) < 2) {
+	$test_results->{"texte"}=
+	    "Only one category";
+	if ($sign_util==SignUtil::YES) {
+	    $significatif=ALTree::Chi2::NON_SIGNIFICATIF;
+	}
+    }
+}
+
 ########## GENERAL ##########
 
 sub FillLevel
@@ -1534,7 +1630,11 @@ sub main
 	    } else {
 		die "invalid value for the number of permutation: $permutation\n";
 	    }
-	parcours_nosplit_chi2split(\@children, $prolonge, $splitmode, $racine, $sign_util );
+	if ($dataqual == DataQual::QUALI) {
+	    parcours_nosplit_chi2split(\@children, $prolonge, $splitmode, $racine, $sign_util );
+	} else {
+	    ParcoursQuanti(\@children, $prolonge, $splitmode, $racine, $sign_util ); 
+	}
        	
 	{
 	    if ($permutation==0) {
