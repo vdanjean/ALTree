@@ -478,7 +478,8 @@ sub ParcoursQuanti
 	    push (@valeurs, $case->[0]);
 	    push (@facteurs, $i);
 	}
-    } 
+    }
+   my  $nb_factors=$i;
     
 # DEBUG    print STDERR "node ";
 #    for (my $i=0; $i<=$#valeurs; $i++) {
@@ -489,9 +490,9 @@ sub ParcoursQuanti
     
     
    if ($sign_util==SignUtil::YES) {
-	($test, $p_val)=CalculAnova($tabnodes_a_traiter, \@valeur, \@facteur, $test_results, SignUtil::YES );
+	($test, $p_val)=CalculAnova($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::YES, $nb_factors );
     } elsif ($sign_util==SignUtil::NO) { 
-	($p_val)=CalculAnova($tabnodes_a_traiter, \@valeur, \@facteur, $test_results, SignUtil::NO);
+	($p_val)=CalculAnova($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::NO, $nb_factors);
     }
     $test_results->{"node_teste"}=$node_ecriture;
     push (@{$node_ecriture->{"res_test"}}, $test_results);
@@ -504,7 +505,7 @@ sub ParcoursQuanti
 	foreach $node (@{$tabnodes_a_traiter}) {
 	    if (NbFils($node) != 0) {
 		my @children=$node->GetChildrenList();
-		parcours_nosplit_chi2split(\@children, 
+		ParcoursQuanti(\@children, 
 					   $prolonge, $splitmode, $node);
 	    }
 	}
@@ -522,7 +523,7 @@ sub ParcoursQuanti
 	    }
 	}
 	if ($val==1) {
-	    parcours_nosplit_chi2split(\@tab_noeuds_suivants, 
+	    ParcoursQuanti(\@tab_noeuds_suivants, 
 				       $prolonge, $splitmode, $node_ecriture, $sign_util);
 	} else {
 	    return;
@@ -533,20 +534,34 @@ sub ParcoursQuanti
 sub CalculAnova
 {
     my $tabnodes_a_traiter=shift;
-    my $valeur=shift;
-    my $facteur=shift;
+    my $valeurs=shift;
+    my $facteurs=shift;
     my $test_results =shift;
     my $sign_util=shift;
-    
-    my $significatif;
+    my $nb_factors=shift;
 
+    my $significatif;
+    my $res_anova;
     if (scalar (@{$tabnodes_a_traiter}) < 2) {
+	print STDERR "TTTT1\n";
 	$test_results->{"texte"}=
 	    "Only one category";
 	if ($sign_util==SignUtil::YES) {
 	    $significatif=ALTree::Chi2::NON_SIGNIFICATIF;
 	}
+    } else {
+	if (scalar (@{$valeurs}) != scalar (@{$facteurs})) {
+	print STDERR "TTTT2\n";	    
+	    erreur("Error in the anova data: the number of values ", scalar @${valeurs}, " and the number of factors ", scalar @{$facteurs}, " should be the same\n");
+	} else {
+	    	print STDERR "TTTT3\n";
+	    $res_anova=TamuAnova::anova(@{$valeurs}, @{$facteurs},  $nb_factors);
+	    print STDERR $nb_factors, " ", scalar(@{$valeurs}), "\n";
+	}
     }
+    
+   # print STDERR "RESANOVA ", $res_anova->{"F"}, $res_anova->{"p"}, "\n";
+    
 }
 
 ########## GENERAL ##########
