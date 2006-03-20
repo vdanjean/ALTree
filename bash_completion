@@ -2,7 +2,7 @@
 
 _altree_option_list()
 {
-    altree --help 2> /dev/null | \
+    "${COMP_WORDS[0]}" --help 2> /dev/null | \
 	sed -e '0,/^Options/d;/^    --/{s/^    //;s/^--\(man\|help\).*/--\1/;p};d'
 }
 
