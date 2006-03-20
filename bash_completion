@@ -1,0 +1,116 @@
+#shopt -s extglob
+
+_altree_option_list()
+{
+    altree --help 2> /dev/null | \
+	sed -e '0,/^Options/d;/^    --/{s/^    //;s/^--\(man\|help\).*/--\1/;p};d'
+}
+
+_altree()
+{
+    local cur prev cmd opts i lopt
+    # options with argument
+    local OLD_IFS="$IFS"
+    IFS='
+'
+    local options_full=($(_altree_option_list))
+    IFS="$OLD_IFS"
+    local options_noarg=(${options_full[@]##* *})
+    #echo "options_noarg=${options_noarg[@]}"
+    options_noarg=(${options_noarg[@]//"|"/" -"})
+    #echo "options_noarg=${options_noarg[@]}"
+
+    local options=(${options_full[@]// */})
+    options=(${options[@]//"|"/" -"})
+    #echo "options=${options[@]}"
+    IFS="|"	 
+    local pat_options="${options[*]}"
+    local pat_options_noarg="${options_noarg[*]}"
+    IFS="$OLD_IFS"
+    #echo "pat_options=$pat_options"
+
+    COMPREPLY=()
+    cur="$2"
+    prev="$3"
+
+    local loaded_options=()
+    for (( i=1; $i<$COMP_CWORD; i++ )); do
+        if [[ ${COMP_WORDS[i]} == @($pat_options) ]]; then
+            loaded_options[${#loaded_options[@]}]=${COMP_WORDS[i]}
+            if [[ ${COMP_WORDS[i]} != @($pat_options_noarg) ]]; then
+		i=$(( $i + 1 ))
+            fi
+        fi
+    done
+    local options_full_r=(${options_full[@]/ *})
+    #echo "options_full_r=${options_full_r[@]}"
+    for lopt in "${loaded_options[@]}"; do
+        #echo "lopt=$lopt"
+        options_full_r=(${options_full_r[@]##$lopt*})
+        options_full_r=(${options_full_r[@]##*"|${lopt/-}"*})
+    done
+    #echo "options_full_r=${options_full_r[@]}"
+    local options_r=(${options_full_r[@]//"|"/" -"})
+
+
+    if [[ "$prev" == @($pat_options) && ! "$prev" == @($pat_options_noarg) ]]; then
+	cmd="$prev"
+	#echo ok pour $prev
+    fi
+
+    if [[ "$cur" == -* ]]; then
+	opts="${options_r[@]}"
+	local result
+	local long_opts="${options_r[@]##-[^-]*}"
+
+	result=$(compgen -W '$long_opts' -- "$cur")
+
+   	# hide small options from users, but complete them if
+    	# there is no other possible options
+    	if [ "$result" = "" ]; then
+            result=$(compgen -W '$opts' -- "$cur")
+        fi
+
+        COMPREPLY=(${COMPREPLY[@]:-} $result)
+	return
+    fi
+
+    if [ -z "$cmd" ]; then
+	local long_opts="${options_r[@]##-[^-]*}"
+        COMPREPLY=(${COMPREPLY[@]:-} $(compgen -W '$long_opts' -- "$cur"))
+	return
+    fi
+
+    for lopt in "${options_full[@]}" last; do
+       case "$lopt" in
+       "$prev"*\ *)
+           break ;;
+       *"|${prev#-}"*\ *)
+           break ;;
+       esac
+    done
+    if [ "$lopt" = last ]; then
+       echo "BUG, please report (with the value '$prev')"
+    fi
+    lopt=${lopt#* }
+
+    case "$lopt" in
+    *"|"*)
+        # Multiple choices. Continuing... 
+        ;;
+    *)
+	# Stick with default bash completion
+        return ;;
+    esac
+
+    lopt=${lopt//'"'/}
+    lopt=${lopt//'|'/ }
+
+    COMPREPLY=(${COMPREPLY[@]:-} $(compgen -W '$lopt' -- "$cur"))
+
+    return
+
+}
+
+complete -o bashdefault -o default -F _altree altree 2> /dev/null \
+    || complete -o default -F _altree altree

@@ -1839,7 +1839,7 @@ Input file 1 (paup, phylip or paml results file)
 
 Input file 2, default F<correspond.txt>
 
-=item B<--output-file|o> outfile
+=item B<--output-file|o> F<outfile>
 
 Output file
 
@@ -1847,13 +1847,13 @@ Output file
 
 Type of data: DNA (ATGCU) or SNP (0-1)
 
-=item B<--data-qual|q> C<qualitative|quantitative>
+=item B<--data-qual|q> C<qualitative>|C<quantitative>
 
 Analyse qualitative (case/control) or quantitative data
 It is only valid for the association test
 The localization test cannot deal with quantitative data
 
-=item B<--outgroup>  C<outgroup>
+=item B<--outgroup>  outgroup
 
 Root the tree with this outgroup
 
@@ -1887,32 +1887,32 @@ Number of permutations used to calculate exact p_values
 Number of trees to analyse in the localisation analysis 
 (only for localisation method using S-character)
 
-=item B<--tree-to-analyse number>
+=item B<--tree-to-analyse> number
 
 With this option, you can specify the tree to use (instead of
 random). Can be used several times to specify multiple trees.
 
-=item B<--s-site-number number>
+=item B<--s-site-number> number
 
 Number of the S character site in the sequence
 (only for localisation method using S-character)
 
-=item B<s-site-characters>
+=item B<--s-site-characters> transition
 
 Character states for the S character: ancestral state -> derived state
 ex: G->C or 0->1  (only for localisation method using S-character)
 
-=item B<co-evo|e>
+=item B<--co-evo|e> C<simple>|C<double>
 
 Type of co-evolution indice 
   simple: only the anc -> der transition of S is used 
   double: the two possible transitions are used
 
-=item B<print-tree>
+=item B<--print-tree>
 
 If this option is selected, the tree will be printed to the output
 
-=item B<anc-seq>
+=item B<--anc-seq> anc_seq
 
 With this option, you can specify the ancestral sequence.
 This option is only useful when the tree is reconstructed using the mix program of phylip with the ancestral states specified in the file "ancestors"
