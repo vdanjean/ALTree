@@ -464,7 +464,7 @@ sub ParcoursQuanti
     my($sign_util)=shift; # vaut 1 si on a besoin de la significativité, 0 sinon
     my($node, $child, @tab_noeuds_suivants);
     my($val)=0;
-    my($test, $p_val);
+    my($test, $res_anova);
     my($test_results);
  
 #    $test_results->{"ddl"}=scalar(@{$tabnodes_a_traiter})-1; # Nb branches -1
@@ -490,17 +490,14 @@ sub ParcoursQuanti
     
     
    if ($sign_util==SignUtil::YES) {
-	($test, $p_val)=CalculAnova($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::YES, $nb_factors );
+	($test, $res_anova)=CalculAnovaOneWay($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::YES, $nb_factors );
     } elsif ($sign_util==SignUtil::NO) { 
-	($p_val)=CalculAnova($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::NO, $nb_factors);
+	($res_anova)=CalculAnovaOneWay($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::NO, $nb_factors);
     }
     $test_results->{"node_teste"}=$node_ecriture;
     push (@{$node_ecriture->{"res_test"}}, $test_results);
     $test_results->{"level"}=scalar(@{$node_ecriture->{"res_test"}})-1;
-    
-
-######
-
+   
     if ($sign_util== SignUtil::YES && $test==1 && $splitmode == SplitMode::CHI2SPLIT) { # sign et que on on est en chi2split
 	foreach $node (@{$tabnodes_a_traiter}) {
 	    if (NbFils($node) != 0) {
@@ -531,7 +528,7 @@ sub ParcoursQuanti
     }
 }
 
-sub CalculAnova
+sub CalculAnovaOneWay
 {
     my $tabnodes_a_traiter=shift;
     my $valeurs=shift;
@@ -543,26 +540,46 @@ sub CalculAnova
     my $significatif;
     my $res_anova;
     if (scalar (@{$tabnodes_a_traiter}) < 2) {
-	print STDERR "TTTT1\n";
 	$test_results->{"texte"}=
 	    "Only one category";
 	if ($sign_util==SignUtil::YES) {
 	    $significatif=ALTree::Chi2::NON_SIGNIFICATIF;
 	}
     } else {
-	if (scalar (@{$valeurs}) != scalar (@{$facteurs})) {
-	print STDERR "TTTT2\n";	    
+	if (scalar (@{$valeurs}) != scalar (@{$facteurs})) { 
 	    erreur("Error in the anova data: the number of values ", scalar @${valeurs}, " and the number of factors ", scalar @{$facteurs}, " should be the same\n");
 	} else {
-	    	print STDERR "TTTT3\n";
-	    $res_anova=TamuAnova::anova(@{$valeurs}, @{$facteurs},  $nb_factors);
-	    print STDERR $nb_factors, " ", scalar(@{$valeurs}), "\n";
+	    $res_anova=TamuAnova::anova($valeurs, $facteurs,  $nb_factors);
+	    #DEBUG   print STDERR $nb_factors, " ", scalar(@{$valeurs}), "\n";
+	    $test_results->{"F"}=$res_anova->{"F"};
+	    $test_results->{"p_val"}= $res_anova->{"p"};
+	    #  $test_results->{"warning"}.=" ($p_value)";
+	    if ($sign_util==SignUtil::YES) {
+		$significatif = ALTree::Chi2::chi2_fisher_significatif($res_anova->{"p"});
+	    }
+	    
 	}
     }
-    
-   # print STDERR "RESANOVA ", $res_anova->{"F"}, $res_anova->{"p"}, "\n";
-    
+    if ($sign_util==SignUtil::YES) {
+	if ($significatif) {
+	    $test_results->{"sign"}=ALTree::Chi2::SIGNIFICATIF;
+	    #$test_results->{"texte"}.="significatif";
+	} else {
+	    $test_results->{"sign"}=ALTree::Chi2::NON_SIGNIFICATIF;
+	    # $test_results->{"texte"}.="non significatif";
+	}
+    }
+    if ($sign_util==SignUtil::YES) {
+	return ($significatif, $res_anova);
+    } else {
+	return ($res_anova);
+    }
+
+#DEBUG if (defined ($res_anova)) {
+#DEBUG    print STDERR "RESANOVA ", $res_anova->{"F"}, "  ",  $res_anova->{"p"}, "\n";
 }
+
+
 
 ########## GENERAL ##########
 
@@ -1654,8 +1671,8 @@ sub main
 	{
 	    if ($permutation==0) {
 		AffichageArbre($racine, \&TestInfos);
-	    } elsif ($permutation>0) {
-		AffichageArbre($racine, \&AssociationInfos);
+	    } elsif ($permutation>0) {AffichageArbre($racine, \&TreeInfos);
+	#	AffichageArbre($racine, \&AssociationInfos);
 		my($value_per_line, $ligne_chi2);
 		($value_per_line, $ligne_chi2)=RepeatAssociation
 		    ($tree, $correspondance, $prolonge,$permutation, $sign_util);

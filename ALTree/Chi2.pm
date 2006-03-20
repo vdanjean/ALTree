@@ -100,6 +100,7 @@ sub chi2_significatif {
 }
 
 sub definition_p_chi2
+#Utilisé aussi pour le test F
 {
     my($p)=shift;
     my($pprop)=shift;
@@ -112,11 +113,13 @@ sub definition_p_chi2
 }
 
 sub chi2_fisher_significatif
+#Meme fonction pour le test F, je ne la ré-écris pas...
 {
     my($pvalue)=shift;
 
     return ($pvalue < $chi2_p);
 }
+
 
 ##################################################################
 # Rééchantillonnage
