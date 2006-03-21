@@ -423,6 +423,18 @@ sub FillCaseControl
 }
 
 ######## QUANTITATIF ########
+sub Moyenne
+{
+    my $tab = shift;
+    my $sum;
+    my $i;
+    for ($i=0; $i < scalar (@{$tab}) ; $i++) {
+	$sum+=$tab->[$i]->[0];
+    }
+    my $moy=$sum/($i);
+    return $moy;
+}
+
 sub FillQuanti
 {
     my($present_node)=shift;
@@ -431,9 +443,11 @@ sub FillQuanti
 	my($id);
 	$id=$present_node->{"id"};
 	if (not defined $present_node->{"quanti"}) {# car sinon, pb pour H000
-	    $present_node->{"quanti"}=[];
-	    push @{$present_node->{"quanti"}}, @{$correspondance->{$id}};
-	}
+							$present_node->{"quanti"}=[];
+							push @{$present_node->{"quanti"}}, @{$correspondance->{$id}};
+						    }
+	my $moy=Moyenne($present_node->{"quanti"});
+	$present_node->{"moyenne"}=$moy;
 	
 	print STDERR $present_node->{"id"}, " " ;
 	for (my $i=0; $i< scalar (@{$present_node->{"quanti"}}); $i++) {
@@ -446,6 +460,9 @@ sub FillQuanti
 	    FillQuanti($child, $correspondance);
 	    push (@{$present_node->{"quanti"}}, @{$child->{"quanti"}});
 	}
+	my $moy=Moyenne($present_node->{"quanti"});
+	$present_node->{"moyenne"}=$moy;
+	
 	print STDERR $present_node->{"id"}, " " ;
 	for (my $i=0; $i< scalar (@{$present_node->{"quanti"}}); $i++) {
 	    print STDERR $present_node->{"quanti"}->[$i]->[0], " (" ,$present_node->{"quanti"}->[$i]->[1], ") ";
@@ -466,7 +483,7 @@ sub ParcoursQuanti
     my($val)=0;
     my($test, $res_anova);
     my($test_results);
- 
+    
 #    $test_results->{"ddl"}=scalar(@{$tabnodes_a_traiter})-1; # Nb branches -1
     my @valeurs;
     my @facteurs;
@@ -479,31 +496,31 @@ sub ParcoursQuanti
 	    push (@facteurs, $i);
 	}
     }
-   my  $nb_factors=$i;
-    
+    my  $nb_factors=$i;
+    $test_results->{"nb_facteurs"}=$nb_factors;
 # DEBUG    print STDERR "node ";
 #    for (my $i=0; $i<=$#valeurs; $i++) {
 #	print STDERR " $valeurs[$i]";
 #	print STDERR " ($facteurs[$i])";
 #    }
 #    print STDERR "\n";
-    
-    
-   if ($sign_util==SignUtil::YES) {
-	($test, $res_anova)=CalculAnovaOneWay($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::YES, $nb_factors );
-    } elsif ($sign_util==SignUtil::NO) { 
-	($res_anova)=CalculAnovaOneWay($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::NO, $nb_factors);
-    }
+	
+	
+	if ($sign_util==SignUtil::YES) {
+	    ($test, $res_anova)=CalculAnovaOneWay($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::YES, $nb_factors );
+	} elsif ($sign_util==SignUtil::NO) { 
+	    ($res_anova)=CalculAnovaOneWay($tabnodes_a_traiter, \@valeurs, \@facteurs, $test_results, SignUtil::NO, $nb_factors);
+	}
     $test_results->{"node_teste"}=$node_ecriture;
     push (@{$node_ecriture->{"res_test"}}, $test_results);
     $test_results->{"level"}=scalar(@{$node_ecriture->{"res_test"}})-1;
-   
+    
     if ($sign_util== SignUtil::YES && $test==1 && $splitmode == SplitMode::CHI2SPLIT) { # sign et que on on est en chi2split
 	foreach $node (@{$tabnodes_a_traiter}) {
 	    if (NbFils($node) != 0) {
 		my @children=$node->GetChildrenList();
 		ParcoursQuanti(\@children, 
-					   $prolonge, $splitmode, $node);
+			       $prolonge, $splitmode, $node);
 	    }
 	}
     } elsif ($sign_util== SignUtil::NO || $test==0 || $splitmode == SplitMode::NOSPLIT) { # ou alors on est en nosplit
@@ -742,6 +759,17 @@ sub TreeInfos
     return InfosAffichees($node, 0);
 }
 
+sub InfosQuanti
+{
+ my($node)=shift;
+    return InfosAffichees($node, 3);
+}
+
+sub InfosQuantiNoperm
+{
+ my($node)=shift;
+    return InfosAffichees($node, 4);
+}
 #Return ddl, level, pvalues and chi2
 sub InfosAffichees
 {
@@ -750,8 +778,12 @@ sub InfosAffichees
     my($chaine)=Name($node);
     my($lbl_test)=0;
     my $test;
+    
     if ($mode==1 || $mode == 2) { # Affiche ou pas les case/control
 	$chaine.=" case/control:".$node->{"case"}."/".$node->{"control"};
+    }
+    if ($mode==3 || $mode == 4) {
+	$chaine.= sprintf " mean:%.2f",$node->{"moyenne"};
     }
     if (1) { # affiche les apomorphies
 	$chaine.="\n";
@@ -760,7 +792,7 @@ sub InfosAffichees
 	}
     }
     $chaine.="\n";
-    if (1) { # affiche ou pas les ddl
+    if ($mode==1 || $mode == 2) { # affiche ou pas les ddl
 	if (defined $node->{"res_test"}) {
 	    for $test (@{$node->{"res_test"}}) {
 		$chaine.= sprintf "[%d] ddl=%d", 
@@ -778,6 +810,7 @@ sub InfosAffichees
 			print "p_val for ", Name($node), 
 			"(", $test->{"ddl"}, ")", "\n";
 		    }
+		    
 		    if ($mode ==2) {
 			if (defined($test->{"sign"})) {
 			    if ($test->{"sign"} == ALTree::Chi2::NON_SIGNIFICATIF) {
@@ -786,8 +819,49 @@ sub InfosAffichees
 				$chaine .= " (significatif)";
 			    } else {
 				ALTree::Utils::internal_error("unknown value ".
-				    $test->{"sign"});
-			    }
+							      $test->{"sign"});
+			      }
+			}		    
+			if (defined($test->{"texte"})) {
+			    $chaine .= "\n".$test->{"texte"};
+			}
+			if (defined($test->{"warning"})) {
+			    $chaine .= "\n".$test->{"warning"};
+			}
+		    }
+		}
+		$chaine.="\n";
+	    }
+	}
+    } elsif ($mode == 3 || $mode ==4) {
+	if (defined $node->{"res_test"}) {
+	    for $test (@{$node->{"res_test"}}) {
+		$chaine.= sprintf "[%d] nb_fact=%d", 
+		$test->{"level"}, $test->{"nb_facteurs"};
+		if ($test->{"nb_facteurs"} > 1) {
+		    $chaine.= sprintf " F=%.2f p_value=%.3g",
+		    $test->{"F"}, $test->{"p_val"};
+		    # TODO : ça arrive quand on a que des malades ou témoins
+		    # dans les clades...
+		    if (not defined($test->{"F"})) {
+			print "F for ", Name($node),
+			"(", $test->{"nb_facteurs"}, ")", "\n";
+		    }
+		    if (not defined($test->{"p_val"})) {
+			print "p_val for ", Name($node), 
+			"(", $test->{"nb_facteurs"}, ")", "\n";
+		    }
+		    
+		    if ($mode == 4) {
+			if (defined($test->{"sign"})) {
+			    if ($test->{"sign"} == ALTree::Chi2::NON_SIGNIFICATIF) {
+				$chaine .= " (non significatif)";
+			    } elsif ($test->{"sign"} == ALTree::Chi2::SIGNIFICATIF) {
+				$chaine .= " (significatif)";
+			    } else {
+				ALTree::Utils::internal_error("unknown value ".
+							      $test->{"sign"});
+			      }
 			}		    
 			if (defined($test->{"texte"})) {
 			    $chaine .= "\n".$test->{"texte"};
@@ -868,9 +942,20 @@ sub CleanChi2
     }
 }
 
+sub CleanQuanti
+{
+    my($tree)=shift;
+    
+    foreach my $node ($tree->GetNodesList()) {
+	$node->EraseQuanti();
+    }
+}
+
 ##########################################################
 ########### FUNCTIONS FOR ASSOCIATION TEST ###############
 ##########################################################
+
+############ QUALITATIF ###############
 
 # From the hash correspondance, fill the variables necessary for Resampling
 sub Correspond2Resampling
@@ -995,6 +1080,60 @@ sub RepeatAssociation
 #    }
 
     return($value_per_line, $ligne_chi2);
+}
+
+############ QUANTITATIF ###############
+# From the hash correspondance, fill the variables necessary for Resampling
+sub Correspond2ResamplingQuanti
+{
+    my($correspondance)=shift;
+    my($haploID, $nbval_per_haplo, @valeurs_tot);
+    foreach $haploID (keys %{$correspondance}) {
+	$nbval_per_haplo->{$haploID}=scalar(@{$correspondance->{$haploID}});
+	foreach my $valeurs (@{$correspondance->{$haploID}}) {
+	    push (@valeurs_tot, $valeurs->[0]);
+	}
+    }
+#DEBUG    print STDERR" TOUTES VAL: ";
+#DEBUG    foreach my $val (@valeurs_tot) {
+#DEBUG	print STDERR $val, " " ;
+#DEBUG	}
+#DEBUG    print STDERR"\n";
+#DEBUG    print STDERR " NB_VAL_PER_HAPLO ";
+#DEBUG    foreach $haploID (keys %{$nbval_per_haplo}) {
+#DEBUG	print STDERR $haploID, " " ,$nbval_per_haplo->{$haploID}, "\n";
+ #DEBUG   } 
+    return (\@valeurs_tot, $nbval_per_haplo);
+}
+
+sub ResamplingQuanti
+{
+    my $valeurs_tot = shift;
+    my $nbval_per_haplo = shift;
+    my $new_correspondance;
+    my $num_haplo=0;
+    foreach my $haploID (keys %{$nbval_per_haplo}) {
+	$num_haplo++;
+	for (my $i=0; $i<$nbval_per_haplo->{$haploID}; $i++) {
+	    my $nb= scalar (@{$valeurs_tot});
+	    my $alea = int(rand($nb)); # Je récupère bien un nb entre 0 et le dernier élément du tab
+	    print STDERR $alea , " ";
+	    $new_correspondance->{$haploID}->[$i]->[0]=$valeurs_tot->[$alea];
+	    $new_correspondance->{$haploID}->[$i]->[1]=$num_haplo;
+	    delete($valeurs_tot->[$alea]);
+	}
+    }
+    print "\n TEST\n";
+    
+    foreach my $haploID (keys(%{$new_correspondance})) {
+	print STDERR $haploID , " " ;
+	for (my $i=0; $i<scalar(@{$new_correspondance->{$haploID}}); $i++) {
+	    print STDERR $new_correspondance->{$haploID}->[$i]->[0], " "; 
+	}
+	print STDERR "\n";
+    }
+    return ($new_correspondance);
+
 }
 
 ##########################################################
@@ -1670,12 +1809,25 @@ sub main
        	
 	{
 	    if ($permutation==0) {
-		AffichageArbre($racine, \&TestInfos);
-	    } elsif ($permutation>0) {AffichageArbre($racine, \&TreeInfos);
-	#	AffichageArbre($racine, \&AssociationInfos);
-		my($value_per_line, $ligne_chi2);
-		($value_per_line, $ligne_chi2)=RepeatAssociation
-		    ($tree, $correspondance, $prolonge,$permutation, $sign_util);
+		if ($dataqual == DataQual::QUALI) {
+		    AffichageArbre($racine, \&TestInfos);
+		} else {
+		    AffichageArbre($racine, \&InfosQuantiNoperm);
+		}
+	    } elsif ($permutation>0) {
+		if ($dataqual == DataQual::QUALI) {
+		    AffichageArbre($racine, \&AssociationInfos);
+		    my($value_per_line, $ligne_chi2);
+		    ($value_per_line, $ligne_chi2)=RepeatAssociation
+		  ($tree, $correspondance, $prolonge,$permutation, $sign_util);
+		} else {
+		    AffichageArbre($racine, \&InfosQuanti);
+		    my ($valeurs_tot, $nbval_per_haplo);
+		    ($valeurs_tot, $nbval_per_haplo)=Correspond2ResamplingQuanti ($correspondance);
+		    ResamplingQuanti($valeurs_tot, $nbval_per_haplo);
+		    }
+		my($value_per_line, $ligne_chi2); # TODO A modifier
+		
 		my($corrected_values);
 		$corrected_values=ALTree::CUtils::double_permutation
 		    ($permutation+1, $value_per_line, $ligne_chi2);

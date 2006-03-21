@@ -92,6 +92,7 @@ sub EraseCase {
     delete($self->{"case"});
 }
 
+
 sub SetControl {
     my $self=shift;
     my $value=shift;
@@ -104,6 +105,11 @@ sub GetControl {
 sub EraseControl {
     my $self=shift;
     delete($self->{"control"});
+}
+
+sub EraseQuanti {
+    my $self=shift;
+    delete($self->{"quanti"});
 }
 
 sub SetBrLen {
