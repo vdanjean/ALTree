@@ -32,7 +32,7 @@ use Data::Dumper;
 #controle in a hash: $correspondance{$HaploID}->{"case"} and
 #$correspondance{$HaploID}->{"controle"}
 
-sub ReadCorrespond 
+sub ReadCorrespondQuali
 {
     my($name_correspond) =shift;
     my($ligne, @tableau);
@@ -98,6 +98,7 @@ sub ReadCorrespond
     #}
     return(\%correspondance);
 }
+#Read the file correspond.txt and put haplotype ID... (to be continued)
 sub ReadCorrespondQuanti
 {
     my($name_correspond) =shift;

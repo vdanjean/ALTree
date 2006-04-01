@@ -146,4 +146,61 @@ sub ChangeRoot {
     $self->{"root"}=$newroot;
 }
 
+# Niveau 0 : noeud le plus profond sans frère ni oncle avec plusieurs fils
+sub FillLevel
+{
+    my $self=shift;
+
+    my $set_level;
+    $set_level=sub {
+	my($present_node)=shift;
+	my($level)=shift;
+	my($child);
+	my($childlevel)=$level;
+	
+	if ($level>0 || $present_node->NbChildren() > 1) {
+	    $childlevel++;
+	}
+	my($realchildlevel)=$childlevel;
+	foreach $child (@{$present_node->{"children"}}) { 
+	    $realchildlevel=$set_level->($child, $childlevel);
+	}
+	$level=$realchildlevel-1;
+	$present_node->{"level"}=$level;
+	if ($level == 0) {
+	    $self->{"level0node"}=$present_node;
+	}
+	return $level;
+    };
+
+    $set_level->($self->GetRoot(), 0);
+}
+
+sub FillHeight
+{
+    my $self=shift;
+
+    my $set_height;
+    $set_height=sub {
+	my($present_node)=shift;
+	my($height)=shift;
+	my($child);
+	$height+=1;
+	foreach $child (@{$present_node->{"children"}}) { 
+	    $set_height->($child, $height);
+	}
+	$present_node->{"height"}=$height;
+    };
+    $set_height->($self->GetRoot(), 0);
+}    
+
+sub GetLevel0 {
+    my $self=shift;
+
+    if (! exists($self->{"level0node"})) {
+	$self->FillLevel();
+    }
+    return $self->{"level0node"};
+}
+
 1;
