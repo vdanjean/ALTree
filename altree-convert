@@ -8,7 +8,7 @@ use Getopt::Long; # qw(:config permute);
 use Pod::Usage;
 #use Getopt::Std;
 
-our($opt_h, $opt_r, $opt_i, $opt_j, $opt_o, $opt_t, $opt_p, $opt_c);
+our($opt_h, $opt_r, $opt_i, $opt_j, $opt_o, $opt_t, $opt_p, $opt_c, $opt_q);
 
 our $VERSION;
 $VERSION = sprintf "0.%03d", q$Revision$ =~ /(\d+)/g;
@@ -289,27 +289,43 @@ sub ReadFAMHAP
 sub TransfoData
 {
     my($hash_ind)=shift;
+    my($data_quali)=shift;
     my($j)=1;
     my($ind, %hash_haplo);
+    
 
      
     foreach $ind (keys %{$hash_ind}) {
-	if (($hash_ind->{$ind}->{"statut"} != 0) && ($hash_ind->{$ind}->{"statut"} !=1)) {
-	    die "Invalid disease statut for individual $ind: ", $hash_ind->{$ind}->{"statut"}, "\n";
-	} else {
-	    my($i);
-	    for ($i=1; $i<=2; $i++) {
-		$hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[$hash_ind->{$ind}->{"statut"}]++;
-		$hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[0]+=0; # moche mais pour eviter les non défini dans affichage
-		$hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[1]+=0;
-		
-	    	if (!exists $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[2]) {
-		    $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[2]=$j;
-		    $j++;
+	if ($data_quali eq "quali") {
+	    if (($hash_ind->{$ind}->{"statut"} != 0) 
+		&& ($hash_ind->{$ind}->{"statut"} !=1)) {
+		die "Invalid disease statut for individual $ind: ", 
+		$hash_ind->{$ind}->{"statut"}, "\n";
+	    } else {
+		my($i);
+		for ($i=1; $i<=2; $i++) {
+		    $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[$hash_ind->{$ind}->{"statut"}]++;
+		    $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[0]+=0; # moche mais pour eviter les non défini dans affichage
+		    $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[1]+=0;
+		    
+		    if (!exists $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[2]) {
+			$hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->[2]=$j;
+			$j++;
+		    }
 		}
 	    }
+	} else {
+	    # In this case, $hash_haplo is a hash with $haplo as keys and a 
+            # ref on a tab containing the quantitative values as values.
+	    for (my $i=1; $i<=2; $i++) {
+		push (@{$hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->{"valeurs"}}, $hash_ind->{$ind}->{"statut"});
+		if (!exists $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->{"name"}) {
+		    $hash_haplo{$hash_ind->{$ind}->{"haplo".$i}}->{"name"}=$j;
+		    $j++;
+		}
+		
+	    }
 	}
-	
     }
     my($nb_haplo);
     $nb_haplo=keys %hash_haplo;
@@ -337,11 +353,21 @@ sub MakeCorrespondanceFile
 {
     my($hash_haplo)=shift;
     my($file_corres)=shift;
+    my $data_quali = shift;
     my($haplo);
     open (CORRESP, '>', $file_corres) || die "Unable to open correspond.txt: $!\n";
     foreach $haplo (keys %{$hash_haplo}) {
-	printf CORRESP "H%.3i\tm%.3i\tc%.3i\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0];
+	if ($data_quali eq "quali") {
+	    printf CORRESP "H%.3i\tm%.3i\tc%.3i\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0];
+	} else {
+	    printf CORRESP "H%.3i\t", $hash_haplo->{$haplo}->{"name"};  
+	    foreach my $valeurs (@{$hash_haplo->{$haplo}->{"valeurs"}}) {
+		print CORRESP "$valeurs\t";
+	    }
+	    print CORRESP "\n";
+	}
     }
+    
     close(CORRESP);
 }
 
@@ -379,10 +405,11 @@ sub BuildPAUP
     my($nb_loci)=shift;
     my($data_type)=shift;
     my($file_corres)= shift;
+    my $data_quali=shift;
    # my($der, $anc);
     my($write_data_type);
     
-    MakeCorrespondanceFile($hash_haplo, $file_corres);
+    MakeCorrespondanceFile($hash_haplo, $file_corres, $data_quali);
     #($anc, $der, $write_data_type)=ReadDataType($data_type);
     ($write_data_type)=ReadDataType($data_type);
     open(OUTPAUP, '>', $file) || die "Unable to open '$file': $!\n";
@@ -394,7 +421,11 @@ sub BuildPAUP
     my($haplo);
     foreach $haplo (keys %{$hash_haplo}) {
 #	printf OUTPAUP "H%.3i_m%.3i_c%.3i\t%s%s\n", $hash_haplo->{$haplo}->[2],$hash_haplo->{$haplo}->[1], $hash_haplo->{$haplo}->[0], $haplo, $der; # a modifier si je fais un deuxième fichier de sortie...
-	printf OUTPAUP "H%.3i\t%s\n", $hash_haplo->{$haplo}->[2], $haplo;#, $der; 
+	if ($data_quali eq "quali") {
+	    printf OUTPAUP "H%.3i\t%s\n", $hash_haplo->{$haplo}->[2], $haplo;#, $der; 
+	} else {
+	    printf OUTPAUP "H%.3i\t%s\n",  $hash_haplo->{$haplo}->{"name"}, $haplo;
+	}
     }
     print OUTPAUP "H000_ancetre [add ancestral haplotype]\n";#$anc\n";
     print OUTPAUP ";\n";
@@ -461,6 +492,7 @@ sub main
 	"data-type" => \$opt_t,
 	"phylo-prog" => \$opt_p,
 	"reconstruct-prog" => \$opt_r,
+	"data-quali" => \$opt_q,
 	);
     	
     #getopts('hr:i:j:o:t:p:');
@@ -476,6 +508,7 @@ sub main
 		"data-type|t=s",
 		"phylo-prog|p=s",
 		"reconstruct-prog|r=s",
+		"data-quali|q=s",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
 	print $0, " version ", $VERSION, "\n";
@@ -527,7 +560,11 @@ sub main
     }  
     if (!$opt_t){
 	die "Type of data: opt_t (DNA or NUM) not specified!\n"; #il faudra peut-etre vérifier que les données sont bien du bon type??? 
-    }       
+    }
+    my $data_quali;
+    if (! $opt_q){
+	die "Data quality: opt_q, (qualitative or quantitative) not specified!\n";
+    }
     
     my($hash_ind, $hash_statut, $hash_haplo);
     my($nb_haplo, $nb_loci);
@@ -548,14 +585,23 @@ sub main
     } else {
 	die "Unknown software. Check the -r option! \n";
     }
+
+    if ($opt_q =~ /^[Qq][Uu][Aa][Ll][Ii][Tt][Aa][Tt][Ii][Vv][Ee]$/) {
+	$data_quali="quali";
+    } elsif ($opt_q =~ /^[Qq][Uu][Aa][Nn][Tt][Ii][Tt][Aa][Tt][Ii][Vv][Ee]$/) {
+	$data_quali="quanti";
+    } else {
+	die "Unknown data_qual. Check the -q option! \n";
+    }
+	
     
     #print_hash_ind($hash_ind);       
     
-    ($hash_haplo, $nb_haplo)=TransfoData($hash_ind);
+    ($hash_haplo, $nb_haplo)=TransfoData($hash_ind, $data_quali);
    # AfficheHashHaplo($hash_haplo); # pour verifier
    
     if ($phylo_program =~ /^[Pp][Aa][Uu][Pp]$/) {
-	BuildPAUP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t, $opt_c)
+	BuildPAUP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t, $opt_c, $data_quali)
     } elsif ($phylo_program =~ /^[Pp][Hh][Yy][Ll][Ii][Pp]$/) {
 	BuildPHYLIP($opt_o, $hash_haplo, $nb_haplo, $nb_loci, $opt_t, $opt_c);
     } else {
