@@ -10,7 +10,8 @@ use Getopt::Long; # qw(:config permute);
 use Pod::Usage;
 #use Getopt::Std;
 
-our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j, $opt_g);
+our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j, 
+    $opt_g, $opt_q);
 
 our $VERSION;
 $VERSION = sprintf "0.%03d", q$Revision$ =~ /(\d+)/g;
@@ -31,6 +32,7 @@ sub DefineAncDer {
 sub ReadCorrespond 
 {
     my($name_correspond) =shift;
+    my $data_qual = shift;
     my($ligne, @tableau);
     my(%correspondance);
     open (CORRESP, '<', $name_correspond) || die "Unable to open file $name_correspond: $!\n";
@@ -39,20 +41,29 @@ sub ReadCorrespond
 	if ($ligne =~ /^$/) {
 	    next;
 	}
-	@tableau=split(/\s+/, $ligne);
-	if ($#tableau != 2) {
-	    die "error in $name_correspond: not 3 columns at line '$ligne'\n";
-	} else {
-	    $tableau[2]=~ s/c//;
-	    $tableau[1]=~ s/m//;
-	    if ($tableau[1] =~ /c/ || $tableau[2] =~ /m/) {
-		die "You have probably exchanged the order of cases and controls in file $name_correspond. It should be: haplo_name m_case_number c_control_number\n";
+	
+	###### Qualitative data ######
+	if ($data_qual eq "qualitative") {
+	    @tableau=split(/\s+/, $ligne);
+	    if ($#tableau != 2) {
+		die "error in $name_correspond: not 3 columns at line '$ligne'\n";
+	    } else {
+		$tableau[2]=~ s/c//;
+		$tableau[1]=~ s/m//;
+		if ($tableau[1] =~ /c/ || $tableau[2] =~ /m/) {
+		    die "You have probably exchanged the order of cases and controls in file $name_correspond. It should be: haplo_name m_case_number c_control_number\n";
 		}
-	    $correspondance{$tableau[0]}->{"case"}=$tableau[1]+0;
-	    $correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;	
+		$correspondance{$tableau[0]}->{"case"}=$tableau[1]+0;
+		$correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;	
+	    }
+	} else {
+	    ##### Quantitative data #######
+	    @tableau = split(/\s+/, $ligne);
+	    my @quant_val = splice(@tableau, 1);
+	    $correspondance{$tableau[0]}=\@quant_val;
 	}
     }
-    my($clefs);
+    #my($clefs);
     #DEBUG
    # foreach $clefs (keys %correspondance) {
    # print "$clefs case: ", $correspondance{$clefs}->{"case"}, "\n";
@@ -60,6 +71,27 @@ sub ReadCorrespond
    # }
     return(\%correspondance);
 }
+
+sub calcul_moyenne_variance
+{
+    my $correspondance = shift;
+    
+    my $somme=0;
+    my $nb_val=0;
+    my $somme_carres=0;
+    foreach my $haplo (keys %{$correspondance}) {
+	foreach my $elem (@{$correspondance->{$haplo}}) {
+	    $nb_val++;
+	    $somme+=$elem;
+	    $somme_carres+=$elem*$elem;
+	}
+    }
+    my $moyenne = $somme/$nb_val;
+    my $variance = $somme_carres/$nb_val-$moyenne*$moyenne;
+    return ($moyenne, sqrt($variance));
+}
+
+
 
 sub travail
 {
@@ -70,12 +102,13 @@ sub travail
     my $low =shift;
     my $name_correspond=shift;
     my $outgroup = shift;
+    my $data_qual = shift;
     my($ligne);
     my($temoin, $malade, $sequence, $nom, $debut, $ancetre);
     my($anc, $num_car, $prop_mal, $prop_tem);
     my(@tableau, @tab2);
     my($tem, $mal)=DefineAncDer($data_type);
-    my($correspondance)=ReadCorrespond($name_correspond);
+    my($correspondance)=ReadCorrespond($name_correspond,$data_qual);
 
    #foreach my $clefs (keys %{$correspondance}) {
 #	print "$clefs case ", $correspondance->{$clefs}->{"case"}, "\n";
@@ -101,6 +134,9 @@ sub travail
 	    if ($ligne =~ /^\s*;\s*$/) {
 		
 		$ici=0;
+	    }
+	    if ($ligne =~ /^\s*\[/) {
+		next;
 	    }
 	} else {
 	    if ($compteur>1) {
@@ -174,57 +210,70 @@ sub travail
 #		}	
 		#$nom=$tableau[0];
 		#	print "$nom\n";
-		if (not exists ($correspondance->{$nom})){
-		    print STDERR "$nom is not found in the file $name_correspond. Assuming it is the outgroup.\nThe number of cases and controls affected to this sequence is set to 0\n";
-		  $correspondance->{$nom}->{"case"}=0;
-		  $correspondance->{$nom}->{"control"}=0;  
-		}
-		$malade=$correspondance->{$nom}->{"case"};
-		$temoin=$correspondance->{$nom}->{"control"};
-		
-		if ($malade == 0 && $temoin == 0) {
-		    print STDERR "$nom is carried by 0 cases and 0 controls. The state ? has been attributed to the S character\n";
-		    $sequence.="?";
-		    print "$nom  ", $sequence, "\n";
-		    next;
-		}
-		
-		#	print " $nom mal=$malade\n";   
-		$prop_mal=$malade/($malade+$temoin);
-		$prop_tem=$temoin/($malade+$temoin);
-		#	print "M=$malade T=$temoin\n";
-		#print "test=$test\n";
-		#	if ($test==0) { # test: difference |mal-tem| >=seuil 
-		#    if ($malade > $temoin && $malade-$temoin>=$seuil) {
-		#$sequence.="G";
-		#    } elsif ($malade < $temoin && $temoin-$malade>=$seuil) {
-		#	$sequence.="C";
-		#    } else {
-		#	$sequence.="?";
-		#    }
-		#} elsif ($test==1) {
-		#  if ($malade+$temoin==1) {
-		#$sequence.="?";
-		if ($low !=0 && $malade+$temoin==1) {
-		    $sequence.="?";
-		}  else {
-		    if ($prop_mal>$proportion_malades+
-			$seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
-			$sequence.=$mal;
-		    } elsif ($prop_mal<$proportion_malades-
-			     $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
-			$sequence.=$tem;
-		    } else {
+
+		###### QUALITATIVE ######
+		if ($data_qual eq "qualitative") {
+		    if (not exists ($correspondance->{$nom})){
+			print STDERR "$nom is not found in the file $name_correspond. Assuming it is the outgroup.\nThe number of cases and controls affected to this sequence is set to 0\n";
+			$correspondance->{$nom}->{"case"}=0;
+			$correspondance->{$nom}->{"control"}=0;  
+		    }
+		    $malade=$correspondance->{$nom}->{"case"};
+		    $temoin=$correspondance->{$nom}->{"control"};
+		    
+		    if ($malade == 0 && $temoin == 0) {
+			print STDERR "$nom is carried by 0 cases and 0 controls. The state ? has been attributed to the S character\n";
 			$sequence.="?";
-		    }   
+			print "$nom  ", $sequence, "\n";
+			next;
+		    }
+		    
+		    
+		    #	print " $nom mal=$malade\n";   
+		    $prop_mal=$malade/($malade+$temoin);
+		    $prop_tem=$temoin/($malade+$temoin);
+		    #	print "M=$malade T=$temoin\n";
+		    #print "test=$test\n";
+		    #	if ($test==0) { # test: difference |mal-tem| >=seuil 
+		    #    if ($malade > $temoin && $malade-$temoin>=$seuil) {
+		    #$sequence.="G";
+		    #    } elsif ($malade < $temoin && $temoin-$malade>=$seuil) {
+		    #	$sequence.="C";
+		    #    } else {
+		    #	$sequence.="?";
+		    #    }
+		    #} elsif ($test==1) {
+		    #  if ($malade+$temoin==1) {
+		    #$sequence.="?";
+		    if ($low !=0 && $malade+$temoin==1) {
+			$sequence.="?";
+		    }  else {
+			if ($prop_mal>$proportion_malades+
+			    $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
+			    $sequence.=$mal;
+			} elsif ($prop_mal<$proportion_malades-
+				 $seuil*sqrt($prop_mal*$prop_tem/($malade+$temoin))) {
+			    $sequence.=$tem;
+			} else {
+			    $sequence.="?";
+			}   
 			#}
+		    }
+		    
+		    print "$nom  ", $sequence, "\n";
+		    #"_m$malade", "_c$temoin\t", $sequence, "\n";
+		} else {
+		    ###### QUANTITATIVE #######
+		    if (not exists ($correspondance->{$nom})){
+			print STDERR "$nom is not found in the file". 
+			    "$name_correspond\n"; 	
+		    }
+		    my ($moyenne, $ec_type) = calcul_moyenne_variance($correspondance);
+		    print "Moyenne: $moyenne\n";
+		    print "Variance: $ec_type\n";
 		}
-		
-		print "$nom  ", $sequence, "\n";
-		#"_m$malade", "_c$temoin\t", $sequence, "\n";
-	    }
-	    
-	} 
+	    } 
+	}
     }
     #print "anc? $found_anc\n";
    if ($found_outgroup==0 && $outgroup ne "nooutgroup") {
@@ -250,6 +299,7 @@ sub usage {
 # ancienne option -t test: 0= mal-tem>seuil 1= seuil proportion0+/-sqr(pq/n)]
     print STDERR "     -p   proportion of cases in the whole data set\n";
     print STDERR "     -e   epsilon parameter\n";
+    print STDERR "     -q   quantitative or qualitative data\n";
     print STDERR "    [-g]  name of the outgroup\n"; 
     print STDERR "    [-l]  if -l is present, it forces the state of S to be ? for haplotypes carried by only one individual\n"; 
 }
@@ -268,6 +318,7 @@ sub main
 	"proportion" => \$opt_p,
 	"outgroup" => \$opt_g,
 	"low" => \$opt_l,
+	"data-qual" => \$opt_q,
 	);
     	
     #getopts('ho:i:j:e:t:p:l');
@@ -284,6 +335,7 @@ sub main
 		"proportion|p=s",
 		"outgroup|g=s",
 		"low|l!",
+		"data-qual|q=s",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
 	print $0, " version ", $VERSION, "\n";
@@ -339,11 +391,7 @@ sub main
 	#  } else {
 	#	die "manque le numero du test: 0: mal-tem=seuil  1: seuil=P0+/-sqr(pq/n)!!\n";
 	# }    
-	if ($opt_p) {
-	    $proportion=$opt_p;
-	} else {
-	    usage("The proportion of cases in the sample is missing!\n", $progname);
-	}
+	
 	my($low);
 	# Si $low !=0, if only one case or one control, then the state of S is ?
 	if ($opt_l) {
@@ -352,11 +400,29 @@ sub main
 	    $low=0;
 	}
 	
+	my $data_qual;
+	if (!$opt_q) {
+	    die "data-qual must be specified\n";
+	} elsif ($opt_q eq "qualitative") {
+	    $data_qual="quali";
+	} elsif ($opt_q eq "quantitative") {
+	    $data_qual="quanti";
+	} else {
+	    die "Invalid value for data-qual (opt_q)\n";
+	}
+	
+	if ($data_qual eq "quali") { 
+	    if ($opt_p) {
+		$proportion=$opt_p;
+	    } else {
+		usage("The proportion of cases in the sample is missing!\n", $progname);
+	    }
+	}
 	my $outgroup="nooutgroup";
 	if ($opt_g) {
 	    $outgroup = $opt_g;
 	}    
-	travail($seuil, $data_type,  $proportion, $low, $correspond_name, $outgroup);
+	travail($seuil, $data_type,  $proportion, $low, $correspond_name, $outgroup, $data_qual);
 	
     }
 }
@@ -386,6 +452,7 @@ altree-add-S [options]
     --data-type|t         data type: SNP or DNA
     --proportion|p        proportion of cases in the sample
     --ancestor|a          name of ancestral haplotype
+    --data-qual|q         qualitative or quantitative data
     [--outgroup|g]        name of the outgroup
     [--low|l]             disease statut for haplotype carried by one individual
     
@@ -437,6 +504,10 @@ Proportion of case individuals in the sample
 =item B<--outgroup|g>
 
 Name of the outgroup (if it is not in the file containing the number of cases and controls per haplotype)
+
+=item B<--data-qual|q> 
+
+Specify if the data are qualitative or quantitative
 
 =item B<--low|l>
 
