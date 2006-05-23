@@ -91,7 +91,35 @@ sub calcul_moyenne_variance
     return ($moyenne, sqrt($variance));
 }
 
+sub calcul_moyenne_nbind
+{
+    my $tableau = shift;
+    
+    my $somme = 0;
+    my $nb_ind=scalar(@{$tableau});
+    foreach my $elem (@{$tableau}) {
+	$somme+=$elem;
+    }
+    return ($somme/$nb_ind, $nb_ind);
+}
 
+sub test_quanti_bilateral
+{
+    my $moy_gen = shift;
+    my $ec_type_gen = shift;
+    my $moy_loc = shift;
+    my $nb_ind_loc = shift;
+    my $epsilon = shift;
+
+    if ($moy_loc > ($moy_gen + $epsilon*$ec_type_gen/sqrt($nb_ind_loc))) {
+	return "eleve";
+    } elsif ($moy_loc < ($moy_gen - $epsilon*$ec_type_gen/sqrt($nb_ind_loc))) {
+	return "faible";
+    } else {
+	return "?";
+    }
+
+}
 
 sub travail
 {
@@ -268,9 +296,27 @@ sub travail
 			print STDERR "$nom is not found in the file". 
 			    "$name_correspond\n"; 	
 		    }
-		    my ($moyenne, $ec_type) = calcul_moyenne_variance($correspondance);
-		    print "Moyenne: $moyenne\n";
-		    print "Variance: $ec_type\n";
+		    my ($moyenne_gen, $ec_type) = calcul_moyenne_variance
+			($correspondance);
+		    my ($moyenne_loc, $nb_ind)= calcul_moyenne_nbind
+			($correspondance->{$nom});
+		    #DEBUG print "$nom\n";
+		    #DEBUG print "Moyenne: $moyenne_gen\n";
+		    #DEBUG print "Variance: $ec_type\n";
+		    #DEBUG print "Moyenne locale: $moyenne_loc\n";
+		    #DEBUG print "nb_ind: $nb_ind\n";
+		    if ($low !=0 && $nb_ind==1) {
+			$sequence.="?";
+		    }  else {
+			if (test_quanti_bilateral($moyenne_gen, $ec_type, $moyenne_loc, $nb_ind, $seuil) eq "eleve") {
+			    $sequence.=$mal;
+			} elsif (test_quanti_bilateral($moyenne_gen, $ec_type, $moyenne_loc, $nb_ind, $seuil) eq "faible") {
+			    $sequence.=$tem; 
+			} else {
+			    $sequence.="?";
+			}
+		    }
+		    print "$nom  ", $sequence, "\n";
 		}
 	    } 
 	}
