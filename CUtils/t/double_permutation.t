@@ -22,5 +22,8 @@ $res=ALTree::CUtils::double_permutation(10, 2,
 );
 
 is_deeply($res, { "pmin" => 0.2,
-		  "chi2" => [ 0.8, 0.1] }, "double_permutation");
+		  "chi2" => [ 0.8, 0.1],
+		  "distrib_pmin" => 
+		      [0.1, 0.1, 0, 0.2, 0.2, 0.8, 0.6, 0.5, 0.4, 0.3]
+		}, "double_permutation");
 

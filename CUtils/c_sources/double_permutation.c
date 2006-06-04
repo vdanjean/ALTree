@@ -6,7 +6,7 @@
 #include "double_permutation.h"
 
 #define CALC_PVAL(count, nb_sample) \
-     ((datatype_t)(count-1))/* On s'enlève soi-même*/ \
+     ((datatype_t)(count-1))/* On s'enlÃ¨ve soi-mÃªme*/ \
      /nb_sample
 
 
@@ -19,10 +19,10 @@ int read_matrice(matrice_t mat, int nb_sample, int nb_chi2)
 		for (j=0; j<nb_chi2; j++) {
 			res=scanf(CONV, &d);
 			if (res!=1) {
-				fprintf(stderr, "Erreur de lecture. Probablement pas assez de données\n");
+				fprintf(stderr, "Erreur de lecture. Probablement pas assez de donnÃ©es\n");
 				exit(1);
 			}
-			/* Attention: on place un réplicat par colonne
+			/* Attention: on place un rÃ©plicat par colonne
 			 * (et pas par ligne) */
 			mat[j][i]=d;
 		}
@@ -39,7 +39,7 @@ ensemble_t alloc_replicat(int nb_chi2)
 	}
 	return rep;
  err:
-	fprintf(stderr, "Erreur d'allocation mémoire. Aborting\n");
+	fprintf(stderr, "Erreur d'allocation mÃ©moire. Aborting\n");
 	exit(1);
 }
 
@@ -57,7 +57,7 @@ ensemble_t alloc_ensemble(int nb_sample)
 	}
 	return ens;
  err:
-	fprintf(stderr, "Erreur d'allocation mémoire. Aborting\n");
+	fprintf(stderr, "Erreur d'allocation mÃ©moire. Aborting\n");
 	exit(1);
 }
 
@@ -79,7 +79,7 @@ matrice_t alloc_matrice(int nb_sample, int nb_chi2)
 
 	return mat;
  err:
-	fprintf(stderr, "Erreur d'allocation mémoire. Aborting\n");
+	fprintf(stderr, "Erreur d'allocation mÃ©moire. Aborting\n");
 	exit(1);
 
 }
@@ -93,11 +93,25 @@ void free_matrice(matrice_t mat, int nb_sample, int nb_chi2)
 	free(mat);
 }
 
-inline static int count_superieur(ensemble_t ens, datatype_t val_ref, int nb_sample)
+inline static int count_superieur(ensemble_t ens, datatype_t val_ref,
+				  int nb_sample)
 {
 	int i, count=0;
 	for (i=0; i< nb_sample; i++) {
 		if (ens[i]>=val_ref) {
+			count++;
+		}
+	}
+	//printf( "count=%i\n", count);
+	return count;
+}
+
+inline static int count_inferieur(ensemble_t ens, datatype_t val_ref,
+				  int nb_sample)
+{
+	int i, count=0;
+	for (i=0; i< nb_sample; i++) {
+		if (ens[i]<=val_ref) {
 			count++;
 		}
 	}
@@ -119,37 +133,49 @@ inline static datatype_t pval_min(replicat_t rep, int nb_chi2)
 
 datatype_t calcul(int nb_sample, int nb_chi2, matrice_t mat, replicat_t rep)
 {
-	int i, j;
-	ensemble_t ens_min_pval;
 	datatype_t min;
-	datatype_t local[nb_chi2];
+	ensemble_t ens_min_pval;
 
 	ens_min_pval=alloc_ensemble(nb_sample);
+	
+	min=calcul_distrib_pmin(nb_sample, nb_chi2, mat, rep, ens_min_pval);
 
+	free_ensemble(ens_min_pval);
+	return min;
+}
+
+datatype_t calcul_distrib_pmin(int nb_sample, int nb_chi2, matrice_t mat,
+			       replicat_t rep, ensemble_t ens_min_pval)
+{
+	int i, j;
+	datatype_t min;
+	datatype_t local[nb_chi2];
+	
 	i=0;
 	for (j=0; j<nb_chi2; j++) {
 		rep[j]=CALC_PVAL(count_superieur(mat[j], mat[j][i], nb_sample),
 				 nb_sample);
 		//printf("cal rep[%i]=%lf\n", j, rep[j]);
 	}
-	ens_min_pval[i]=-pval_min(rep, nb_chi2);
+	/* i is still 0 here */
+	ens_min_pval[i]=pval_min(rep, nb_chi2);
 	//printf("pmin for sample %i: "CONV"\n", i, ens_min_pval[i]);
 
 	for (i=1; i<nb_sample; i++) {
 		for (j=0; j<nb_chi2; j++) {
 			local[j]=CALC_PVAL(count_superieur(mat[j], mat[j][i], 
-							 nb_sample),
-					 nb_sample);
+							   nb_sample),
+					   nb_sample);
 		}
-		ens_min_pval[i]=-pval_min(local, nb_chi2);
+		ens_min_pval[i]=pval_min(local, nb_chi2);
 		//printf("pmin for sample %i: "CONV"\n", i, ens_min_pval[i]);
 	}
-	min=CALC_PVAL(count_superieur(ens_min_pval, ens_min_pval[0], 
+	min=CALC_PVAL(count_inferieur(ens_min_pval, ens_min_pval[0], 
 				      nb_sample),
 		      nb_sample);
-
 	return min;
 }
+
 
 #ifdef MAIN_PROG
 int main(int argc, char *argv[])
@@ -174,7 +200,7 @@ int main(int argc, char *argv[])
 	for (j=0; j<nb_chi2; j++) {
 		printf("chi2 niveau %i, pval nc "CONV"\n", j+1, rep[j]);
 	}
-	printf("pmin corrigé: "CONV"\n", min);
+	printf("pmin corrigÃ©: "CONV"\n", min);
 
 	free_matrice(mat, nb_sample, nb_chi2);
 	free_replicat(rep);
