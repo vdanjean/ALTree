@@ -183,15 +183,17 @@ sub FillHeight
     my $set_height;
     $set_height=sub {
 	my($present_node)=shift;
-	my($height)=shift;
+	my($height)=0;
 	my($child);
-	$height+=1;
 	foreach $child (@{$present_node->{"children"}}) { 
-	    $set_height->($child, $height);
+	    my $min_height=$set_height->($child)+1;
+	    if ($min_height > $height) {
+		$height=$min_height;
+	    }
 	}
 	$present_node->{"height"}=$height;
     };
-    $set_height->($self->GetRoot(), 0);
+    $set_height->($self->GetRoot());
 }    
 
 sub GetLevel0 {

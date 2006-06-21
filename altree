@@ -1517,10 +1517,9 @@ sub main
 		my @children=$racine->GetChildrenList();
 		
 		{
-		    my $vect=();
-		    my $mat=();
+		    my $mat;
 		    print "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n";
-		    ALTree::Nanova::Tree2mat($tree->GetRoot(),$vect, $mat);
+		    $mat=ALTree::Nanova::Tree2mat($tree->GetRoot());
 		    ALTree::Nanova::WriteMat($mat);
 
 

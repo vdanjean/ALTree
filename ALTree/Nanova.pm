@@ -29,26 +29,45 @@ use Data::Dumper;
 
 sub Tree2mat
 {
-    my $present_node = shift; 
-    my $vect = shift; # structure transitoire: chemin de la racine à une feuille
-    my $mat = shift; # The matrix which is filled by the function
-    
-    if ($present_node->NbChildren()==0)  {
-	push (@{$mat}, $vect);
-    } else {
-	my $number=0;
-	for my $child ($present_node->GetChildrenList()) {  
-	    push(@{$vect}, $number);
-	    $number ++;
-	    Tree2mat($present_node, $vect, $mat);
-	}
+    my $present_node = shift;
+    my @vect=(); # dernier chenin parcouru
+    my @mat;
+    my $height=$present_node->{"height"};
+
+    print STDERR "heigh=", $present_node->{"height"}, "\n";
+    for (my $i=0; $i<$height; $i++) {
+	push(@vect, -1);
     }
+
+    my $tree2mat;
+    $tree2mat = sub {
+	my $present_node = shift;
+
+	if ($present_node->NbChildren()==0)  {
+	    for (my $i=$present_node->{"level"}; $i<$height; $i++) {
+		$vect[$i]++;
+	    }
+	    my @tab=@vect;
+	    push (@mat, \@tab);
+	} else {
+	    for my $child ($present_node->GetChildrenList()) {  
+		$vect[$present_node->{"level"}]++;
+		$tree2mat->($child);
+	    }
+	}
+    };
+    $tree2mat->($present_node);
+    return \@mat;
 }
 
 sub WriteMat
 {
+
     my $mat = shift;
-    
+
+    print STDERR Dumper($mat);
+
+    return;
     for (my $i=0; $i<=$#$mat; $i++)  {
 	foreach my $elem (@{$mat->[$i]}) {
 	    print $elem, "\t";
