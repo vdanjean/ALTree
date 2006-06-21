@@ -32,6 +32,8 @@ use ALTree::Input qw(PrepareTree);
 #use Newchi2treeUtils;
 use TamuAnova;
 
+use ALTree::Nanova;
+
 ###########################################
 ########  GLOBAL VARIABLES        #########
 ###########################################
@@ -1514,6 +1516,16 @@ sub main
 		my $racine=$tree->GetRoot();
 		my @children=$racine->GetChildrenList();
 		
+		{
+		    my $vect=();
+		    my $mat=();
+		    print "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n";
+		    ALTree::Nanova::Tree2mat($tree->GetRoot(),$vect, $mat);
+		    ALTree::Nanova::WriteMat($mat);
+
+
+		}
+
 		$option_require->("permutations", 
 				  "The number of permutations used to calculate".
 				  " exact p-values must be specified or set to 0\n");
