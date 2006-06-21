@@ -1036,6 +1036,43 @@ sub SwitchRoot {
     my $newracine=$tree->GetRoot();
 }
 
+################################################################
+###################### ASSOCIATION TEST ########################
+################################################################
+
+sub TraiteSeveralFiles
+{
+#DEBUG    print STDERR "Pool rés des fichiers\n";
+    my $res_files = shift;
+    my ($nb_files);
+    
+    my $p_finale=0;
+    my $pmin_min=99;
+    my @distrib=();
+    for (my $i=0; $i<=$#$res_files; $i++) {
+	shift(@{$res_files->[$i]->{"distrib_pmin"}});
+	push (@distrib, @{$res_files->[$i]->{"distrib_pmin"}});
+	if ( $res_files->[$i]->{"pmin"} < $pmin_min) {
+	    $pmin_min = $res_files->[$i]->{"pmin"};
+	}
+    }
+    print "La pmin minimale est $pmin_min\n";
+    
+   # sort {$a <=> $b}  @distrib; # trie du plus petit au plus grand
+    my $compte=0;
+    foreach my $elem (@distrib) {
+	$compte ++;
+#DEBUG	print STDERR  "elem=$elem\n";
+	if ($elem<=$pmin_min) {
+	    $p_finale ++;
+	}
+    }
+#	} else {
+    return $p_finale/$compte;
+#	}
+}
+
+
 ###########################################################
 
 sub manage_options
@@ -1124,6 +1161,7 @@ sub manage_options
 		"co-evo|e=s",
 		"print-tree!",
 		"anc-seq=s",
+		"nb-files=i",
 		"<>",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
@@ -1205,12 +1243,20 @@ sub main
 
     $option_require->("tree-building-program");
     my($phylo_program)=$option_value->("tree-building-program");  
-    
-    $option_require->("first-input-file");
-    my $input_file=$option_value->("first-input-file");
-
+   
     my($association)=$option_value->("association", 0);
-       
+
+    my $nb_files = $option_value->("nb-files", 0);
+    if ($nb_files == 0) {
+	$nb_files=1
+	}
+    $option_require->("first-input-file");
+    my $input_files=$option_value->("first-input-file");
+    my @input_files=split(/:/, $input_files);
+    # name of the file containing haploID, nb case and nb control
+    my($tot_name_corres)=$option_value->("second-input-file", "correspond.txt");
+    my @tab_name_corres = split(/:/, $tot_name_corres);
+
     my($s_loc)=$option_value->("s-localisation", 0);
     if (!$association && !$s_loc) {
 	erreur("Should I perform the association test or the".
@@ -1243,334 +1289,360 @@ sub main
     ###########################################################
 
     my @trees;
+    my @res_files; #contient les ref sur les résultats de chaque fichier analysé
+    
     {
-	my($input_file)=ALTree::Input::ReadInputFile1($input_file, $phylo_program, 
-						      $datatype, $ancetre);
-	my $num_trees_in_file=$input_file->{"nb_trees"};
-
-	my(@no_tree);
-	my($user_tree_numbers)=$option_value->("tree-to-analyse", \@no_tree);
-	my $tree_numbers=check_tree_numbers($num_trees_in_file, $user_tree_numbers);
-
-	my $nb_tree_selected=scalar(@{$tree_numbers});
-	if ($association) { 
-	    if ($nb_tree_selected == 0) {
-		$tree_numbers=select_trees($num_trees_in_file, 1);
-	    } elsif ($nb_tree_selected > 1) {
-		erreur("Only one tree can be selected for association\n");
-	    }
-	}
-	if ($s_loc) {
-	    if ($nb_tree_selected == 0) {
-		my($trees_to_analyse)=$option_value->("number-of-trees-to-analyse",
-						      undef);
-		if (not defined($trees_to_analyse)) {
-		    print STDERR "Warning: no option number-of-trees-to-analyse".
-			" or tree-to-analyse: using all ($num_trees_in_file)".
-			" trees";
-		    $trees_to_analyse=$num_trees_in_file;
+	for (my $file=1; $file<=$nb_files; $file ++) {
+	    my $input=$input_files[$file-1];
+#DEBUG	    print STDERR $input, "\n";
+	    print STDERR "Analyzing file number $file\n";
+	   my ($input_file)=ALTree::Input::ReadInputFile1($input, 
+							$phylo_program, 
+							$datatype, $ancetre);
+	    
+	    my $num_trees_in_file=$input_file->{"nb_trees"};
+	    
+	    my(@no_tree);
+	    my($user_tree_numbers)=$option_value->("tree-to-analyse", \@no_tree);
+	    my $tree_numbers=check_tree_numbers($num_trees_in_file, $user_tree_numbers);
+	    
+	    my $nb_tree_selected=scalar(@{$tree_numbers});
+	    if ($association) { 
+		if ($nb_tree_selected == 0) {
+		    $tree_numbers=select_trees($num_trees_in_file, 1);
+		} elsif ($nb_tree_selected > 1) {
+		    erreur("Only one tree can be selected for association\n");
 		}
-		if ($trees_to_analyse>$num_trees_in_file) {
+	    }
+	    if ($s_loc) {
+		if ($nb_tree_selected == 0) {
+		    my($trees_to_analyse)=
+			$option_value->("number-of-trees-to-analyse", undef);
+		    if (not defined($trees_to_analyse)) {
+			print STDERR "Warning: no option".
+			    "number-of-trees-to-analyse or tree-to-analyse:".
+			    " using all ($num_trees_in_file)".
+			    " trees";
+			$trees_to_analyse=$num_trees_in_file;
+		    }
+		    if ($trees_to_analyse>$num_trees_in_file) {
+			erreur("Invalid number of trees to analyse :".
+			       " your file contains only".
+			       " $num_trees_in_file trees\n", 0);
+		    }
+		    if ($trees_to_analyse<1) {
+			erreur("Not enought trees to analyse".
+			       " ($trees_to_analyse)\n", 0);
+		    }
+		    $tree_numbers=select_trees($num_trees_in_file, $trees_to_analyse);
+		} elsif ($nb_tree_selected > $num_trees_in_file) {
 		    erreur("Invalid number of trees to analyse :".
 			   " your file contains only".
 			   " $num_trees_in_file trees\n", 0);
 		}
-		if ($trees_to_analyse<1) {
-		    erreur("Not enought trees to analyse".
-			   " ($trees_to_analyse)\n", 0);
-		}
-		$tree_numbers=select_trees($num_trees_in_file, $trees_to_analyse);
-	    } elsif ($nb_tree_selected > $num_trees_in_file) {
-		erreur("Invalid number of trees to analyse :".
-		       " your file contains only".
-		       " $num_trees_in_file trees\n", 0);
 	    }
-	}
-
-	my $anctype=$input_file->{"anctype"};
-	if ($anctype == ANC::Rooted && 
-	    ($option_selected->("outgroup") 
-	     || $option_selected->("remove-outgroup"))) {
-	    erreur("You cannot use the options '--outgroup' or".
-		   " '--remove-outgroup' because your input file '"
-		   .$input_file->{"filename"}."' contains trees rooted".
-		   " with an ancestral sequence.\n", 1);
-	}
-	if ($anctype == ANC::OutGroup) {
-	    my $outgroup=$input_file->{"outgroup"};
-	    if (defined($outgroup)) {
-		if ($option_value->("outgroup", $outgroup) ne $outgroup) {
-		    erreur("The option '--outgroup' tell me to use '".
-			   $option_value->("outgroup")."' as an outgroup ".
-			   "whereas the file '".$input_file->{"filename"}.
-			   "' contains trees rooted with the outgroup '".
-			   $outgroup."'.\n", 1);
-		}
-	    } else {
-		$input_file->{"outgroup"}=$option_value->("outgroup", undef);
+	    
+	    my $anctype=$input_file->{"anctype"};
+	    if ($anctype == ANC::Rooted && 
+		($option_selected->("outgroup") 
+		 || $option_selected->("remove-outgroup"))) {
+		erreur("You cannot use the options '--outgroup' or".
+		       " '--remove-outgroup' because your input file '"
+		       .$input_file->{"filename"}."' contains trees rooted".
+		       " with an ancestral sequence.\n", 1);
 	    }
-	}
-	my ($switchroot)="";
-	if ($anctype == ANC::Unrooted) {
-	    $input_file->{"outgroup"}=$option_value->("outgroup", undef);
-	    $switchroot=$option_value->("outgroup", 0);
-	}
-	if ($option_selected->("remove-outgroup")
-	    && not defined($input_file->{"outgroup"})) {
 	    if ($anctype == ANC::OutGroup) {
-		erreur("You tell me to remove the outgroup for the".
-		       " analyses. ".
-		       "The input file '".$input_file->{"filename"}.
-		       "' contains trees rooted using ".
-		       "an outgroup but I cannot automaticaly find which one".
-		       " has been used.\nPlease, provide me the outgroup".
-		       " (option '--outgroup')\n", 0);
-	    } else {
-		erreur("You tell me to remove the outgroup for the".
-		       " analyses, ".
-		       "however, I do not know what is the outgroup\n".
-		       "Please, use the '--outgroup' option\n", 0);
-	    }
-	}
-	if ($association
-	    && $anctype == ANC::Unrooted
-	    && not defined($input_file->{"outgroup"})) {
-	    erreur("I need a rooted tree to perform the association".
-		   " test. However, the input file '".
-		   $input_file->{"filename"}."' contains unrooted trees\n".
-		   "Please, provide me an outgroup (option '--outgroup')\n"
-		   , 1);
-	    #erreur("I need a rooted tree to perform the association".
-	#	   " test.\nThe input file '".$input_file->{"filename"}.
-	#	   "' contains trees rooted using ".
-	#	   "an outgroup\nbut I cannot automaticaly find which one".
-	#	   " has been used.\nPlease, provide me the outgroup".
-	#	   " (option '--outgroup')\n"
-	#	   , 1);
-	}
-
-	my $remove_outgroup=$option_value->("remove-outgroup", 0);
-	for my $num_tree (@{$tree_numbers}) {
-	    my $file_tree=PrepareTree($phylo_program, $input_file, 
-				      $datatype, $ancetre, $num_tree);
-	    push @trees, $file_tree;
-
-	    my ($tree)=$file_tree->{"tree"};
-	    my $outgroup;
-	    if (defined($input_file->{"outgroup"})) {
-		$outgroup=$tree->GetNode($input_file->{"outgroup"});
-		if (not defined($outgroup)) {
-		    erreur ("I cannot find the outgroup '".
-			    $input_file->{"outgroup"}."' in the".
-			    " tree number ".($file_tree->{"index"}+1).
-			    " in file '".$input_file->{"filename"}.
-			    "'. It does not correspond to any node!\n", 0);
+		my $outgroup=$input_file->{"outgroup"};
+		if (defined($outgroup)) {
+		    if ($option_value->("outgroup", $outgroup) ne $outgroup) {
+			erreur("The option '--outgroup' tell me to use '".
+			       $option_value->("outgroup")."' as an outgroup ".
+			       "whereas the file '".$input_file->{"filename"}.
+			       "' contains trees rooted with the outgroup '".
+			       $outgroup."'.\n", 1);
+		    }
+		} else {
+		    $input_file->{"outgroup"}=$option_value->("outgroup", undef);
 		}
-		if (!$switchroot) {
-		    if ($outgroup->GetFather() != $tree->GetRoot()) {
-			erreur("The outgroup '".$outgroup->Name().
-			       "' is not just under the root ".
-			       "for the tree number ".
-			       ($file_tree->{"index"}+1).
-			       " in file '".$input_file->{"filename"}.
-			       "'.\nDo you choose the rigth outgroup ?\n", 0);
+	    }
+	    my ($switchroot)="";
+	    if ($anctype == ANC::Unrooted) {
+		$input_file->{"outgroup"}=$option_value->("outgroup", undef);
+		$switchroot=$option_value->("outgroup", 0);
+	    }
+	    if ($option_selected->("remove-outgroup")
+		&& not defined($input_file->{"outgroup"})) {
+		if ($anctype == ANC::OutGroup) {
+		    erreur("You tell me to remove the outgroup for the".
+			   " analyses. ".
+			   "The input file '".$input_file->{"filename"}.
+			   "' contains trees rooted using ".
+			   "an outgroup but I cannot automaticaly find which".
+			   "one has been used.\nPlease, provide me the".
+			   "outgroup (option '--outgroup')\n", 0);
+		} else {
+		    erreur("You tell me to remove the outgroup for the".
+			   " analyses, ".
+			   "however, I do not know what is the outgroup\n".
+			   "Please, use the '--outgroup' option\n", 0);
+		}
+	    }
+	    if ($association
+		&& $anctype == ANC::Unrooted
+		&& not defined($input_file->{"outgroup"})) {
+		erreur("I need a rooted tree to perform the association".
+		       " test. However, the input file '".
+		       $input_file->{"filename"}."' contains unrooted trees\n".
+		       "Please, provide me an outgroup (option '--outgroup')\n"
+		       , 1);
+		#erreur("I need a rooted tree to perform the association".
+		#	   " test.\nThe input file '".$input_file->{"filename"}.
+		#	   "' contains trees rooted using ".
+		#	   "an outgroup\nbut I cannot automaticaly find which one".
+		#	   " has been used.\nPlease, provide me the outgroup".
+		#	   " (option '--outgroup')\n"
+		#	   , 1);
+	    }
+	    
+	    my $remove_outgroup=$option_value->("remove-outgroup", 0);
+	    my @trees =();
+	    for my $num_tree (@{$tree_numbers}) {
+		my $file_tree=PrepareTree($phylo_program, $input_file, 
+					  $datatype, $ancetre, $num_tree);
+		push @trees, $file_tree;
+		
+		my ($tree)=$file_tree->{"tree"};
+		my $outgroup;
+		if (defined($input_file->{"outgroup"})) {
+		    $outgroup=$tree->GetNode($input_file->{"outgroup"});
+		    if (not defined($outgroup)) {
+			erreur ("I cannot find the outgroup '".
+				$input_file->{"outgroup"}."' in the".
+				" tree number ".($file_tree->{"index"}+1).
+				" in file '".$input_file->{"filename"}.
+				"'. It does not correspond to any node!\n", 0);
+		    }
+		    if (!$switchroot) {
+			if ($outgroup->GetFather() != $tree->GetRoot()) {
+			    erreur("The outgroup '".$outgroup->Name().
+				   "' is not just under the root ".
+				   "for the tree number ".
+				   ($file_tree->{"index"}+1).
+				   " in file '".$input_file->{"filename"}.
+				   "'.\nDo you choose the rigth outgroup ?\n", 0);
+			}
 		    }
 		}
-	    }
-	    if ($switchroot) {
-		SwitchRoot($tree, $outgroup);
-	    }
-	    if ($remove_outgroup) {
-		RemoveOutgroup($tree, $outgroup);
-	    }
-
-	    if ($print_tree) {
-		PrintTree($tree);
-	    }
-	    if ($s_loc && defined($file_tree->{"has_ambiguity"})) {
-		erreur("Some apomorphies are ambiguous in the".
-		       " tree number ".($file_tree->{"index"}+1).
-		       " in file '".$input_file->{"filename"}.
-		       "' (I find the character state '?').".
-		       " It cannot be used for the localisation test.\n", 0);
-	    }
-	}
-    }
-    print STDERR "read done\n";
-    ###########################################################
-    # Let's go. D'abord pour l'association
-    ###########################################################
-
-    if ($association == 1) { 
-	my($splitmode)=SplitMode::NOSPLIT; # nosplit est imposé
-	
-	# name of the file containing haploID, nb case and nb control
-	my($name_corres)=$option_value->("second-input-file", "correspond.txt");
-	my($correspondance); # ref on a hash containing haploID refferring to
-	# a hash containing nb case and nb control 
-        # or to a tab containing the different quantitative values
-
-	if ($dataqual == DataQual::QUALI) {
-	    $correspondance=ALTree::Input::ReadCorrespondQuali($name_corres);
-	} elsif ($dataqual == DataQual::QUANTI) {
-	    $correspondance=ALTree::Input::ReadCorrespondQuanti($name_corres);
-	} else {	
-	    erreur("invalid choice for option data-qual, $dataqual. It should be either qualitative or quantitative", 0);
-	}
-	
-	my($file_tree)=$trees[0];
-	my($tree)=$file_tree->{"tree"};
-	
-	my($outgroup)=$file_tree->{"file"}->{"outgroup"};
-	if (CheckCorrespondance($tree, $correspondance, $name_corres,
-				$outgroup)) {
-	    if (!$option_selected->("remove-outgroup")) {
-		print STDERR "Warning: assuming option '--remove-outgroup' as".
-		    " the outgroup '".$outgroup.
-		    "' is not in the file '".$name_corres."'\n";
+		if ($switchroot) {
+		    SwitchRoot($tree, $outgroup);
+		}
+		if ($remove_outgroup) {
+		    RemoveOutgroup($tree, $outgroup);
+		}
 		
-		RemoveOutgroup($tree, $tree->GetNode($outgroup));
-	    }
-	} else {
-	    if ($option_selected->("remove-outgroup")) {
-		erreur("You tell me to remove the outgroup '$outgroup',".
-		       " however it is present in the file '".
-		       $name_corres.". Please, check your data.'\n", 0);
-	    }
-	}
-	#print "\n";
-	FusionBrNulles($tree->GetRoot());
-	# Structure changée, on recalcul...
-	$tree->FillHeight();
-	$tree->FillLevel();
-	
-	if ($dataqual == DataQual::QUALI) {
-	    FillCaseControl($tree->GetRoot(),$correspondance); 
-	} else {
-	    FillQuanti($tree->GetRoot(),$correspondance); 
-	}
-	print "\n";
-	
-	my $racine=$tree->GetRoot();
-	my @children=$racine->GetChildrenList();
-	
-	$option_require->("permutations", 
-			  "The number of permutations used to calculate".
-			  " exact p-values must be specified or set to 0\n");
-	
-	my $permutation=$option_value->("permutations");
-	my($sign_util);
-	if ($permutation==0) {
-
-	    #TODO, passer quanti
-	    my($seuil_chi2)=$option_value->("chi2-threshold", 0.01, 
-					    "Using default chi2 threshold 0.01");
-	    ALTree::Chi2::definition_p_chi2($seuil_chi2, 0.01); # mettre une option 
-	    # pour seuil test_prop
-	    $sign_util = SignUtil::YES # on a besoin de la significativité
-	    } elsif ($permutation>0) {
-		$sign_util = SignUtil::NO; # on n'a pas besoin de la sign
-	    } else {
-		die "invalid value for the number of permutation: $permutation\n";
-	    }
-	if ($dataqual == DataQual::QUALI) {
-	    parcours_nosplit_chi2split(\@children, $prolonge, $splitmode, 
-				       $racine, $sign_util);
-	} else {
-	    ParcoursQuanti(\@children, $prolonge, $splitmode, 
-			   $racine, $sign_util); 
-	}
-       	
-	{
-	    if ($permutation==0) {
-		if ($dataqual == DataQual::QUALI) {
-		    AffichageArbre($racine, \&TestInfos);
-		} else {
-		    AffichageArbre($racine, \&InfosQuantiNoperm);
+		if ($print_tree) {
+		    PrintTree($tree);
 		}
-	    } elsif ($permutation>0) {
-		my($value_per_line, $ligne_test);
-		if ($dataqual == DataQual::QUALI) {
-		    AffichageArbre($racine, \&AssociationInfos);
-		    ($value_per_line, $ligne_test)=RepeatAssociationQuali
-		  ($tree, $correspondance, $prolonge,$permutation, $sign_util);
-		} else {
-		    AffichageArbre($racine, \&InfosQuanti);
-		    ($value_per_line, $ligne_test)=RepeatAssociationQuanti
-		  ($tree, $correspondance, $prolonge,$permutation, $sign_util);
+		if ($s_loc && defined($file_tree->{"has_ambiguity"})) {
+		    erreur("Some apomorphies are ambiguous in the".
+			   " tree number ".($file_tree->{"index"}+1).
+			   " in file '".$input_file->{"filename"}.
+			   "' (I find the character state '?').".
+			   " It cannot be used for the localisation test.\n", 0);
 		}
-		my($corrected_values);
-		$corrected_values=ALTree::CUtils::double_permutation
-		    ($permutation+1, $value_per_line, $ligne_test);
-#DEBUG		print STDERR "perm= $permutation, val= $value_per_line, ligne= $ligne_test, corr=$corrected_values\n";
-		print "\n";
-		print "p_val for each level:\n";
-		my($i);
-		for ($i=0; $i<$value_per_line; $i++) {
-		    print "level ", $i+1, " p-value (non corrected) ",
-		    $corrected_values->{"chi2"}->[$i], "\n";
-		}
-		print "corrected minimal p_value in the tree: ", 
-		$corrected_values->{"pmin"}, "\n";# at level TODO\n";
-	    } else {
-		die "invalid value for the number of permutation: $permutation\n";
 	    }
-	}
-    } 
-
-    ###########################################################
-    # Let's go. Et pour la localisation
-    ###########################################################
-
-    if ($s_loc==1) {
-	#$option_require->("splitmode");
-	#my($splitmode)=$option_value->("splitmode");
-	print "Localisation method using S-character\n";
-	$option_require->("s-site-number");
-	my($s_site_nb)=$option_value->("s-site-number");
-	$option_require->("s-site-characters");
-	my($s_char_state)=$option_value->("s-site-characters");
-	$option_require->("co-evo");
-	my($co_evo_type)=$option_value->("co-evo");
-#	print "co_evo_type=$co_evo_type\n";
-
-#DEBUG	print "s_char_state=$s_char_state\n";
-	if (not ($s_char_state =~ 
-		 m/([A-Za-z0-9]+)\s*[-=_]*[>]\s*([A-Za-z0-9]+)/)) {
-	    erreur("Invalid character change for character".
-		   " S. It should be Anc -> Der\n", 0);
-	}
-	my($s_anc)=$1;
-	my($s_der)=$2;
-	my($s_state)= ALTree::Sens->New($s_anc." --> ".$s_der);
-	my($foret)=ALTree::Foret->New();
 	
-
-	#$Data::Dumper::Indent = 0;
-	for my $file_tree (@trees) {
-	    my $tree=$file_tree->{"tree"};
 	    
-	    my ($b_t)=$tree->GetNbBrNonNulle();
+	    print STDERR "read done\n";
+	    ###########################################################
+	    # Let's go. D'abord pour l'association
+	    ###########################################################
+	    
+	    if ($association == 1) { 
+		my($splitmode)=SplitMode::NOSPLIT; # nosplit est imposé
+		
+		# name of the file containing haploID, nb case and nb control
+		my($name_corres)= $tab_name_corres[$file-1];
+		if ($name_corres eq "") {
+		    die "check the number of file containing case/controle. There should ".
+			"be as many such files as first input files\n";
+		}
+		my($correspondance); # ref on a hash containing haploID refferring to
+		# a hash containing nb case and nb control 
+		# or to a tab containing the different quantitative values
+		
+		if ($dataqual == DataQual::QUALI) {
+		    $correspondance=ALTree::Input::ReadCorrespondQuali($name_corres);
+		} elsif ($dataqual == DataQual::QUANTI) {
+		    $correspondance=ALTree::Input::ReadCorrespondQuanti($name_corres);
+		} else {	
+		    erreur("invalid choice for option data-qual, $dataqual. It should be either qualitative or quantitative", 0);
+		}
+		
+		my($file_tree)=$trees[0];
+		my($tree)=$file_tree->{"tree"};
 
-	    my $site=$tree->GetSite($s_site_nb);
-	    if (not defined($site)) {
-		erreur("Invalid value ($s_site_nb) for".
-		       " --s-site-number\n", 0);
-	    }
-
-	    my($s_t, $s_t_rev)=CalculateRit($tree, $s_site_nb, $s_state, 
-					    $co_evo_type); 
-	    CalculateEit($tree, $s_site_nb, $s_t, $s_t_rev, $b_t);
-	    $foret->AddTree($tree);
+		my($outgroup)=$file_tree->{"file"}->{"outgroup"};
+		if (CheckCorrespondance($tree, $correspondance, $name_corres,
+					$outgroup)) {
+		    if (!$option_selected->("remove-outgroup")) {
+			print STDERR "Warning: assuming option '--remove-outgroup' as".
+			    " the outgroup '".$outgroup.
+			    "' is not in the file '".$name_corres."'\n";
+			
+			RemoveOutgroup($tree, $tree->GetNode($outgroup));
+		    }
+		} else {
+		    if ($option_selected->("remove-outgroup")) {
+			erreur("You tell me to remove the outgroup '$outgroup',".
+			       " however it is present in the file '".
+			       $name_corres.". Please, check your data.'\n", 0);
+		    }
+		}
+		#print "\n";
+		FusionBrNulles($tree->GetRoot());
+		# Structure changée, on recalcul...
+		$tree->FillHeight();
+		$tree->FillLevel();
+		if ($dataqual == DataQual::QUALI) {
+		    FillCaseControl($tree->GetRoot(),$correspondance); 
+		} else {
+		    FillQuanti($tree->GetRoot(),$correspondance); 
+		}
+		print "\n";
+		
+		my $racine=$tree->GetRoot();
+		my @children=$racine->GetChildrenList();
+		
+		$option_require->("permutations", 
+				  "The number of permutations used to calculate".
+				  " exact p-values must be specified or set to 0\n");
+		
+		my $permutation=$option_value->("permutations");
+		my($sign_util);
+		if ($permutation==0) {
+		    #TODO, passer quanti
+		    my($seuil_chi2)=$option_value->("chi2-threshold", 0.01, 
+						    "Using default chi2 threshold 0.01");
+		    ALTree::Chi2::definition_p_chi2($seuil_chi2, 0.01); # mettre une option 
+		    # pour seuil test_prop
+		    $sign_util = SignUtil::YES # on a besoin de la significativité
+		    } elsif ($permutation>0) {
+			$sign_util = SignUtil::NO; # on n'a pas besoin de la sign
+		    } else {
+			die "invalid value for the number of permutation: $permutation\n";
+		    }
+		print STDERR "Starting tree analysis\n";
+	    
+		if ($dataqual == DataQual::QUALI) {
+		    parcours_nosplit_chi2split(\@children, $prolonge, $splitmode, 
+					       $racine, $sign_util);
+		} else {
+		    ParcoursQuanti(\@children, $prolonge, $splitmode, 
+				   $racine, $sign_util); 
+		}
+		
+		{
+		    print STDERR "Starting permutations\n";
+		    if ($permutation==0) {
+			if ($dataqual == DataQual::QUALI) {
+			    AffichageArbre($racine, \&TestInfos);
+			} else {
+			    AffichageArbre($racine, \&InfosQuantiNoperm);
+			}
+		    } elsif ($permutation>0) {
+			my($value_per_line, $ligne_test);
+			if ($dataqual == DataQual::QUALI) {
+			    AffichageArbre($racine, \&AssociationInfos);
+			    ($value_per_line, $ligne_test)=RepeatAssociationQuali
+				($tree, $correspondance, $prolonge,$permutation, $sign_util);
+			} else {
+			    AffichageArbre($racine, \&InfosQuanti);
+			    ($value_per_line, $ligne_test)=RepeatAssociationQuanti
+				($tree, $correspondance, $prolonge,$permutation, $sign_util);
+			}
+			my($corrected_values);
+			$corrected_values=ALTree::CUtils::double_permutation
+			    ($permutation+1, $value_per_line, $ligne_test);
+#DEBUG		print STDERR "perm= $permutation, val= $value_per_line, ligne= $ligne_test, corr=$corrected_values\n";
+			print "\n";
+			print "p_val for each level:\n";
+			my($i);
+			for ($i=0; $i<$value_per_line; $i++) {
+			    print "level ", $i+1, " p-value (non corrected) ",
+			    $corrected_values->{"chi2"}->[$i], "\n";
+			}
+			print "corrected minimal p_value in the tree: ", 
+			$corrected_values->{"pmin"}, "\n";# at level TODO\n";
+			if ($nb_files>1) {
+			    $res_files[$file-1]=$corrected_values;
+			    #print STDERR "RRR", $res_files[$file-1]->{"distrib_pmin"}->[O], "\n";
+			}
+		    } else {
+			die "invalid value for the number of permutation: $permutation\n";
+		    }
+		}
+	    } 
 	}
-	$foret->CalculVi();
-	#PrintAllVi($foret, $s_site_nb);# Non trié
-	#PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant
-	#pour chaque sit, juste le meilleur sens
-	print "\n";
-	print "Results:\n";
-	PrintViMaxSens($foret, $s_site_nb);
+	if ($nb_files>1) {
+	    my $p_finale = TraiteSeveralFiles(\@res_files, $nb_files);
+	    print "\n############################################\n";
+	    print "p_value for the $nb_files files = $p_finale\n";
+	}
+	    
+	###########################################################
+	# Let's go. Et pour la localisation
+	###########################################################
 	
+	if ($s_loc==1) {
+	    #$option_require->("splitmode");
+	    #my($splitmode)=$option_value->("splitmode");
+	    print "Localisation method using S-character\n";
+	    $option_require->("s-site-number");
+	    my($s_site_nb)=$option_value->("s-site-number");
+	    $option_require->("s-site-characters");
+	    my($s_char_state)=$option_value->("s-site-characters");
+	    $option_require->("co-evo");
+	    my($co_evo_type)=$option_value->("co-evo");
+#	print "co_evo_type=$co_evo_type\n";
+	    
+#DEBUG	print "s_char_state=$s_char_state\n";
+	    if (not ($s_char_state =~ 
+		     m/([A-Za-z0-9]+)\s*[-=_]*[>]\s*([A-Za-z0-9]+)/)) {
+		erreur("Invalid character change for character".
+		       " S. It should be Anc -> Der\n", 0);
+	    }
+	    my($s_anc)=$1;
+	    my($s_der)=$2;
+	    my($s_state)= ALTree::Sens->New($s_anc." --> ".$s_der);
+	    my($foret)=ALTree::Foret->New();
+	    
+	    
+	    #$Data::Dumper::Indent = 0;
+	    for my $file_tree (@trees) {
+		my $tree=$file_tree->{"tree"};
+		
+		my ($b_t)=$tree->GetNbBrNonNulle();
+		
+		my $site=$tree->GetSite($s_site_nb);
+		if (not defined($site)) {
+		    erreur("Invalid value ($s_site_nb) for".
+			   " --s-site-number\n", 0);
+		}
+		
+		my($s_t, $s_t_rev)=CalculateRit($tree, $s_site_nb, $s_state, 
+						$co_evo_type); 
+		CalculateEit($tree, $s_site_nb, $s_t, $s_t_rev, $b_t);
+		$foret->AddTree($tree);
+	    }
+	    $foret->CalculVi();
+	    #PrintAllVi($foret, $s_site_nb);# Non trié
+	    #PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant
+	    #pour chaque sit, juste le meilleur sens
+	    print "\n";
+	    print "Results:\n";
+	    PrintViMaxSens($foret, $s_site_nb);
+	}
     }
 }
 
@@ -1610,7 +1682,7 @@ __END__
     
 =head1 NAME
 
-altree - Analysing phylogeny trees
+altree - Association and Localisation tests using  phylogenetic Trees
 
 =head1 SYNOPSIS
 
@@ -1642,6 +1714,7 @@ altree [options]
     --co-evo|e simple|double
     --print-tree 
     --anc-seq ancestral sequence (only with phylip)
+    --nb-files number of input files to analyse (only for association test)
 
 =head1 OPTIONS
 
@@ -1673,11 +1746,15 @@ Localise the susceptibility locus using the "S-character method"
 
 =item B<--first-input-file|i> F<result_file>
 
-Input file 1 (paup, phylip or paml results file)
+Input file 1 (paup, phylip or paml results file).
+If several input files are analysed, their names must be separated by colons. 
+Example: input1:input2 etc
 
 =item B<--second-input-file|j> F<correspond_file>
 
-Input file 2, default F<correspond.txt>
+Input file 2, default F<correspond.txt>.
+The number of input file 2 must be the same as the number of input file 1.
+The name of the different input file 2 must be separated by colons
 
 =item B<--output-file|o> F<outfile>
 
@@ -1755,13 +1832,27 @@ If this option is selected, the tree will be printed to the output
 =item B<--anc-seq> anc_seq
 
 With this option, you can specify the ancestral sequence.
-This option is only useful when the tree is reconstructed using the mix program of phylip with the ancestral states specified in the file "ancestors"
+This option is only useful when the tree is reconstructed using the mix program 
+of phylip with the ancestral states specified in the file "ancestors"
+
+=item B<--nb-files> number
+
+With this option, you specify the number of input files (1 and 2)  to analyse
+This option only works for the association test. Be careful if the number of trees is not
+the same for the different input files: if the chosen tree doesn't exist in one file, 
+the program wil not work correctly
+
 
 =back
 
 =head1 DESCRIPTION
 
-B<This program> will read the given input file(s) and do someting
-useful with the contents thereof.
+B<This program> performs 
+
+(a) an association test between a candidate gene and disease or a quantitative trait
+
+(b) a localsation tests: it allows to detect which SNP is involved in the determinism of the disease or the quantitative trait
+
+These two tests are based on the analysis of haplotype phylogenetic trees.
 
 =cut

@@ -148,6 +148,9 @@ sub travail
     my $compteur=0;
     while ($ligne=<STDIN>){
 	chomp($ligne);
+	if ($ligne =~/^$/) {
+	    next;
+	}
 	$compteur++;
 	my $diese='#';
 	if ($ligne =~ /^\s*$diese[N|n]exus\s*$/) {
@@ -215,6 +218,7 @@ sub travail
 		@tableau=split(/\s+/, $ligne);
 		$sequence=$tableau[1];
 		$nom=$tableau[0];
+		#DEBUG	print "$nom $outgroup\n";
 		if ($nom eq $outgroup){
 		    #	$ancetre=$sequence."?";
 		    print "$nom  $sequence?\n";
