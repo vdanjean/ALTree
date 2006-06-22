@@ -1521,8 +1521,10 @@ sub main
 		    print "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n";
 		    $mat=ALTree::Nanova::Tree2mat($tree->GetRoot());
 		    ALTree::Nanova::WriteMat($mat);
-
-
+		    my $values = [];
+		    my $groups = [];
+		    my $nb_term=0;
+		    FillTableaux($tree->GetRoot(), $values, $groups, $nb_term);
 		}
 
 		$option_require->("permutations", 

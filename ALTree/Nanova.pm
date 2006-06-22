@@ -60,6 +60,29 @@ sub Tree2mat
     return \@mat;
 }
 
+# Fille the various tabular necessary for NAnaova
+sub FillTableaux
+{
+
+    my $present_node = shift;
+    my $values = shift;
+    my $groups = shift;
+    my $nb_term = shift;
+
+    if ($present_node->NbChildren()==0)  {
+	$presentNode->GetQuantiList();
+	push @{$values}, @{$present_node->GetQuantiList()};
+	push @{$groups}, $present_node->NbQuanti(); 
+	$nb_term++;
+    } else {
+	for my $child ($present_node->GetChildrenList()) {  
+	    FillTableaux($child, $value, $groups, $nb_term);
+	}
+    }
+
+
+}
+
 sub WriteMat
 {
 

@@ -239,6 +239,16 @@ sub Name {
     }
 }
 
+sub GetQuantiList {
+    my $self=shift;
+    return @{$self->{"quanti"}};
+}
+
+sub NbQuanti {
+    my $self=shift;
+    return scalar(@{$self->{"quanti"}});
+}
+
 #Faire meme chose pour case, control et br_len (HasBrLen), level, high, sequence, label, oldfather
 #Faire oldchildren (GetOldChildren, SetOldChildren, ) 
 
