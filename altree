@@ -1039,7 +1039,7 @@ sub SwitchRoot {
 }
 
 ################################################################
-###################### ASSOCIATION TEST ########################
+#################### TRAITE PLS FICHIERS #######################
 ################################################################
 
 sub TraiteSeveralFiles
@@ -1058,7 +1058,7 @@ sub TraiteSeveralFiles
 	    $pmin_min = $res_files->[$i]->{"pmin"};
 	}
     }
-    print "La pmin minimale est $pmin_min\n";
+    print "La pmin minimale est $pmin_min, la taille de la distrib pmin est ", scalar(@distrib), "\n";
     
    # sort {$a <=> $b}  @distrib; # trie du plus petit au plus grand
     my $compte=0;
@@ -1516,16 +1516,18 @@ sub main
 		my $racine=$tree->GetRoot();
 		my @children=$racine->GetChildrenList();
 		
-		{
-		    my $mat;
-		    print "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n";
-		    $mat=ALTree::Nanova::Tree2mat($tree->GetRoot());
-		    ALTree::Nanova::WriteMat($mat);
-		    my $values = [];
-		    my $groups = [];
-		    my $nb_term=0;
-		    FillTableaux($tree->GetRoot(), $values, $groups, $nb_term);
-		}
+
+# EN DEVELOPPEMENT: NANOVA
+#		{
+#		    my $mat;
+#		    print "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n";
+#		    $mat=ALTree::Nanova::Tree2mat($tree->GetRoot());
+#		    ALTree::Nanova::WriteMat($mat);
+#		    my $values = [];
+#		    my $groups = [];
+#		    my $nb_term=0;
+#		    FillTableaux($tree->GetRoot(), $values, $groups, $nb_term);
+#		}
 
 		$option_require->("permutations", 
 				  "The number of permutations used to calculate".
@@ -1596,65 +1598,72 @@ sub main
 		    }
 		}
 	    } 
-	}
-	if ($nb_files>1) {
-	    my $p_finale = TraiteSeveralFiles(\@res_files, $nb_files);
-	    print "\n############################################\n";
-	    print "p_value for the $nb_files files = $p_finale\n";
-	}
+	    print "tab_trees @trees\n";
+	
+	    
 	    
 	###########################################################
 	# Let's go. Et pour la localisation
 	###########################################################
 	
-	if ($s_loc==1) {
-	    #$option_require->("splitmode");
-	    #my($splitmode)=$option_value->("splitmode");
-	    print "Localisation method using S-character\n";
-	    $option_require->("s-site-number");
-	    my($s_site_nb)=$option_value->("s-site-number");
-	    $option_require->("s-site-characters");
-	    my($s_char_state)=$option_value->("s-site-characters");
-	    $option_require->("co-evo");
-	    my($co_evo_type)=$option_value->("co-evo");
+	    print "tabtrees @trees\n";
+	    if ($s_loc==1) {
+		#$option_require->("splitmode");
+		#my($splitmode)=$option_value->("splitmode");
+		print "Localisation method using S-character\n";
+		$option_require->("s-site-number");
+		my($s_site_nb)=$option_value->("s-site-number");
+		$option_require->("s-site-characters");
+		my($s_char_state)=$option_value->("s-site-characters");
+		$option_require->("co-evo");
+		my($co_evo_type)=$option_value->("co-evo");
 #	print "co_evo_type=$co_evo_type\n";
-	    
+		
 #DEBUG	print "s_char_state=$s_char_state\n";
-	    if (not ($s_char_state =~ 
-		     m/([A-Za-z0-9]+)\s*[-=_]*[>]\s*([A-Za-z0-9]+)/)) {
-		erreur("Invalid character change for character".
-		       " S. It should be Anc -> Der\n", 0);
-	    }
-	    my($s_anc)=$1;
-	    my($s_der)=$2;
-	    my($s_state)= ALTree::Sens->New($s_anc." --> ".$s_der);
-	    my($foret)=ALTree::Foret->New();
-	    
-	    
-	    #$Data::Dumper::Indent = 0;
-	    for my $file_tree (@trees) {
-		my $tree=$file_tree->{"tree"};
-		
-		my ($b_t)=$tree->GetNbBrNonNulle();
-		
-		my $site=$tree->GetSite($s_site_nb);
-		if (not defined($site)) {
-		    erreur("Invalid value ($s_site_nb) for".
-			   " --s-site-number\n", 0);
+		if (not ($s_char_state =~ 
+			 m/([A-Za-z0-9]+)\s*[-=_]*[>]\s*([A-Za-z0-9]+)/)) {
+		    erreur("Invalid character change for character".
+			   " S. It should be Anc -> Der\n", 0);
 		}
+		my($s_anc)=$1;
+		my($s_der)=$2;
+		my($s_state)= ALTree::Sens->New($s_anc." --> ".$s_der);
+		my($foret)=ALTree::Foret->New();
 		
-		my($s_t, $s_t_rev)=CalculateRit($tree, $s_site_nb, $s_state, 
-						$co_evo_type); 
-		CalculateEit($tree, $s_site_nb, $s_t, $s_t_rev, $b_t);
-		$foret->AddTree($tree);
+		#$Data::Dumper::Indent = 0;
+		for my $file_tree (@trees) {
+		    my $tree=$file_tree->{"tree"};
+		    
+		    my ($b_t)=$tree->GetNbBrNonNulle();
+		    
+		    my $site=$tree->GetSite($s_site_nb);
+		    if (not defined($site)) {
+			erreur("Invalid value ($s_site_nb) for".
+			       " --s-site-number\n", 0);
+		    }
+		    
+		    print "TREE1, $tree\n";
+		    my($s_t, $s_t_rev)=CalculateRit($tree, $s_site_nb, $s_state, 
+						    $co_evo_type); 
+		    print "TREE2, $tree\n";
+		    CalculateEit($tree, $s_site_nb, $s_t, $s_t_rev, $b_t);
+		    print "TREE3, $tree\n";
+		    $foret->AddTree($tree);
+		    print "TREE4, $tree\n";
+		}
+		$foret->CalculVi();
+		#PrintAllVi($foret, $s_site_nb);# Non trié
+		#PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant
+		#pour chaque sit, juste le meilleur sens
+		print "\n";
+		print "Results:\n";
+		PrintViMaxSens($foret, $s_site_nb);
 	    }
-	    $foret->CalculVi();
-	    #PrintAllVi($foret, $s_site_nb);# Non trié
-	    #PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant
-	    #pour chaque sit, juste le meilleur sens
-	    print "\n";
-	    print "Results:\n";
-	    PrintViMaxSens($foret, $s_site_nb);
+	}
+	if ($nb_files>1) {
+	    my $p_finale = TraiteSeveralFiles(\@res_files, $nb_files);
+	    print "\n############################################\n";
+	    print "p_value for the $nb_files files = $p_finale\n";
 	}
     }
 }

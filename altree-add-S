@@ -41,9 +41,9 @@ sub ReadCorrespond
 	if ($ligne =~ /^$/) {
 	    next;
 	}
-	
-	###### Qualitative data ######
-	if ($data_qual eq "qualitative") {
+
+	####### Qualitative data ######
+	if ($data_qual eq "quali") {
 	    @tableau=split(/\s+/, $ligne);
 	    if ($#tableau != 2) {
 		die "error in $name_correspond: not 3 columns at line '$ligne'\n";
@@ -54,7 +54,8 @@ sub ReadCorrespond
 		    die "You have probably exchanged the order of cases and controls in file $name_correspond. It should be: haplo_name m_case_number c_control_number\n";
 		}
 		$correspondance{$tableau[0]}->{"case"}=$tableau[1]+0;
-		$correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;	
+		$correspondance{$tableau[0]}->{"control"}=$tableau[2]+0;
+		
 	    }
 	} else {
 	    ##### Quantitative data #######
@@ -244,7 +245,7 @@ sub travail
 		#	print "$nom\n";
 
 		###### QUALITATIVE ######
-		if ($data_qual eq "qualitative") {
+		if ($data_qual eq "quali") {
 		    if (not exists ($correspondance->{$nom})){
 			print STDERR "$nom is not found in the file $name_correspond. Assuming it is the outgroup.\nThe number of cases and controls affected to this sequence is set to 0\n";
 			$correspondance->{$nom}->{"case"}=0;

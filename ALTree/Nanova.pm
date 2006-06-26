@@ -70,13 +70,13 @@ sub FillTableaux
     my $nb_term = shift;
 
     if ($present_node->NbChildren()==0)  {
-	$presentNode->GetQuantiList();
+	$present_node->GetQuantiList();
 	push @{$values}, @{$present_node->GetQuantiList()};
 	push @{$groups}, $present_node->NbQuanti(); 
 	$nb_term++;
     } else {
 	for my $child ($present_node->GetChildrenList()) {  
-	    FillTableaux($child, $value, $groups, $nb_term);
+	    FillTableaux($child, $values, $groups, $nb_term);
 	}
     }
 
