@@ -1,5 +1,4 @@
 
-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
                     /----* H002 (LEVEL: 4) case/control:8/6
                     |    /----* H007 (LEVEL: 5) case/control:7/13
                     |    |        Site: 12 Sens: 2-->1
@@ -57,3 +56,32 @@ level 3 p-value (non corrected) 0
 level 4 p-value (non corrected) 0
 level 5 p-value (non corrected) 0
 corrected minimal p_value in the tree: 0
+
+          /----* H003 (LEVEL: 2) case/control:12/15
+     /----* 6 (LEVEL: 1) case/control:54/40
+     |    |   Site: 2 Sens: 2-->1
+     |    \----* H005 (LEVEL: 2) case/control:42/25
+     |             Site: 5 Sens: 1-->2
+     |----* H001 (LEVEL: 1) case/control:9/18
+-----* 9+(7) (LEVEL: 0) case/control:71/79
+     | 
+     | [0] ddl=2 chi2=10.52 p_value_chi2=0.00521
+     | [1] ddl=4 chi2=13.26 p_value_chi2=0.009
+     |    /----* H004 (LEVEL: 2) case/control:5/15
+     |    |        Site: 6 Sens: 2-->1
+     |    |        Site: 4 Sens: 1-->2
+     |    |        Site: 5 Sens: 1-->2
+     \----* 8 (LEVEL: 1) case/control:8/21
+          |   Site: 1 Sens: 1-->2
+          \----* H002 (LEVEL: 2) case/control:3/6
+
+ Number of permutation: 1
+
+p_val for each level:
+level 1 p-value (non corrected) 0
+level 2 p-value (non corrected) 0
+corrected minimal p_value in the tree: 0
+La pmin minimale est 0
+
+############################################
+p_value for the 2 files = 0

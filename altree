@@ -1255,6 +1255,11 @@ sub main
     $option_require->("first-input-file");
     my $input_files=$option_value->("first-input-file");
     my @input_files=split(/:/, $input_files);
+    my $nb_read_files = scalar(@input_files);
+    if ($nb_read_files != $nb_files) {
+	erreur("The number of files really given ($nb_read_files) is not equal to".
+	       " the number of files specified in the option --nb-files ($nb_files)\n",0)
+	}
     # name of the file containing haploID, nb case and nb control
     my($tot_name_corres)=$option_value->("second-input-file", "correspond.txt");
     my @tab_name_corres = split(/:/, $tot_name_corres);
@@ -1292,7 +1297,8 @@ sub main
 
     my @trees;
     my @res_files; #contient les ref sur les résultats de chaque fichier analysé
-    
+    my($all_files_foret)=ALTree::Foret->New();
+    my $s_site_nb;
     {
 	for (my $file=1; $file<=$nb_files; $file ++) {
 	    my $input=$input_files[$file-1];
@@ -1516,7 +1522,6 @@ sub main
 		my $racine=$tree->GetRoot();
 		my @children=$racine->GetChildrenList();
 		
-
 # EN DEVELOPPEMENT: NANOVA
 #		{
 #		    my $mat;
@@ -1598,25 +1603,23 @@ sub main
 		    }
 		}
 	    } 
-	    print "tab_trees @trees\n";
-	
 	    
+
+	    ###########################################################
+	    # Let's go. Et pour la localisation
+	    ###########################################################
 	    
-	###########################################################
-	# Let's go. Et pour la localisation
-	###########################################################
-	
-	    print "tabtrees @trees\n";
 	    if ($s_loc==1) {
 		#$option_require->("splitmode");
 		#my($splitmode)=$option_value->("splitmode");
 		print "Localisation method using S-character\n";
 		$option_require->("s-site-number");
-		my($s_site_nb)=$option_value->("s-site-number");
+		$s_site_nb=$option_value->("s-site-number");
 		$option_require->("s-site-characters");
 		my($s_char_state)=$option_value->("s-site-characters");
 		$option_require->("co-evo");
 		my($co_evo_type)=$option_value->("co-evo");
+
 #	print "co_evo_type=$co_evo_type\n";
 		
 #DEBUG	print "s_char_state=$s_char_state\n";
@@ -1642,28 +1645,37 @@ sub main
 			       " --s-site-number\n", 0);
 		    }
 		    
-		    print "TREE1, $tree\n";
 		    my($s_t, $s_t_rev)=CalculateRit($tree, $s_site_nb, $s_state, 
 						    $co_evo_type); 
-		    print "TREE2, $tree\n";
 		    CalculateEit($tree, $s_site_nb, $s_t, $s_t_rev, $b_t);
-		    print "TREE3, $tree\n";
 		    $foret->AddTree($tree);
-		    print "TREE4, $tree\n";
+		    $all_files_foret->AddTree($tree);
 		}
 		$foret->CalculVi();
+		$all_files_foret->CalculVi();
 		#PrintAllVi($foret, $s_site_nb);# Non trié
 		#PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant
 		#pour chaque sit, juste le meilleur sens
 		print "\n";
 		print "Results:\n";
 		PrintViMaxSens($foret, $s_site_nb);
+
 	    }
 	}
-	if ($nb_files>1) {
-	    my $p_finale = TraiteSeveralFiles(\@res_files, $nb_files);
-	    print "\n############################################\n";
-	    print "p_value for the $nb_files files = $p_finale\n";
+	
+	if ($association == 1) { 
+	    if ($nb_files>1) {
+		my $p_finale = TraiteSeveralFiles(\@res_files, $nb_files);
+		print "\n############################################\n";
+		print "p_value for the $nb_files files = $p_finale\n";
+	    }
+	}
+	if ($s_loc == 1) {
+	    if ($nb_files>1) {
+		print "\n############################################\n";
+		print "Results for all the files\n";
+		PrintViMaxSens($all_files_foret, $s_site_nb);
+	    }
 	}
     }
 }
