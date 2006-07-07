@@ -1652,7 +1652,6 @@ sub main
 		    $all_files_foret->AddTree($tree);
 		}
 		$foret->CalculVi();
-		$all_files_foret->CalculVi();
 		#PrintAllVi($foret, $s_site_nb);# Non trié
 		#PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant
 		#pour chaque sit, juste le meilleur sens
@@ -1672,6 +1671,7 @@ sub main
 	}
 	if ($s_loc == 1) {
 	    if ($nb_files>1) {
+		$all_files_foret->CalculVi();
 		print "\n############################################\n";
 		print "Results for all the files\n";
 		PrintViMaxSens($all_files_foret, $s_site_nb);

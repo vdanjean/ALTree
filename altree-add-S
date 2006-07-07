@@ -278,7 +278,7 @@ sub travail
 		    #} elsif ($test==1) {
 		    #  if ($malade+$temoin==1) {
 		    #$sequence.="?";
-		    if ($low !=0 && $malade+$temoin==1) {
+		    if ( $malade+$temoin <= $low) {
 			$sequence.="?";
 		    }  else {
 			if ($prop_mal>$proportion_malades+
@@ -310,7 +310,7 @@ sub travail
 		    #DEBUG print "Variance: $ec_type\n";
 		    #DEBUG print "Moyenne locale: $moyenne_loc\n";
 		    #DEBUG print "nb_ind: $nb_ind\n";
-		    if ($low !=0 && $nb_ind==1) {
+		    if ($nb_ind <= $low) {
 			$sequence.="?";
 		    }  else {
 			if (test_quanti_bilateral($moyenne_gen, $ec_type, $moyenne_loc, $nb_ind, $seuil) eq "eleve") {
@@ -352,7 +352,7 @@ sub usage {
     print STDERR "     -e   epsilon parameter\n";
     print STDERR "     -q   quantitative or qualitative data\n";
     print STDERR "    [-g]  name of the outgroup\n"; 
-    print STDERR "    [-l]  if -l is present, it forces the state of S to be ? for haplotypes carried by only one individual\n"; 
+    print STDERR "     -l   if an haplotype is present equal or less than -l times, the state of S will be set to ?\n"; 
 }
 
 sub main
@@ -385,7 +385,7 @@ sub main
 		"data-type|t=s",
 		"proportion|p=s",
 		"outgroup|g=s",
-		"low|l!",
+		"low|l=i",
 		"data-qual|q=s",
 		) or pod2usage(2);
     if (defined($options{"version"})) {
@@ -445,10 +445,10 @@ sub main
 	
 	my($low);
 	# Si $low !=0, if only one case or one control, then the state of S is ?
-	if ($opt_l) {
-	    $low=1;
+	if (!$opt_l) {
+	    die "The minimum number of haplotype should be set by -l\n"; 
 	} else {
-	    $low=0;
+	    $low=$opt_l;
 	}
 	
 	my $data_qual;
@@ -505,7 +505,7 @@ altree-add-S [options]
     --ancestor|a          name of ancestral haplotype
     --data-qual|q         qualitative or quantitative data
     [--outgroup|g]        name of the outgroup
-    [--low|l]             disease statut for haplotype carried by one individual
+    --low|l               if an haplotype is present equal or less than -l times, the state of S will be set to "?"
     
 
 =head1 OPTIONS
@@ -562,7 +562,7 @@ Specify if the data are qualitative or quantitative
 
 =item B<--low|l>
 
-If this option is present, it forces the state of the character S to be "?" for haplotypes carried by only one individual
+if an haplotype is present equal or less than -l times, the state of S will be set to "?"
 
 =back
 
