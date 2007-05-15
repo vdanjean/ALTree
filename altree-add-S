@@ -445,7 +445,7 @@ sub main
 	
 	my($low);
 	# Si $low !=0, if only one case or one control, then the state of S is ?
-	if (!$opt_l) {
+	if (not defined $opt_l) {
 	    die "The minimum number of haplotype should be set by -l\n"; 
 	} else {
 	    $low=$opt_l;
