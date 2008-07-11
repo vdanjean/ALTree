@@ -74,7 +74,7 @@ if [ "$(make distcheck 2>&1 1>/dev/null | grep -v "^No such file: META.yml$")" !
    fi
 fi
   
-D=svn+ssh://labri/usr/labri/danjean/svnroot/claire/altree/tags/release-$VERSION
+D=svn+ssh://atsina/users/huron/danjean/svnroot/claire/altree/tags/release-$VERSION
 echo ""
 echo "Checking if the tag release-$VERSION already exists in SVN database..."
 echo ""
