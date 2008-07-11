@@ -225,4 +225,3 @@ test/phylip/outgroup_present/association/outtree
 test/phylip/outgroup_present/association/run_altree
 test/phylip/outgroup_present/association/trio.phy
 to_rewrite.pm
-META.yml                                 Module meta-data (added by MakeMaker)
