@@ -91,15 +91,25 @@
   phylogenetic Trees }
 \author{Claire Bardel, Vincent Danjean, Pierre Darlu and Emmanuelle Génin}
 
+\date{Version 1.1.0}
 \maketitle
 
 \tableofcontents
 
-\chapter{Overview of the software}
+
+
+\chapter{Introduction}
+
+\section{What's new?}
+\paragraph{Version 1.1.0: modification of \newchitree and \etHT to deal with quantitative data}
+The software now deals with quantitative data. For the association test, series of one-way ANOVA are performed instead of the homogeneity tests. For the localisation test, only the definition of the S character is different for quantitative traits. Currently, \rechaplo has not been modified and does not deal with quantitative data.
+
+
+\section{Overview of the software}
 
  This software is designed to perform phylogeny-based analysis: first,
 it allows the detection of an association between a candidate gene and
-a disease, and second, it enables to make hypothesis about the
+a disease or a quantitative trait, and second, it enables us to make hypothesis about the
 susceptibility loci.
 
 %\section{Copyright}
@@ -114,50 +124,49 @@ It contains three programs: \newchitree, \rechaplo and
   \label{fig:altree}
 \end{figure}
   
-This program is copyright (c) by Claire Bardel and Vincent Danjean
+This program is copyrighted (c) by Claire Bardel and Vincent Danjean
 and is distributed under the GNU General Public License. You are
 free to re-distribute it under the same license.
 
 This software comes with no warranty whatsoever. If you encounter any
-problem, please, send a bug report to Claire Bardel at the foolowing
-e-mail: bardel@vjf.inserm.fr
+problem, please, send a bug report to Claire Bardel at the following
+e-mail: Claire.Bardel@univ-lyon1.fr
                                 %The complete text of the GNU General Public
                                 %License can be found in the annexe~\ref{GPL} on page~\pageref{GPL}.
   
 
-\section{\newchitree}
-\subsection{Association test}
-The test consists in performing series of nested homogeneity tests
-(\chisquare) comparing the number of cases and controls in the
-different clades defined on the tree. The nested algorithm is detailed
+\subsection{\newchitree}
+\subsubsection{Association test}
+The test consists in performing series of nested tests at different level of a phylogenetic tree. These tests compare either the number of cases and controls (for case/control data) in the different groups (or clades) defined on the tree or the variance of the trait within each clade to the variance between these different clades (for quantitative data). The nested algorithm is detailed
 on Figure~\ref{fig:nesting_algo} (figure from \citet{Bardel05},
-slightly modified). A global p-value is calculated
+slightly modified). Then, a global p-value is calculated
 for the tree by using a permutation procedure such as the one
 described by \citet{Ge03} and \citet{Becker04}.
 
 \begin{figure}[h]
   \begin{center}
-    \includegraphics[width=0.6\linewidth]{Analysis_Temp2.fig}
+    \includegraphics[width=0.8\linewidth]{altree-q.fig}
     \caption{Description of the nested clade analysis (without the
       permutation procedure)}
     \label{fig:nesting_algo}
   \end{center}
   \vspace{-0.4cm}
-  {\small (A) shows the homogeneity test performed at level k (between clades
-    $C_1$ and $C_2$). If it is not significant (B), a test will be
+  {\small (A) shows the homogeneity test or the ANOVA performed at level k (between clades
+    $C_1$ and $C_2$). Then (B), a test will be
     performed at the following level (k+1), between all the sub-clades
     descending from clades $C_1$ and $C_2$, i.e between clades $C_{1.1}$,
-    $C_{1.2}$, $C_{2.1}$ and $C_{2.2}$ (3 degree of freedom). If it is
-    significant the analysis ends because an association is detected.
-    When the permutation procedure is used, all the tests are considered
-    as non significant and the p-values are evaluated \textit{a posteriori}.
+    $C_{1.2}$, $C_{2.1}$ and $C_{2.2}$.
+% If it is
+%    significant the analysis ends because an association is detected.
+%    When the permutation procedure is used, all the tests are considered
+%    as non significant and the p-values are evaluated \textit{a posteriori}.
   }
 \end{figure}
 
-\subsection{Localisation of the susceptibility loci}
+\subsubsection{Localisation of the susceptibility loci}
 To perform the localisation analysis, for each haplotype $h$, the user
 must previously define a new character (called character $S$) whose
-state depends on the proportion of cases carrying haplotype $h$ and
+state depends on the proportion of cases (resp. individual with high quantitative trait values) carrying haplotype $h$ and
 optimise it on the haplotype phylogeny.  The program \newchitree then
 looks for sites that co-mutates with the character $S$ by calculating a
 co-mutation index called $V_{i}$ for each site $i$ and for each
@@ -169,7 +178,7 @@ susceptibility site.
 described in~\citet{Bardel05}. Please refer to this article for a more
 complete description.
 
-\section{\rechaplo}
+\subsection{\rechaplo}
 Before running \newchitree, you will generally have to reconstruct
 haplotypes %(see section \ref{sec:require} for a description of usable
 %programs). 
@@ -188,17 +197,17 @@ programs: \phase~\citep{Stephens01, Stephens03} and
 reconstruction programs: \paup~\citep{Swofford02},
 \phylip~\citep{Felsenstein04} and \paml~\citep{YangPAML}.
 
-\section{\etHT}\label{description_etiquette}
+\subsection{\etHT}\label{description_etiquette}
 \enlargethispage{1cm}
 To perform the localisation analysis, a new character $S$ must be
 added to each haplotype $h$. The state of $S$ depends on the
-proportion of cases carrying the haplotype $h$. You can use your own
+proportion of cases (resp. individual with high quantitative trait values) carrying the haplotype $h$. You can use your own
 criterion to determine the state of $S$ and add it manually to the
 input file of the phylogeny reconstruction program that will optimise
 the character states changes on the tree.
 
 If you do not want to add the character $S$ manually, you can use \etHT.
-The state of the character $S$ is allocated depending on the
+For case/control data, the state of the character $S$ is allocated depending on the
 proportion ($p_h$) of cases carrying the haplotype $h$ compared to the
 proportion $p_0$ of cases in the whole sample.
 
@@ -207,21 +216,33 @@ proportion $p_0$ of cases in the whole sample.
   is coded ``C'' or ``0'' (high number of controls);
 \item if $p_h > p_0+\epsilon\sqrt{\frac{p_h\times(1-p_h)}{n_h}}$, $S$
   is coded ``G'' or ``1'' (high number of cases);
-\item else, $S$ is coded ``?'' (unknown data).
+\item else, $S$ is coded ``?'' (undetermined).
 \end{itemize}
 with $n_h$ being the number of individuals carrying the haplotype $h$.
 
-\section{Computation time}
+For quantitative data, the state of ``S''  depends on  the mean of the quantitative trait in a given branch of the
+tree $\mu$, the mean of the quantitative trait in the whole data
+set $\mu_0$  and  the standard deviation of the quantitative trait in
+the whole data set,  $\sigma_0$. 
+\begin{itemize}
+\item if $\mu> \mu_0 + \epsilon \times \displaystyle{\frac{\sigma_0}{\sqrt{n}}}\quad$ ``S''  is coded ``H'' (high level);
+\item if $\mu< \mu_0 - \epsilon \times \displaystyle{\frac{\sigma_0}{\sqrt{n}}}\quad$ ``S''   is coded ``L'' (low level);
+ \item else, ``S'' is coded ``?'' (undetermined)
+\end{itemize}
+$n$ being the sample size, and $\epsilon$, an inflation coefficient to be chosen by the user.
+
+
+\subsection{Computation time  (in 2005)}
 
 We measured the computation time on a Pentium III, 930 MHz, 512 Mo of
-RAM. We used the Crohn data set: 363 individuals genotyped for 7 SNPs
-defining 33 different haplotypes. The reconstructed phylogenetic tree
-possessed 6 levels. On this data set, the association test runs in
-about 24 hours (p-value evaluated by 100~000 permutations, the complexity
-of the program being linear with respect to the number of
-permutations). The localisation test runs in about 10 seconds
-(2~000 equiparsimonious trees analysed, the complexity of the program
-being linear with respect to the number of analysed trees). 
+RAM. We used a data set of 363 individuals (cases and controls)
+genotyped for 7 SNPs defining 33 different haplotypes. The
+reconstructed phylogenetic tree had 6 levels. On this data set, the
+association test runs in about 24 hours (p-value evaluated by 100~000
+permutations, the complexity of the program being linear with respect
+to the number of permutations). The localisation test runs in about 10
+seconds (2~000 equiparsimonious trees analysed, the complexity of the
+program being linear with respect to the number of analysed trees).
 
 In fact, for the association test, the computation time increases with
 the number of permutation and with the number of levels in the tree
@@ -519,9 +540,10 @@ name (which must be preceded by -).
   \option{-{}-second-input-file|-j \ucode{file}}{Input file 2: nb cases/controls per haplotype}
   \option{-{}-output-file|-o \ucode{file}}{Output file} 
   %-r & Haplotype reconstruction program\\
-  \option{-{}-proportion|-p \ucode{number}}{proportion of cases in the sample}
   \option{-{}-epsilon|-e \ucode{number}}{$\epsilon$ parameter}
   \option{-{}-data-type|-t \ccode{DNA|SNP}}{data type: SNP or DNA}
+  \option{-{}-proportion|-p \ucode{number}}{proportion of cases in the sample}  
+  \option{-{}-data-qual|q \ccode{qualitative|quantitative}}{data type: qualitative or quantitative}
   \option{-{}-outgroup|-g \ucode{outgroup\_name}} {Name of the
     outgroup (if necessary)} 
   \option{-{}-low|-l}{forces the state of character $S$ to be ``?'' for haplotypes carried by 1 individual}
@@ -538,11 +560,47 @@ name (which must be preceded by -).
 
 \section{How to get help?}
 See the same section for the program \rechaplo (page \pageref{help}).
-\section{Input file (-i option)}
-The name of the input file must be specified after the -i option.  The
-input file must be a valid \paup (nexus) or \phylip/\paml input
-file. If it is a \paup file, make sure that the line following the
-description of the last haplotype in the data block includes a semi colon only.
+\section{Input files }
+\subsection{The sequence file (-i option)}
+The name of the input file containing the sequences must be specified
+after the -i option.  This input file must be a valid \paup (nexus) or
+\phylip/\paml input file. If it is a \paup file, make sure that the
+line following the description of the last haplotype in the data block
+includes a semi colon only.
+
+\subsection{The trait file (-j option)}
+The name of the file containing informations about the trait must be specified after the -j option. 
+\begin{itemize}
+\item If your trait is quantitative, the file must contain haplotype labels followed by the quantitative values measured for the individuals carrying these haplotypes. or homozygous individuals, quantitative values must be repeated twice; 
+\item If your data are qualitative, the file must contain haplotype
+  labels folled by the number of cases and controls carrying this
+  haplotype separated by spaces or tabulations. The number of cases
+  should be preceded by a "m" (or the word "case", possibly followed
+  by a "$\_$"), the number of controls should be preceded by the letter
+  "c" (or the word "control", possibly followed by a "$\_$").
+\end{itemize}
+Examples:
+\begin{minipage}{0.45\linewidth}
+  \begin{center}
+    \begin{tabular}{ccc}
+       \multicolumn{3}{c}{Case/control data}\\
+      H002 & m12 & c5 \\
+      H019 & m2  & c6 \\
+      H007 & m54 & c78 \\
+    \end{tabular}
+  \end{center}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+  \begin{center}
+    \begin{tabular}{ccccc}
+      \multicolumn{3}{c}{Quantitative data}\\
+      H008 &    9.54 &   11.45\\   
+      H005 &   7.73  &  11.43 &  10.6 &   13.8\\
+      H018 &  8.98 \\
+    \end{tabular}
+  \end{center}
+\end{minipage}
+
 
 
 \section{Output file (-o option)}
@@ -550,20 +608,22 @@ The name of the output file can be specified after the -o option. If
 the -o option is not present, the standard output is used.
 
 The output file is a \paup or \paml input file. The character $S$ is
-coded ``G'' or ``1'' for cases and ``C'' or ``0'' for controls.  In
-the \paup input file generated, a new command is added, which excludes
-the character $S$ from the tree reconstruction process, and includes it
-in the table of apomorphies. If you want to use \paml, no such command
-exists. We advise you to reconstruct the phylogeny on the data set
-without the character $S$ by using your favorite phylogeny
-reconstruction program. Then, you give that tree and the data-set with
-the S-character to \paml to obtain the apomorphie list.
+coded ``G'' or ``1'' for cases or high values of the quantitative
+trait and ``C'' or ``0'' for controls or low values of the
+quantitative trait.  In the \paup input file generated, a new command
+is added, which excludes the character $S$ from the tree
+reconstruction process, and includes it in the table of
+apomorphies. If you want to use \paml, no such command exists. We
+advise you to reconstruct the phylogeny on the data set without the
+character $S$ by using your favorite phylogeny reconstruction
+program. Then, you give that tree and the data-set with the
+S-character to \paml to obtain the apomorphie list.
 
 \section{Other options}
 
 
-\subsection{Proportion of cases in the sample}
-The proportion of cases in the sample must be specified after the -p option
+\subsection{Proportion of cases in the sample (qualitative data only)}
+The proportion of cases in the sample must be specified after the -p option. 
 
 \subsection{The epsilon value}
 It corresponds to the parameter $\epsilon$ (see the description of the
@@ -571,11 +631,13 @@ program in section \ref{description_etiquette}, page
 \pageref{description_etiquette}). If $\epsilon$ is high, haplotypes
 will more often have a character $S$ coded ``?''. To give an idea, in our article~\citep{Bardel05}, $\epsilon$ was set to 1.
 
-\subsection{Data type}
+\subsection{Data type: sequence}
 The -t option must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
 should be used if you have numerical data (characters coded from 0 to 9).
  \cmd{DNA} must be used if you have DNA data (A, T, G, C).
 
+\subsection{Data type: trait}
+The software can deal with qualitative data (case/control) or quantitative data. The -q (or --data-qual) option must be followed by either \cmd{qualitative} or \cmd{quantitative}, depending on your data.
 
  \subsection{Haplotypes carried by only 1 individual}
  The -l option is not mandatory: if it is present, $S$ is coded ``?''
@@ -608,6 +670,7 @@ some of them also have a short name (which must be preceded by -).
 \option{-{}-second-input-file|-j \ucode{file}}{nb cases/controls per haplotype}
 \option{-{}-output-file|-o \ucode{file}}{output file}
 \option{-{}-data-type|-t \ccode{DNA}|\ccode{SNP}}{type of data}
+\option{-{}-data-qual|-q \hspace*{\fill}\ccode{qualitative|quantitative}}{data type: qualitative or quantitative}
 
 \option{-{}-remove-outgroup  }{remove the outgroup
   sequence for the analysis}
@@ -678,16 +741,18 @@ Moreover, the states at all nodes of the tree must appear in the output file, so
 The input file for \newchitree is the output file named ``rst'' by
 \paml.
 
-\subsection{Second input file (option -{}-second-input-file or -j)}
-This input file consists in lines containing the label of each
+\subsection{The trait input file (option -{}-second-input-file or -j)}
+If you analyze case/control data, this input file consists in lines containing the label of each
 haplotype followed by the number of cases and controls carrying it
 separated by spaces or tabulations. The number of cases should be
 preceded by a ``m``(or the word ``case'', possibly followed by a
 ``\_''), the number of controls should be preceded by the letter ``c''
-(or the word ``control'', possibly followed by a ``\_'').
-
+(or the word ``control'', possibly followed by a ``\_'').\\
 Example of such files are given in the test directory. These files are
 always labeled \fn{nb\_cas\_control.txt}.
+
+If your trait is quantitative, the file must contain haplotype labels followed by the quantitative  values measured for the individuals carrying these haplotypes. or homozygous individuals, quantitative values must be repeated twice.
+
 
 \subsection{Output file (option -{}-output-file or -o)}
 You can choose the name of the output file by using the -{}-output-file or -o option. If this option is not specified, the standard output is used. 
@@ -696,12 +761,15 @@ You can choose the name of the output file by using the -{}-output-file or -o op
 After the option -p, you must specify which phylogeny reconstruction
 program (\paup, \phylip or \paml) was used to generate the first input file.
 
-\subsection{Data type  (option -{}-data-type or -t)}
+\subsection{Data type: sequence (option -{}-data-type or -t)}
 The option -t must be followed either by \cmd{SNP} or by \cmd{DNA}. \cmd{SNP}
 should be used if you have numerical data (from 0 to 9).
  \cmd{DNA} must be used if you have DNA data (A, T, G, C).
 Warning: the DNA option currently does not work if you have
 reconstructed the phylogeny with phylip.
+
+\subsection{Data type: trait (option -{}-data-qual or -q)}
+The software can deal with qualitative data (case/control) or quantitative data. The -q (or ­{}-data-qual) option must be followed by either qualitative or quantitative, depending on your data.
 
 \subsection{Print tree (option -{}-print-tree)}
 If this option is specified, the tree with the character state changes
@@ -845,7 +913,7 @@ Be careful: this option is \emph{case sensitive} and the \emph{quotes
   are mandatory}.
 
 \subsubsection{ -{}-co-evo|e simple|double}
-This option enables to choose how the $V_{i}$ are calculated. 
+This option enables the user to choose how the $V_{i}$ are calculated. 
 
 \paragraph{option ''simple''}
 This option corresponds to the calculation of $V_{i}$ described in \citet{Bardel05}. Please refer to this publication for more information.

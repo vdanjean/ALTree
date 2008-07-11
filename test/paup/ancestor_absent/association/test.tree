@@ -1,8 +1,8 @@
 #NEXUS 
 
-Begin trees;  [Treefile saved Sat Apr  1 16:01:41 2006]
+Begin trees;  [Treefile saved Wed Apr 23 21:53:16 2008]
 [!
->Data file = /home/vdanjean/travail/perso/Claire/svn/altree/test/paup/ancestor_absent/association/caco.paup
+>Data file = /home/cbardel/recherche/logiciel/altree/test/paup/ancestor_absent/association/caco.paup
 >Heuristic search settings:
 >  Optimality criterion = parsimony
 >    Character-status summary:
@@ -26,7 +26,7 @@ Begin trees;  [Treefile saved Sat Apr  1 16:01:41 2006]
 >   Total number of rearrangements tried = 69978
 >   Score of best tree(s) found = 20
 >   Number of trees retained = 89
->   Time used = 1 sec (CPU time = 0.04 sec)
+>   Time used = 1 sec (CPU time = 0.09 sec)
 ]
 tree PAUP_1 = [&R] (((((H002,(H008,H014),H009,H006),H007,H012,H011),H013),H001,(H003,H005)),H010);
 tree PAUP_2 = [&R] (((((((H002,(H007,H012,H011),H009,H006),H008),H014),H013),H001),(H003,H005)),H010);

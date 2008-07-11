@@ -897,8 +897,10 @@ sub CalculateEit
 		SetEit(($sitesens_per_tree->GetMit()*$s_t+
 			$sitesens_per_tree->GetSensRev()->GetMit()*$s_t_rev)
 		       /$b_t);
-	   # print "  m_it= ", $sitesens_per_tree->GetMit(),"\n";
-	   # print $site_per_tree->GetSiteNb(),"   ", $sitesens_per_tree->GetEit(), "\n";
+	  #  print "  m_it= ", $sitesens_per_tree->GetMit(),"\n";
+	  #  print $site_per_tree->GetSiteNb(),"  E_i ", $sitesens_per_tree->GetEit(), "\n";
+	  # print  " R_it= ", $sitesens_per_tree->GetRit(), "\n"; 
+	  #  print " V_it= ", $sitesens_per_tree->GetVit(),"\n";
 	}
     }
 }
@@ -1638,7 +1640,7 @@ sub main
 		    my $tree=$file_tree->{"tree"};
 		    
 		    my ($b_t)=$tree->GetNbBrNonNulle();
-		    
+		  #  print "NB branches: $b_t\n";
 		    my $site=$tree->GetSite($s_site_nb);
 		    if (not defined($site)) {
 			erreur("Invalid value ($s_site_nb) for".
@@ -1652,7 +1654,7 @@ sub main
 		    $all_files_foret->AddTree($tree);
 		}
 		$foret->CalculVi();
-		#PrintAllVi($foret, $s_site_nb);# Non trié
+		#PrintAllVit($foret, $s_site_nb);# Non trié
 		#PrintViMax($foret, $s_site_nb); # Affiche la liste en choisissant
 		#pour chaque sit, juste le meilleur sens
 		print "\n";
@@ -1801,8 +1803,6 @@ Type of data: DNA (ATGCU) or SNP (0-1)
 =item B<--data-qual|q> C<qualitative>|C<quantitative>
 
 Analyse qualitative (case/control) or quantitative data
-It is only valid for the association test
-The localization test cannot deal with quantitative data
 
 =item B<--outgroup>  outgroup
 

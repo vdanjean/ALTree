@@ -497,13 +497,12 @@ altree-add-S [options]
     --help                help message with options descriptions
     --man                 full documentation
     --first-input-file|i  input file 1
-    --second-input-file|j input file 2 nb cases/controls per haplotypes
+    --second-input-file|j input file 2 data concerning the trait (qualitative or quantitative)
     --output-file|o       output file
     --epsilon|e           epsilon value
     --data-type|t         data type: SNP or DNA
-    --proportion|p        proportion of cases in the sample
-    --ancestor|a          name of ancestral haplotype
-    --data-qual|q         qualitative or quantitative data
+    --proportion|p        proportion of cases in the sample (for qualitative data only)
+    --data-qual|q         data type: qualitative or quantitative
     [--outgroup|g]        name of the outgroup
     --low|l               if an haplotype is present equal or less than -l times, the state of S will be set to "?"
     
@@ -534,7 +533,7 @@ Input file 1 (paup or phylip file)
 
 =item B<--second-input-file|j>
 
-Input file 2, contains the number of times a given haplotypes is carried by  case and control individuals
+Input file 2, contains the number of times a given haplotypes is carried by  case and control individuals (qualitative data) or the quantitative values correqsponding to a givent haplotype (quantitative data)
 
 =item B<--output-file|o>
 
