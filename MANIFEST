@@ -6,6 +6,7 @@ ALTree/Chi2.pm
 ALTree/Foret.pm
 ALTree/Import.pm
 ALTree/Input.pm
+ALTree/Nanova.pm
 ALTree/Node.pm
 ALTree/Sens.pm
 ALTree/Site.pm
@@ -17,6 +18,7 @@ ALTree/SiteSensPerForet.pm
 ALTree/SiteSensPerTree.pm
 ALTree/Tree.pm
 ALTree/Utils.pm
+bash_completion
 Changes
 CUtils/c_sources/chisq.c
 CUtils/c_sources/chisq.h
@@ -37,6 +39,7 @@ CUtils/Makefile.PL
 CUtils/ppport.h
 CUtils/t/ALTree-CUtils.t
 CUtils/t/double_permutation.t
+Documentation/fig/altree-q.fig
 Documentation/fig/anc_outg.fig
 Documentation/fig/association_paml.fig
 Documentation/fig/association_paup.fig
@@ -221,4 +224,5 @@ test/phylip/outgroup_present/association/outfile
 test/phylip/outgroup_present/association/outtree
 test/phylip/outgroup_present/association/run_altree
 test/phylip/outgroup_present/association/trio.phy
+to_rewrite.pm
 META.yml                                 Module meta-data (added by MakeMaker)
