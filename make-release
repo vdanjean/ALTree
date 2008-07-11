@@ -74,7 +74,8 @@ if [ "$(make distcheck 2>&1 1>/dev/null | grep -v "^No such file: META.yml$")" !
    fi
 fi
   
-D=svn+ssh://atsina/users/huron/danjean/svnroot/claire/altree/tags/release-$VERSION
+DEPO=svn+ssh://atsina/users/huron/danjean/svnroot/claire/altree
+D=$DEPO/tags/release-$VERSION
 echo ""
 echo "Checking if the tag release-$VERSION already exists in SVN database..."
 echo ""
@@ -115,8 +116,7 @@ make dist
 
 if [ "$DO_TAG" = true ]; then
   $DRYRUN svn copy -m "Release $VERSION" \
-    svn+ssh://labri/usr/labri/danjean/svnroot/claire/altree/trunk \
-    "$D"
+    $DEPO/trunk "$D"
 fi
 
 echo "************************************"
