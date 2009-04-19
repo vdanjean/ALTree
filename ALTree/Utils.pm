@@ -42,7 +42,7 @@ sub internal_error
 
     die("Internal error: $msg\n".
 	"Please, report this bug (with all is needed to reproduce it) to:\n".
-	"bardel\@vjf.inserm.fr\n");
+	"Claire.Bardel\@univ-lyon1.fr\n");
 }
 
 1;

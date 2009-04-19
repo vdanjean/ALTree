@@ -115,7 +115,7 @@ If you have a web site set up for your module, mention it here.
 
 =head1 AUTHOR
 
-Claire Bardel, E<lt>bardel@vjf.inserm.frE<gt>
+Claire Bardel, E<lt>Claire.Bardel@univ-lyon1.frE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
