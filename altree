@@ -31,7 +31,7 @@ use ALTree::Utils qw(erreur);
 use ALTree::Input qw(PrepareTree);
 #use Newchi2treeUtils;
 use TamuAnova;
-
+#use NAnova;
 use ALTree::Nanova;
 
 ###########################################
@@ -270,18 +270,6 @@ sub FillCaseControl
 }
 
 ######## QUANTITATIF ########
-sub Moyenne
-{
-    my $tab = shift;
-    my $sum;
-    my $i;
-    for ($i=0; $i < scalar (@{$tab}) ; $i++) {
-	$sum+=$tab->[$i]->[0];
-    }
-    my $moy=$sum/($i);
-    return $moy;
-}
-
 sub FillQuanti
 {
     my($present_node)=shift;
@@ -289,12 +277,14 @@ sub FillQuanti
     if ($present_node->NbChildren()==0)  {
 	my($id);
 	$id=$present_node->{"id"};
-	if (not defined $present_node->{"quanti"}) {# car sinon, pb pour H000
-							$present_node->{"quanti"}=[];
-							push @{$present_node->{"quanti"}}, @{$correspondance->{$id}};
-						    }
-	my $moy=Moyenne($present_node->{"quanti"});
-	$present_node->{"moyenne"}=$moy;
+	#if (not defined $present_node->{"quanti"}) {
+            # car sinon, pb pour H000
+	    #$present_node->{"quanti"}=[];
+	#print "cor: ", Dumper($correspondance->{$id}), "\n";
+	foreach my $corresp (@{$correspondance->{$id}}) {
+	    $present_node->AddQuanti($corresp->[0], $corresp->[1]);
+	}
+	#}
 	
 #DEBUG	print STDERR $present_node->{"id"}, " " ;
 #DEBUG	for (my $i=0; $i< scalar (@{$present_node->{"quanti"}}); $i++) {
@@ -305,11 +295,10 @@ sub FillQuanti
 	my($child);
 	for $child ($present_node->GetChildrenList()) { 
 	    FillQuanti($child, $correspondance);
-	    push (@{$present_node->{"quanti"}}, @{$child->{"quanti"}});
+	    foreach my $quanti (@{$child->GetQuantiList()}) {
+		$present_node->AddQuanti($quanti->[0], $quanti->[1]);
+	    }
 	}
-	my $moy=Moyenne($present_node->{"quanti"});
-	$present_node->{"moyenne"}=$moy;
-	
 #DEBUG	print STDERR $present_node->{"id"}, " " ;
 #DEBUG	for (my $i=0; $i< scalar (@{$present_node->{"quanti"}}); $i++) {
 #DEBUG	    print STDERR $present_node->{"quanti"}->[$i]->[0], " (" ,$present_node->{"quanti"}->[$i]->[1], ") ";
@@ -1533,8 +1522,27 @@ sub main
 #		    my $values = [];
 #		    my $groups = [];
 #		    my $nb_term=0;
-#		    FillTableaux($tree->GetRoot(), $values, $groups, $nb_term);
+#		    ALTree::Nanova::FillTableaux($tree->GetRoot(), $values, $groups, $nb_term);
+#		    print "Values:\n";
+#		    foreach my $val (@{$values}) {
+#			print $val, "\t";
+#		    }
+#		    print "\n";
+#		    print "Groups:\n";
+#		    foreach my $group (@{$groups}) {
+#			print $group, "\t";
+#		    }
+#		    print "\n";
+#		    print "*********\n";
+#		    my $una_results; 
+#		    $una_results = NAnova::UnbalancedNestedANOVA($mat, $groups, $values);
+#		    my $i=1;
+#		    foreach my $res (@{$una_results}) {
+#			print "Level $i\tF=",$res->{"F"}, "\tp-value=",$res->{"p_value"}, "\n";
+#			$i++;
+	#	    }
 #		}
+#		print "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n";
 
 		$option_require->("permutations", 
 				  "The number of permutations used to calculate".

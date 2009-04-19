@@ -308,7 +308,7 @@ sub InfosAffichees
 	$chaine.=" case/control:".$node->{"case"}."/".$node->{"control"};
     }
     if ($mode==3 || $mode == 4) {
-	$chaine.= sprintf " mean:%.2f",$node->{"moyenne"};
+	$chaine.= sprintf " mean:%.2f",$node->GetQuantiMean();
     }
     if (1) { # affiche les apomorphies
 	$chaine.="\n";

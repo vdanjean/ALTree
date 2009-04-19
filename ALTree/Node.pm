@@ -239,14 +239,47 @@ sub Name {
     }
 }
 
+sub AddQuanti {
+    my $self=shift;
+    my $value=shift;
+    my $num_haplo=shift;
+    delete($self->{"moyenne"});
+    push @{$self->{"quanti"}}, [$value, $num_haplo];
+}
+
 sub GetQuantiList {
     my $self=shift;
-    return @{$self->{"quanti"}};
+    return $self->{"quanti"};
+}
+
+sub GetQuantiListValues {
+    my $self=shift;
+    my @t=map {$_->[0] } @{$self->{"quanti"}};
+    return \@t;
 }
 
 sub NbQuanti {
     my $self=shift;
     return scalar(@{$self->{"quanti"}});
+}
+
+sub GetQuantiMean {
+    my $self=shift;
+
+    if (defined($self->{"moyenne"})) {
+	return $self->{"moyenne"};
+    }
+    
+    my $tab = $self->GetQuantiListValues();
+    my $sum;
+    my $i;
+    for ($i=0; $i < scalar (@{$tab}) ; $i++) {
+	$sum+=$tab->[$i];
+    }
+    my $moy=$sum/($i);
+    $self->{"moyenne"}=$moy;
+
+    return $moy;
 }
 
 #Faire meme chose pour case, control et br_len (HasBrLen), level, high, sequence, label, oldfather

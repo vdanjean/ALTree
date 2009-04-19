@@ -68,10 +68,13 @@ sub FillTableaux
     my $values = shift;
     my $groups = shift;
     my $nb_term = shift;
+    
+    print "Node: ", $present_node->Name(), " ", Dumper($values);
+    print "\n";
 
     if ($present_node->NbChildren()==0)  {
-	$present_node->GetQuantiList();
-	push @{$values}, @{$present_node->GetQuantiList()};
+	print "list: ", Dumper($present_node->GetQuantiList()), "\n";
+	push @{$values}, @{$present_node->GetQuantiListValues()};
 	push @{$groups}, $present_node->NbQuanti(); 
 	$nb_term++;
     } else {
@@ -88,9 +91,9 @@ sub WriteMat
 
     my $mat = shift;
 
-    print STDERR Dumper($mat);
+    #print STDERR Dumper($mat);
 
-    return;
+    #return;
     for (my $i=0; $i<=$#$mat; $i++)  {
 	foreach my $elem (@{$mat->[$i]}) {
 	    print $elem, "\t";
