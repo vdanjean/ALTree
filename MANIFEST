@@ -1,6 +1,3 @@
-altree
-altree-add-S
-altree-convert
 ALTree/Base.pm
 ALTree/Chi2.pm
 ALTree/Foret.pm
@@ -56,6 +53,9 @@ Documentation/manual.tex
 Documentation/stage.bib
 Makefile.PL
 MANIFEST			This list of files
+progs/altree
+progs/altree-add-S
+progs/altree-convert
 README
 t/ALTree.t
 test/create_file/paup_file/caco.phase

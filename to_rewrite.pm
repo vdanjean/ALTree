@@ -10,6 +10,7 @@ use ALTree::Utils qw(erreur);
 use ALTree::Input qw(PrepareTree);
 #use Newchi2treeUtils;
 use TamuAnova;
+use GSL::CDF qw(:all);
 
 sub parcours_nosplit_chi2split
 {
@@ -223,7 +224,7 @@ sub CalculChi2
 	    }
 	    #my $p=`pochisq $chi2 $ddl`+0; # Verif que les 2 appellent 
 	                                   #bien la même chose!
-	    $p_value=ALTree::CUtils::pochisq($chi2,$ddl);
+	    $p_value=gsl_cdf_chisq_Q($chi2,$ddl);
 	    #if ($p != $p_value) {
 	    #print STDERR "pochisq: $p != $p_value !\n";
 	    #}

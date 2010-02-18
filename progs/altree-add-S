@@ -14,7 +14,7 @@ our($opt_h,$opt_i, $opt_o, $opt_e, $opt_p, $opt_t, $opt_l, $opt_j,
     $opt_g, $opt_q);
 
 our $VERSION;
-$VERSION = sprintf "0.%03d", q$Revision$ =~ /(\d+)/g;
+$VERSION = sprintf "0.%03d", q$Revision: 427 $ =~ /(\d+)/g;
 
 sub DefineAncDer {
     my $data_type=shift;
@@ -177,7 +177,7 @@ sub travail
 	}
 	    
 	if ($ici==0 && $phylo_prog eq "PAUP") {
-	    if ($ligne =~ /dimension ntax=([0-9]+) nchar=([0-9]+);/) {
+	    if ($ligne =~ /dimension ntax=([0-9]+)\s+nchar=([0-9]+);/) {
 		$num_car=$2+1;
 		print "dimension ntax=$1 nchar=", $num_car, ";\n";
 	    }elsif ($ligne =~ /format symbols=\"([0-9ATGCU]+)\"/) {
@@ -406,7 +406,7 @@ sub main
     if ($opt_i) {
 	open(STDIN, '<', $opt_i) or die "Impossible to open $opt_i : $!" ;
     }
-    
+
     my $correspond_name;
     if ($opt_j) {
 	$correspond_name=$opt_j;
