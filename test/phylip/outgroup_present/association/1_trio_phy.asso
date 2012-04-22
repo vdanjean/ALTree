@@ -1,8 +1,8 @@
 
-     /----* OUTG case/control:4/4
-     |----* H030 case/control:1/1
+     /----* OUTG (LEVEL: 1) case/control:4/4
+     |----* H030 (LEVEL: 1) case/control:1/1
      |        Site: 9 Sens: 0-->1
------* 35+(10+(27)) case/control:204/204
+-----* 35+(10+(27)) (LEVEL: 0) case/control:204/204
      | 
      | [0] ddl=3 chi2=0.43 p_value_chi2=0.948
      | [1] ddl=5 chi2=3.49 p_value_chi2=0.696
@@ -21,96 +21,96 @@
      | [14] ddl=28 chi2=54.70 p_value_chi2=0.001
      | [15] ddl=33 chi2=66.05 p_value_chi2=0
      | [16] ddl=35 chi2=68.34 p_value_chi2=0
-     |----* H006 case/control:23/19
+     |----* H006 (LEVEL: 1) case/control:23/19
      |        Site: 2 Sens: 1-->0
-     |    /----* H035 case/control:1/0
+     |    /----* H035 (LEVEL: 2) case/control:1/0
      |    |        Site: 10 Sens: 1-->0
-     |    |----* H007 case/control:25/36
-     \----* 17+(22) case/control:176/180
+     |    |----* H007 (LEVEL: 2) case/control:25/36
+     \----* 17+(22) (LEVEL: 1) case/control:176/180
           |   Site: 4 Sens: 0-->1
-          |    /----* H023 case/control:1/5
-          |    |----* H026 case/control:1/0
+          |    /----* H023 (LEVEL: 3) case/control:1/5
+          |    |----* H026 (LEVEL: 3) case/control:1/0
           |    |        Site: 1 Sens: 1-->0
-          \----* 1+(6) case/control:150/144
+          \----* 1+(6) (LEVEL: 2) case/control:150/144
                |   Site: 3 Sens: 0-->1
-               |    /----* H012 case/control:1/2
-               |    |----* H009 case/control:5/10
+               |    /----* H012 (LEVEL: 4) case/control:1/2
+               |    |----* H009 (LEVEL: 4) case/control:5/10
                |    |        Site: 8 Sens: 0-->1
-               \----* 16+(29) case/control:148/139
+               \----* 16+(29) (LEVEL: 3) case/control:148/139
                     |   Site: 6 Sens: 1-->0
-                    |    /----* H002 case/control:9/3
-                    \----* 8 case/control:142/127
+                    |    /----* H002 (LEVEL: 5) case/control:9/3
+                    \----* 8 (LEVEL: 4) case/control:142/127
                          |   Site: 5 Sens: 0-->1
-                         |    /----* H021 case/control:11/2
+                         |    /----* H021 (LEVEL: 6) case/control:11/2
                          |    |        Site: 8 Sens: 0-->1
-                         \----* 26 case/control:133/124
+                         \----* 26 (LEVEL: 5) case/control:133/124
                               |   Site: 1 Sens: 1-->0
-                              |    /----* H032 case/control:0/1
+                              |    /----* H032 (LEVEL: 7) case/control:0/1
                               |    |        Site: 7 Sens: 0-->1
-                              |    |----* H016 case/control:2/2
-                              \----* 7+(24) case/control:122/122
+                              |    |----* H016 (LEVEL: 7) case/control:2/2
+                              \----* 7+(24) (LEVEL: 6) case/control:122/122
                                    |   Site: 3 Sens: 1-->0
-                                   |         /----* H025 case/control:2/3
+                                   |         /----* H025 (LEVEL: 9) case/control:2/3
                                    |         |        Site: 5 Sens: 1-->0
-                                   |    /----* 25 case/control:13/5
+                                   |    /----* 25 (LEVEL: 8) case/control:13/5
                                    |    |    |   Site: 6 Sens: 0-->1
-                                   |    |    \----* H004 case/control:11/2
-                                   |    |----* H008 case/control:28/19
-                                   |    |----* H005 case/control:2/2
+                                   |    |    \----* H004 (LEVEL: 9) case/control:11/2
+                                   |    |----* H008 (LEVEL: 8) case/control:28/19
+                                   |    |----* H005 (LEVEL: 8) case/control:2/2
                                    |    |        Site: 10 Sens: 1-->0
-                                   \----* 2+(19+(28+(30))) case/control:120/119
+                                   \----* 2+(19+(28+(30))) (LEVEL: 7) case/control:120/119
                                         |   Site: 4 Sens: 1-->0
-                                        |----* H031 case/control:1/0
+                                        |----* H031 (LEVEL: 8) case/control:1/0
                                         |        Site: 8 Sens: 0-->1
-                                        |    /----* H024 case/control:1/0
-                                        \----* 14 case/control:76/93
+                                        |    /----* H024 (LEVEL: 9) case/control:1/0
+                                        \----* 14 (LEVEL: 8) case/control:76/93
                                              |   Site: 9 Sens: 0-->1
-                                             |         /----* H013 case/control:15/5
-                                             |    /----* 23 case/control:72/90
+                                             |         /----* H013 (LEVEL: 11) case/control:15/5
+                                             |    /----* 23 (LEVEL: 10) case/control:72/90
                                              |    |    |   Site: 10 Sens: 1-->0
-                                             |    |    |    /----* H022 case/control:9/1
-                                             |    |    \----* 32 case/control:57/85
+                                             |    |    |    /----* H022 (LEVEL: 12) case/control:9/1
+                                             |    |    \----* 32 (LEVEL: 11) case/control:57/85
                                              |    |         |   Site: 6 Sens: 0-->1
-                                             |    |         |         /----* H033 case/control:0/1
-                                             |    |         |    /----* 18 case/control:1/4
+                                             |    |         |         /----* H033 (LEVEL: 14) case/control:0/1
+                                             |    |         |    /----* 18 (LEVEL: 13) case/control:1/4
                                              |    |         |    |    |   Site: 4 Sens: 0-->1
-                                             |    |         |    |    \----* H010 case/control:1/3
+                                             |    |         |    |    \----* H010 (LEVEL: 14) case/control:1/3
                                              |    |         |    |             Site: 1 Sens: 0-->1
-                                             |    |         |    |----* H034 case/control:1/0
-                                             |    |         \----* 4+(12) case/control:48/84
+                                             |    |         |    |----* H034 (LEVEL: 13) case/control:1/0
+                                             |    |         \----* 4+(12) (LEVEL: 12) case/control:48/84
                                              |    |              |   Site: 5 Sens: 1-->0
-                                             |    |              |    /----* H029 case/control:1/3
-                                             |    |              \----* 20 case/control:46/80
+                                             |    |              |    /----* H029 (LEVEL: 14) case/control:1/3
+                                             |    |              \----* 20 (LEVEL: 13) case/control:46/80
                                              |    |                   |   Site: 10 Sens: 0-->1
-                                             |    |                   |    /----* H018 case/control:2/2
-                                             |    |                   |    |    /----* H011 case/control:3/8
-                                             |    |                   |    |    |----* H003 case/control:2/0
+                                             |    |                   |    /----* H018 (LEVEL: 15) case/control:2/2
+                                             |    |                   |    |    /----* H011 (LEVEL: 16) case/control:3/8
+                                             |    |                   |    |    |----* H003 (LEVEL: 16) case/control:2/0
                                              |    |                   |    |    |        Site: 5 Sens: 0-->1
-                                             |    |                   |    |----* 21+(31) case/control:8/21
+                                             |    |                   |    |----* 21+(31) (LEVEL: 15) case/control:8/21
                                              |    |                   |    |    |   Site: 4 Sens: 0-->1
-                                             |    |                   |    |    |    /----* H014 case/control:2/3
+                                             |    |                   |    |    |    /----* H014 (LEVEL: 17) case/control:2/3
                                              |    |                   |    |    |    |        Site: 1 Sens: 1-->0
-                                             |    |                   |    |    |    |----* H017 case/control:0/8
-                                             |    |                   |    |    \----* 15+(33) case/control:3/13
+                                             |    |                   |    |    |    |----* H017 (LEVEL: 17) case/control:0/8
+                                             |    |                   |    |    \----* 15+(33) (LEVEL: 16) case/control:3/13
                                              |    |                   |    |         |   Site: 3 Sens: 0-->1
-                                             |    |                   |    |         \----* H027 case/control:1/2
+                                             |    |                   |    |         \----* H027 (LEVEL: 17) case/control:1/2
                                              |    |                   |    |                  Site: 6 Sens: 1-->0
                                              |    |                   |    |                  Site: 10 Sens: 1-->0
-                                             |    |                   \----* 5+(34) case/control:45/77
+                                             |    |                   \----* 5+(34) (LEVEL: 14) case/control:45/77
                                              |    |                        |   Site: 1 Sens: 0-->1
-                                             |    |                        |    /----* H001 case/control:24/39
-                                             |    |                        |    |----* H015 case/control:2/6
+                                             |    |                        |    /----* H001 (LEVEL: 16) case/control:24/39
+                                             |    |                        |    |----* H015 (LEVEL: 16) case/control:2/6
                                              |    |                        |    |        Site: 9 Sens: 1-->0
-                                             |    |                        \----* 9+(11)+(13) case/control:35/54
+                                             |    |                        \----* 9+(11)+(13) (LEVEL: 15) case/control:35/54
                                              |    |                             |   Site: 2 Sens: 1-->0
-                                             |    |                             |----* H028 case/control:4/0
+                                             |    |                             |----* H028 (LEVEL: 16) case/control:4/0
                                              |    |                             |        Site: 8 Sens: 1-->0
-                                             |    |                             \----* H020 case/control:5/9
+                                             |    |                             \----* H020 (LEVEL: 16) case/control:5/9
                                              |    |                                      Site: 10 Sens: 1-->0
-                                             \----* 3 case/control:75/93
+                                             \----* 3 (LEVEL: 9) case/control:75/93
                                                   |   Site: 8 Sens: 0-->1
                                                   |   Site: 7 Sens: 0-->1
-                                                  \----* H019 case/control:3/3
+                                                  \----* H019 (LEVEL: 10) case/control:3/3
 
  Number of permutation: 1
 

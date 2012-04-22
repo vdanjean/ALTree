@@ -6,6 +6,6 @@ phylip mix
 # To perform the association test. The ancestral sequence must be 
 # provided with the --anc-seq option beacuse it is not in the phylip 
 # output file
-../../../../altree -i outfile  -j nb_cas_controls.txt \
- -a -t SNP -p phylip -r 1 \
+ altree -i outfile  -j nb_cas_controls.txt \
+ -a -t SNP -p phylip -r 1 --data-qual qualitative\
  --tree-to-analyse 1 --anc-seq 1100010001 -o 1_trio_phy.asso

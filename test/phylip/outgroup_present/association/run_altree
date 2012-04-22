@@ -10,6 +10,6 @@ phylip mix
 # The outgroup is not removed, so it is not necessary to specify its 
 # name.
 # Analysis on the first tree only
-../../../../altree -i outfile  -j nb_cas_controls.txt \
- -a -t SNP -p phylip -r 1 \
+altree -i outfile  -j nb_cas_controls.txt \
+ -a -t SNP -p phylip -r 1 --data-qual qualitative \
  --tree-to-analyse 1  -o 1_trio_phy.asso
