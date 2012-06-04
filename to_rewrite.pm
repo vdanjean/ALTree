@@ -9,8 +9,9 @@ use ALTree::Import;
 use ALTree::Utils qw(erreur);
 use ALTree::Input qw(PrepareTree);
 #use Newchi2treeUtils;
-use TamuAnova;
-use GSL::CDF qw(:all);
+use Math::TamuAnova;
+use PDL;
+use PDL::GSL::CDF;
 
 sub parcours_nosplit_chi2split
 {
@@ -224,7 +225,7 @@ sub CalculChi2
 	    }
 	    #my $p=`pochisq $chi2 $ddl`+0; # Verif que les 2 appellent 
 	                                   #bien la même chose!
-	    $p_value=gsl_cdf_chisq_Q($chi2,$ddl);
+	    $p_value=1-gsl_cdf_chisq_P($chi2,$ddl);
 	    #if ($p != $p_value) {
 	    #print STDERR "pochisq: $p != $p_value !\n";
 	    #}
@@ -270,7 +271,7 @@ sub CalculAnovaOneWay
 	if (scalar (@{$valeurs}) != scalar (@{$facteurs})) { 
 	    erreur("Error in the anova data: the number of values ", scalar @${valeurs}, " and the number of factors ", scalar @{$facteurs}, " should be the same\n");
 	} else {
-	    $res_anova=TamuAnova::anova($valeurs, $facteurs,  $nb_factors);
+	    $res_anova=Math::TamuAnova::anova($valeurs, $facteurs,  $nb_factors);
 	    #DEBUG   print STDERR $nb_factors, " ", scalar(@{$valeurs}), "\n";
 	    $test_results->{"F"}=$res_anova->{"F"};
 	    $test_results->{"p_val"}= $res_anova->{"p"};

@@ -30,7 +30,7 @@ use ALTree::Import;
 use ALTree::Utils qw(erreur);
 use ALTree::Input qw(PrepareTree);
 #use Newchi2treeUtils;
-use TamuAnova;
+use Math::TamuAnova;
 #use NAnova;
 use ALTree::Nanova;
 
