@@ -13,6 +13,7 @@ ALTree/SitePerTree.pm
 ALTree/SiteSens.pm
 ALTree/SiteSensPerForet.pm
 ALTree/SiteSensPerTree.pm
+ALTree/to_rewrite.pm
 ALTree/Tree.pm
 ALTree/Utils.pm
 bash_completion
@@ -53,6 +54,7 @@ Documentation/manual.tex
 Documentation/stage.bib
 Makefile.PL
 MANIFEST			This list of files
+META.yml
 progs/altree
 progs/altree-add-S
 progs/altree-convert
@@ -224,4 +226,3 @@ test/phylip/outgroup_present/association/outfile
 test/phylip/outgroup_present/association/outtree
 test/phylip/outgroup_present/association/run_altree
 test/phylip/outgroup_present/association/trio.phy
-to_rewrite.pm

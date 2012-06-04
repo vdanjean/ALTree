@@ -12,6 +12,8 @@
 ^CUtils.*/Makefile$
 ^blib/
 ^MakeMaker-\d
+^MYMETA.yml$
+/MYMETA.yml$
 
 # Temp, old and emacs backup files.
 ~$
@@ -34,3 +36,4 @@
 ^make-release$
 ^Documentation/example_files
 ^altree_enleve$
+
