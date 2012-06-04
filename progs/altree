@@ -76,7 +76,7 @@ package DataQual;
 use constant QUALI   => 0;
 use constant QUANTI => 1;
 
-use to_rewrite;
+use ALTree::to_rewrite;
 
 package main;
 
