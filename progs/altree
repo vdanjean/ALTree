@@ -569,44 +569,6 @@ sub Resampling # repompée intégralement de tree_resampling puis modifiée....
     return ($new_correspondance);
 }
 
-sub StockeChi2
-
-{
-    my($ligne_chi2)=shift;
-    my $racine=shift;
-    my $test_res;
-    foreach $test_res (@{$racine->{"res_test"}}) {
-	# Si on n'a qu'une seule branche, la p-value n'est pas définie
-	if ($test_res->{"ddl"} > 0) {
-	    push @{$ligne_chi2}, $test_res->{"chi2"};
-	}
-    }
-    # Fill a 2*n table: each line containig chi2 and each columns
-    # corresponding to one repetition
-    #push (@{$table_of_line}, \@ligne_chi2);
-}
-
-
-sub Association 
-{
-    my($racine)=shift;
-    my($correspondance)=shift;
-    my($prolonge)=shift;
-    my($sign_util)=shift;
-    my($total_mal, $total_tem, $effectif, $new_correspondance);
-    ($total_mal, $total_tem, $effectif)=Correspond2Resampling($correspondance);
-    ($new_correspondance)=Resampling($total_mal, $total_tem, $effectif);
-
-    # DEBUG  my($haploID);
-    #foreach $haploID (keys %{$new_correspondance}) {
-    #	print "Haplo: $haploID mal= ",$new_correspondance->{$haploID}->{"case"}, " tem=", $new_correspondance->{$haploID}->{"control"},"\n";
-    #}  
-    #print "\n";
-    
-    FillCaseControl($racine,$new_correspondance);
-    parcours_nosplit_chi2split($racine->{"children"}, $prolonge, 
-			       SplitMode::NOSPLIT, $racine, $sign_util);
-}
 
 sub computeTreeStructure($) {
     my $racine=shift;
@@ -697,6 +659,68 @@ sub computeTreeStructure($) {
     return (\@leaf_refs, \@leaf_depth, \@leaf_parent, \@nleaf_parent, $max_depth);
 }
 
+sub computeChi2 {
+    my $leaf_refs=shift;
+    my $leaf_depth=shift;
+    my $leaf_parent=shift;
+    my $nleaf_parent=shift;
+    my $max_depth=shift;
+    my $correspondance=shift;
+    my $prolonge=shift;
+    my $sign_util=shift;
+
+    my @results;
+    my $nb_leaves=scalar(@{$leaf_refs});
+    my $first_leaf=0;
+    my $nb_used_leaves=0;
+    my @intNodes;
+    my %next_intNodes_id;
+    for(my $depth = $max_depth; $depth > 0; $depth--) {
+	my @leaves;
+	my @prev_intNodes_id=keys %next_intNodes_id;
+	%next_intNodes_id=();
+	my $next_first_leaf;
+	{
+	    my $i;
+	    for ($i=$first_leaf; $i<$nb_leaves && $leaf_depth->[$i] == $depth; $i++) {
+		my $id=$leaf_refs->[$i]->GetId();
+		push @leaves, $correspondance->{$id};
+		my $parent=$leaf_parent->[$i];
+		if ($parent != -1) {
+		    $next_intNodes_id{$parent} = 1;
+		    $intNodes[$parent]->{"case"} += $correspondance->{$id}->{"case"};
+		    $intNodes[$parent]->{"control"} += $correspondance->{$id}->{"control"};
+		}
+	    }
+	    $next_first_leaf=$i;
+	}
+	if ($prolonge == 1) {
+	    for (my $i=$next_first_leaf; $i<$nb_leaves; $i++) {
+		my $id=$leaf_refs->[$i]->GetId();
+		push @leaves, $correspondance->{$id};
+	    }
+	}
+	foreach my $id (@prev_intNodes_id) {
+	    push @leaves, $intNodes[$id];
+	    my $parent=$nleaf_parent->[$id];
+	    if ($parent != -1) {
+		$next_intNodes_id{$parent} = 1;
+		$intNodes[$parent]->{"case"} += $intNodes[$id]->{"case"};
+		$intNodes[$parent]->{"control"} += $intNodes[$id]->{"control"};
+	    }
+	}
+
+	my $nb_used_leaves=$next_first_leaf - $first_leaf;
+	$first_leaf=$next_first_leaf;
+
+	my($test_results)={};
+	CalculChi2(\@leaves, scalar(@leaves)-1,
+		   $test_results, $sign_util );
+	unshift @results, $test_results->{"chi2"};
+    }
+    return \@results;
+}
+
 sub RepeatAssociation
 {
     my($tree)=shift;
@@ -708,21 +732,33 @@ sub RepeatAssociation
 
     my($racine)=$tree->GetRoot();
 
-    my($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent, $max_depth)=computeTreeStructure($racine);
-
     my($ligne_stats)=[];
     print "\n Number of permutation: $nb_permutation\n";
-    
     my($value_per_line, $test_res);
+    my($corrected_values);
+
     if ($dataqual == DataQual::QUALI) {
-	foreach $test_res (@{$racine->{"res_test"}}) {
-	    # Si on n'a qu'une seule branche, la p-value n'est pas définie
-	    if ($test_res->{"ddl"} > 0) {
-		$value_per_line++;
-	    }
-        }
-	# !!! Est_ce que ça serait bien de passer value_per_line en parametre de stocke_chi2 et de vérifier qu'on a bien le bon nb de valeur par ligne? !!!
-	StockeChi2($ligne_stats, $racine); # Chi2 values corresponding to the real data are put to @{$ligne_chi2}
+	my($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent, $max_depth)=computeTreeStructure($racine);
+
+    	my $res=computeChi2($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent, $max_depth, $correspondance,
+			    $prolonge, $sign_util);
+	
+	push @{$ligne_stats}, @{$res};
+	$value_per_line=scalar(@{$res});
+
+	my($total_mal, $total_tem, $effectif);
+	($total_mal, $total_tem, $effectif)=Correspond2Resampling($correspondance);
+
+	for (my $i=0; $i<$nb_permutation; $i++) {
+	    my $new_correspondance=Resampling($total_mal, $total_tem, $effectif);
+	    my $res=computeChi2($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent, $max_depth, $new_correspondance,
+				$prolonge, $sign_util);
+	    push @{$ligne_stats}, @{$res};
+	}
+	
+	$corrected_values=ALTree::CUtils::double_permutation
+	    ($nb_permutation+1, $value_per_line, $ligne_stats);
+
     } else {
 	foreach $test_res (@{$racine->{"res_test"}}) {
 	    # Si on n'a qu'une seule branche, la p-value n'est pas définie
@@ -731,24 +767,20 @@ sub RepeatAssociation
 	    }
 	}
 	StockeQuanti($ligne_stats, $racine); # F values corresponding to the real data are put to @{$ligne_F}
-   }
-
-    my($i, $j);
-    for ($i=0; $i<$nb_permutation; $i++) {
-	CleanStats($tree);
-	if ($dataqual == DataQual::QUALI) {
-	    Association($racine, $correspondance, $prolonge, $sign_util);
-	} else {
+	#print STDERR Dumper($correspondance), "\n";
+	for (my $i=0; $i<$nb_permutation; $i++) {
+	    CleanStats($tree);
 	    AssociationQuanti($racine, $correspondance, $prolonge, $sign_util);
-	}
-	if ($dataqual == DataQual::QUALI) {
-	    StockeChi2($ligne_stats, $racine);
-	} else {
 	    StockeQuanti($ligne_stats, $racine);
 	}
+	
+	$corrected_values=ALTree::CUtils::double_permutation
+	    ($nb_permutation+1, $value_per_line, $ligne_stats);
     }
-    
-    return($value_per_line, $ligne_stats);
+
+
+
+    return($value_per_line, $corrected_values);
 }
 
 ############ QUANTITATIF ###############
@@ -1625,18 +1657,14 @@ sub main
 			    AffichageArbre($racine, \&InfosQuantiNoperm);
 			}
 		    } elsif ($permutation>0) {
-			my($value_per_line, $ligne_test);
+			my($value_per_line, $corrected_values);
 			if ($dataqual == DataQual::QUALI) {
 			    AffichageArbre($racine, \&AssociationInfos);
 			} else {
 			    AffichageArbre($racine, \&InfosQuanti);
 			}
-			($value_per_line, $ligne_test)=RepeatAssociation
+			($value_per_line, $corrected_values)=RepeatAssociation
 				($tree, $dataqual, $correspondance, $prolonge,$permutation);
-			my($corrected_values);
-			$corrected_values=ALTree::CUtils::double_permutation
-			    ($permutation+1, $value_per_line, $ligne_test);
-#DEBUG		print STDERR "perm= $permutation, val= $value_per_line, ligne= $ligne_test, corr=$corrected_values\n";
 			print "\n";
 			print "p_val for each level:\n";
 			my($i);
