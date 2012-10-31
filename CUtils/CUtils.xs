@@ -128,7 +128,7 @@ DoublePermutation(nb_sample, nb_chi2, data)
 ############################################################
 
 HV *
-ResamplingChi2(leaf_refs, leaf_depth, leaf_parent, nleaf_parent, max_depth, prolonge, nb_permutations)
+ResamplingChi2(leaf_refs, leaf_depth, leaf_parent, nleaf_parent, max_depth, prolonge, nb_permutations, parallel)
 	AV * leaf_refs
 	AV * leaf_depth
 	AV * leaf_parent
@@ -136,6 +136,7 @@ ResamplingChi2(leaf_refs, leaf_depth, leaf_parent, nleaf_parent, max_depth, prol
 	int max_depth
 	int prolonge
 	int nb_permutations
+	SV * parallel
     INIT:
 	struct cc *lcc;
 	struct tree tree;
@@ -144,6 +145,7 @@ ResamplingChi2(leaf_refs, leaf_depth, leaf_parent, nleaf_parent, max_depth, prol
 
 	int i;
         AV * ra;
+	int cparallel;
     CODE:
 	tree.nb_leaves=av_len(leaf_refs);
         tree.nb_nodes=av_len(nleaf_parent);
@@ -185,9 +187,14 @@ ResamplingChi2(leaf_refs, leaf_depth, leaf_parent, nleaf_parent, max_depth, prol
 	for (i=0; i<tree.nb_nodes; i++) {
 	  tree.np[i]=SvNV(*av_fetch(nleaf_parent, i, 0));
 	}
+	if (!SvOK(parallel) || !SvIOK(parallel)) {
+	  cparallel=0;
+	} else {
+	  cparallel=SvIV(parallel);
+	}
 
 	int res=resampling_chi2(&tree, lcc, prolonge, nb_permutations,
-					results);
+				results, cparallel);
 
         RETVAL = newHV();
         sv_2mortal((SV *)RETVAL);

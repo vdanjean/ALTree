@@ -712,7 +712,7 @@ sub RepeatAssociation
      }
 	my $resamp=ALTree::CUtils::ResamplingChi2(
 	    $leaf_refs, $leaf_depth, $leaf_parent, $nleaf_parent,
-	    $max_depth, $prolonge, $nb_permutation
+	    $max_depth, $prolonge, $nb_permutation, 0
 	    );
 	$ligne_stats=$resamp->{"chi2s"};
 

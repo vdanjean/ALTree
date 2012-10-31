@@ -9,7 +9,7 @@ WriteMakefile(
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/ALTree/CUtils.pm', # retrieve abstract from module
        AUTHOR         => 'Claire Bardel <Claire.Bardel@univ-lyon1.fr>') : ()),
-    LIBS              => ['-lm '], # e.g., '-lm'
+    LIBS              => ['-lm ', '-lpthread'], # e.g., '-lm'
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
     INC               => '-I. -Ic_sources', # e.g., '-I. -I/usr/include/other'
 	# Un-comment this if you add C files to link with later:

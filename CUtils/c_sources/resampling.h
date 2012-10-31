@@ -13,7 +13,8 @@ struct tree {
 	int *np;
 };
 
-int resampling_chi2(struct tree *tree, struct cc *lcc, int prolonge,
-		    int nb_permutations, datatype_t *results);
+int resampling_chi2(const struct tree *tree, const struct cc *lcc,
+		    int prolonge, int nb_permutations,
+		    datatype_t *results, int parallel);
 
 #endif
