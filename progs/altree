@@ -235,6 +235,23 @@ sub ClassicalChi2
             }
         }
     }
+    my ($cchi2, $cchi2invalid, $cerror, $csum_control, $csum_case)=
+	ALTree::CUtils::ClassicalChi2($tabnodes_a_traiter);
+
+    if ($cchi2 != $chi2) { print STDERR "chi2: $cchi2/$chi2\n"; }
+    if ($cchi2invalid != $chi2invalid) {
+	print STDERR "chi2invalid: $cchi2invalid/$chi2invalid\n";
+    }
+    if ($cerror != $error) {
+	print STDERR "error: $cerror/$error\n";
+    }
+    if ($csum_control != $sum_control) {
+	print STDERR "sum_control: $csum_control/$sum_control\n";
+    }
+    if ($csum_case != $sum_case) {
+	print STDERR "sum_case: $csum_case/$sum_case\n";
+    }
+
     return ($chi2, $chi2invalid, $error, $sum_control, $sum_case);
 }
 

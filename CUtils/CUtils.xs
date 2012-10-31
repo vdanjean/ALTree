@@ -7,6 +7,7 @@
 #include "fisher.h"
 #include "chisq.h"
 #include "double_permutation.h"
+#include "stats.h"
 
 #include "const-c.inc"
 
@@ -107,3 +108,44 @@ DoublePermutation(nb_sample, nb_chi2, data)
         free_ensemble(ens);
     OUTPUT:
         RETVAL
+
+void
+ClassicalChi2(tabnodes)
+	AV * tabnodes
+    INIT:
+	struct cc *nodes;
+	struct classical_chi2_res res;
+	int nb_nodes=0;
+	int i;
+    PPCODE:
+	nb_nodes=av_len(tabnodes)+1;
+	//fprintf(stderr, "\nSTART(%i, %i)\n", nb_leaves, nb_nodes);
+	if (nb_nodes < 1)
+	{
+	  XSRETURN_UNDEF;
+	}
+	nodes=(struct cc*)malloc(nb_nodes*sizeof(struct cc));
+
+	for (i=0; i<nb_nodes; i++) {
+	  SV* ref=*av_fetch(tabnodes, i, 0);
+	  if (!SvROK(ref)) { return XSRETURN_UNDEF; }
+	  if (SvTYPE(SvRV(ref)) != SVt_PVHV) { return XSRETURN_UNDEF; }
+	  HV* hash=(HV*)SvRV(ref);
+	  SV** svp;
+	  svp=hv_fetch(hash, "case", 4, 0);
+	  if (!svp) { return XSRETURN_UNDEF; }
+	  nodes[i].cases=SvNV(*svp);
+	  svp=hv_fetch(hash, "control", 7, 0);
+	  if (!svp) { return XSRETURN_UNDEF; }
+	  nodes[i].controls=SvNV(*svp);
+	}
+
+	res=classical_chi2(nb_nodes, nodes);
+
+	XPUSHs(sv_2mortal(newSVnv(res.chi2)));
+	XPUSHs(sv_2mortal(newSViv(res.chi2invalid)));
+	XPUSHs(sv_2mortal(newSViv(res.error)));
+	XPUSHs(sv_2mortal(newSViv(res.sum_control)));
+	XPUSHs(sv_2mortal(newSViv(res.sum_case)));
+
+	free(nodes);
