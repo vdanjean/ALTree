@@ -4,13 +4,14 @@
 ,v$
 .cvsignore$
 ^\.svn\b
+^\.git\b
 /\.svn\b
 
 # Makemaker generated files and dirs.
 ^MANIFEST\.
 ^Makefile$
 ^CUtils.*/Makefile$
-^blib/
+blib/
 ^MakeMaker-\d
 ^MYMETA.yml$
 /MYMETA.yml$
