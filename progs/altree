@@ -688,9 +688,13 @@ sub RepeatAssociation
     my($corrected_values);
 
     if ($dataqual == DataQual::QUALI) {
-	my($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent, $max_depth)=computeTreeStructure($racine);
+	my($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent, $max_depth)
+	    =computeTreeStructure($racine);
+	$value_per_line=$max_depth;
 
-    	my $res=computeChi2($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent, $max_depth, $correspondance,
+      if(0) {
+	my $res=computeChi2($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent,
+			    $max_depth, $correspondance,
 			    $prolonge, $sign_util);
 	
 	push @{$ligne_stats}, @{$res};
