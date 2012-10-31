@@ -705,7 +705,13 @@ sub RepeatAssociation
 				$prolonge, $sign_util);
 	    push @{$ligne_stats}, @{$res};
 	}
-	
+     }
+	my $resamp=ALTree::CUtils::ResamplingChi2(
+	    $leaf_refs, $leaf_depth, $leaf_parent, $nleaf_parent,
+	    $max_depth, $prolonge, $nb_permutation
+	    );
+	$ligne_stats=$resamp->{"chi2s"};
+
 	$corrected_values=ALTree::CUtils::DoublePermutation
 	    ($nb_permutation+1, $value_per_line, $ligne_stats);
 
