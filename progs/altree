@@ -505,31 +505,15 @@ sub FusionBrNulles
 ################### CLEAN FUNCTION  ######################
 ##########################################################
 
-sub CleanCaseControl
+sub CleanStats
 {
     my($tree)=shift;
     
     foreach my $node ($tree->GetNodesList()) {
 	$node->EraseCase();
 	$node->EraseControl();
-    }
-}
-
-sub CleanChi2
-{
-    my($tree)=shift;
-    
-    foreach my $node ($tree->GetNodesList()) {
+	$node->EraseQuanti();	
 	delete $node->{"res_test"};
-    }
-}
-
-sub CleanQuanti
-{
-    my($tree)=shift;
-    
-    foreach my $node ($tree->GetNodesList()) {
-	$node->EraseQuanti();
     }
 }
 
@@ -659,12 +643,7 @@ sub RepeatAssociation
 
     my($i, $j);
     for ($i=0; $i<$nb_permutation; $i++) {
-	if ($dataqual == DataQual::QUALI) {
-	    CleanCaseControl($tree);
-	} else {
-	    CleanQuanti($tree);
-	}
-	CleanChi2($tree); #marche aussi pour le F
+	CleanStats($tree);
 	if ($dataqual == DataQual::QUALI) {
 	    Association($racine, $correspondance, $prolonge, $sign_util);
 	} else {
