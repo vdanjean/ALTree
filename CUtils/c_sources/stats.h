@@ -20,7 +20,17 @@ struct classical_chi2_res {
 	int sum_case;
 };
 
+struct calcul_chi2_res {
+	datatype_t chi2;
+	datatype_t p_val;
+	int error;
+	int significatif;
+	char *texte;
+	char *warning;
+};
+
 struct classical_chi2_res classical_chi2(int nb_nodes, struct cc *nodes);
+struct calcul_chi2_res calcul_chi2(int nb_nodes, struct cc *nodes, int sign_util, int texte);
 void definition_p_chi2(datatype_t p, datatype_t pprop);
 int chi2_significatif(int ddl, datatype_t chi2);
 int chi2_fisher_significatif(datatype_t pvalue);

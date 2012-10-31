@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <gsl/gsl_cdf.h>
 #include <strings.h>
+#include <string.h>
 
 struct classical_chi2_res classical_chi2(int nb_nodes, struct cc *nodes) {
 	struct classical_chi2_res res={
@@ -57,6 +58,103 @@ struct classical_chi2_res classical_chi2(int nb_nodes, struct cc *nodes) {
 			res.chi2invalid++;
 		}
 	}
+	return res;
+}
+
+#define msprintf(str,...) \
+	({						  \
+		char* ch=NULL;						\
+		size_t len=1+snprintf(ch, 0, str, ##__VA_ARGS__);	\
+		ch=(char*)malloc(len);					\
+		snprintf(ch, len, str, ##__VA_ARGS__);			\
+		ch;							\
+	})
+
+#define msprintfcat(dest, str,...)					\
+	({								\
+		char* ch=NULL;						\
+		size_t dlen=((dest)?strlen(dest):0);			\
+		size_t slen=snprintf(ch, 0, str, ##__VA_ARGS__);	\
+		ch=(char*)realloc(dest,dlen+slen+1);			\
+		snprintf(ch+dlen, slen+1, str, ##__VA_ARGS__);		\
+		ch;							\
+	})
+
+struct calcul_chi2_res calcul_chi2(int nb_nodes, struct cc *nodes,
+				   int sign_util, int texte)
+{
+	struct classical_chi2_res r=
+		classical_chi2(nb_nodes, nodes);
+
+	struct calcul_chi2_res res={
+		.error=r.error,
+		.significatif=0,
+		.texte=NULL,
+		.warning=NULL,
+	};
+
+	assert(!(sign_util && !texte));
+	if (res.error != 0) {
+		if (!texte) { return res; }
+
+		// TODO: A vérifier : est-ce OK de mettre $significatif à 0
+		// la valeur est utilisée au retour de cette fonction
+//		res.significatif=0;
+		switch (res.error) {
+		case 1:
+			res.texte=msprintf("No cases,  (%i controls)", r.sum_control);
+			break;
+		case 2:
+			res.texte=msprintf("No controls: only %i cases", r.sum_case);			
+			if (r.sum_case>=Seuil_ONLY_CASE) {
+				res.significatif=sign_util;
+			}
+			break;
+		case 4:
+			res.texte=msprintf("Only one clade");
+			break;
+			// Manque plein de trucs par rapport à la fonction dans chi2tree...
+		default:
+			fprintf(stderr, "invalid error %i\n", res.error);
+		}
+		return res;
+	}
+	datatype_t p_value;
+	int ddl=nb_nodes-1;
+	if (r.chi2invalid == 0) {
+		if (sign_util) {
+			res.significatif=chi2_significatif(ddl, r.chi2);
+		}
+		p_value=1-gsl_cdf_chisq_P(r.chi2, ddl);
+	} else {
+		if (texte) {
+			res.warning=msprintf("Small sample size correction used");
+		}
+		// J'ai pas compté dans combien de branches...
+		if (ddl == 1) {
+			p_value=bilateral(nodes[0].cases,
+					  nodes[0].controls,
+					  nodes[1].cases,
+					  nodes[1].controls);
+			if (sign_util) {
+				res.significatif=chi2_fisher_significatif(p_value);
+			}
+		} else {
+			p_value = reech_chi2(r.sum_case, r.sum_control,
+					     nb_nodes, r.chi2, nodes);
+			res.warning=msprintfcat(res.warning," (%.6g)",p_value);
+			if (sign_util) {
+				res.significatif = reech_significatif(p_value);
+				if (texte
+				    && res.significatif != chi2_significatif(ddl, r.chi2))
+				{
+					res.warning=msprintfcat(res.warning," Result has changed !");
+				}
+			}
+		}
+	}
+	res.chi2=r.chi2;
+	res.p_val=p_value;
 	return res;
 }
 

@@ -170,6 +170,68 @@ ClassicalChi2(tabnodes)
 	free(nodes);
 
 void
+CalculChi2(tabnodes, ddl, test_results, sign_util)
+	AV * tabnodes
+        int ddl
+        HV * test_results
+        int sign_util
+    INIT:
+	struct cc *nodes;
+	int nb_nodes;
+	struct calcul_chi2_res res;
+	int i;
+    PPCODE:
+	nb_nodes=ddl+1;
+	if (av_len(tabnodes) != ddl)
+	{
+	  XSRETURN_UNDEF;
+	}
+	nodes=(struct cc*)malloc(nb_nodes*sizeof(struct cc));
+
+	for (i=0; i<nb_nodes; i++) {
+	  SV* ref=*av_fetch(tabnodes, i, 0);
+	  if (!SvROK(ref)) { return XSRETURN_UNDEF; }
+	  if (SvTYPE(SvRV(ref)) != SVt_PVHV) { return XSRETURN_UNDEF; }
+	  HV* hash=(HV*)SvRV(ref);
+	  SV** svp;
+	  svp=hv_fetch(hash, "case", 4, 0);
+	  if (!svp) { return XSRETURN_UNDEF; }
+	  nodes[i].cases=SvNV(*svp);
+	  svp=hv_fetch(hash, "control", 7, 0);
+	  if (!svp) { return XSRETURN_UNDEF; }
+	  nodes[i].controls=SvNV(*svp);
+	}
+
+	res=calcul_chi2(nb_nodes, nodes, sign_util, 1);
+
+	if (res.texte) {
+	  hv_store(test_results, "texte", 5,
+		   newSVpv(res.texte, 0),0);
+	  free(res.texte);
+	}
+	if (sign_util) {
+	  hv_store(test_results, "sign", 4,
+		   newSViv(res.significatif),0);
+	}
+	if (res.warning) {
+	  hv_store(test_results, "warning", 7,
+		   newSVpv(res.warning, 0),0);
+	  free(res.warning);
+	}
+	if (res.error==0) {
+	  hv_store(test_results, "chi2", 4,
+		   newSVnv(res.chi2),0);
+	  hv_store(test_results, "p_val", 5,
+		   newSVnv(res.p_val),0);
+	}
+
+	free(nodes);
+
+	EXTEND(SP, 2);
+	PUSHs(sv_2mortal(newSVnv(res.p_val)));
+	PUSHs(sv_2mortal(newSViv(res.significatif)));
+
+void
 DefinitionPChi2(p, pprop)
 	SV* p
 	SV* pprop
