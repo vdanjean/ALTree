@@ -7,6 +7,7 @@
 #include "fisher.h"
 #include "chisq.h"
 #include "double_permutation.h"
+#include "resampling.h"
 #include "stats.h"
 
 #include "const-c.inc"
@@ -14,6 +15,11 @@
 MODULE = ALTree::CUtils		PACKAGE = ALTree::CUtils		
 
 INCLUDE: const-xs.inc
+
+############################################################
+# fisher.h
+############################################################
+
 
 double
 bilateral(a, b, c, d)
@@ -23,9 +29,11 @@ bilateral(a, b, c, d)
 	double	d
 
 double
-critchi(p, df)
-	double	p
-	int	df
+right(a, b, c, d)
+	double	a
+	double	b
+	double	c
+	double	d
 
 double
 left(a, b, c, d)
@@ -34,17 +42,23 @@ left(a, b, c, d)
 	double	c
 	double	d
 
+############################################################
+# chisq.h
+############################################################
+
 double
 pochisq(x, df)
 	double	x
 	int	df
 
 double
-right(a, b, c, d)
-	double	a
-	double	b
-	double	c
-	double	d
+critchi(p, df)
+	double	p
+	int	df
+
+############################################################
+# double_permutation.h
+############################################################
 
 HV *
 DoublePermutation(nb_sample, nb_chi2, data)
@@ -109,6 +123,10 @@ DoublePermutation(nb_sample, nb_chi2, data)
     OUTPUT:
         RETVAL
 
+############################################################
+# stats.h
+############################################################
+
 void
 ClassicalChi2(tabnodes)
 	AV * tabnodes
@@ -142,10 +160,11 @@ ClassicalChi2(tabnodes)
 
 	res=classical_chi2(nb_nodes, nodes);
 
-	XPUSHs(sv_2mortal(newSVnv(res.chi2)));
-	XPUSHs(sv_2mortal(newSViv(res.chi2invalid)));
-	XPUSHs(sv_2mortal(newSViv(res.error)));
-	XPUSHs(sv_2mortal(newSViv(res.sum_control)));
-	XPUSHs(sv_2mortal(newSViv(res.sum_case)));
+	EXTEND(SP, 5);
+	PUSHs(sv_2mortal(newSVnv(res.chi2)));
+	PUSHs(sv_2mortal(newSViv(res.chi2invalid)));
+	PUSHs(sv_2mortal(newSViv(res.error)));
+	PUSHs(sv_2mortal(newSViv(res.sum_control)));
+	PUSHs(sv_2mortal(newSViv(res.sum_case)));
 
 	free(nodes);

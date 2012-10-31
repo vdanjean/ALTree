@@ -1,6 +1,7 @@
 
 #include "fisher.h"
 #include <math.h>
+#include <stdlib.h>
 
 typedef struct {
 	double bilateral;
@@ -164,7 +165,7 @@ static result_t fisher(double n11, double n12, double n21, double n22)
 	double n1_;
 	double n_1;
 	double n;
-	double prob;
+	//double prob;
 
 	if(n11<0) n11 *= -1;
 	if(n12<0) n12 *= -1;
@@ -174,7 +175,8 @@ static result_t fisher(double n11, double n12, double n21, double n22)
 	n1_ = n11+n12;
 	n_1 = n11+n21;
 	n   = n11 +n12 +n21 +n22;
-	prob=exact(n11,n1_,n_1,n);
+	//prob=
+	exact(n11,n1_,n_1,n);
 	
 	res.bilateral=sleft+sright;
 	res.left=sless;

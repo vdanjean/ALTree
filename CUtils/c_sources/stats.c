@@ -1,4 +1,5 @@
 
+#include "debug.h"
 #include "stats.h"
 #include <stdio.h>
 #include <stdlib.h>

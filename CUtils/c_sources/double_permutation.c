@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 	int nb_sample, nb_chi2;
 	matrice_t mat;
 	replicat_t rep;
-	int j;
+	int j,i;
 	datatype_t min;
 
 	nb_sample=atoi(argv[1]);
@@ -194,11 +194,26 @@ int main(int argc, char *argv[])
 
 	read_matrice(mat, nb_sample, nb_chi2);
 	//printf("Matrice lue\n");
+	for(i=0; i<nb_sample; i++) {
+		for(j=0; j<nb_chi2; j++) {
+			printf("\t"CONV, mat[j][i]);
+		}
+		printf("\n");
+	}
 
-	min=calcul(nb_sample, nb_chi2, mat, rep);
+	ensemble_t ens_min_pval;
+
+	ens_min_pval=alloc_ensemble(nb_sample);
+	
+	min=double_permutation(nb_sample, nb_chi2, mat, rep, ens_min_pval);
+
+	free_ensemble(ens_min_pval);
 
 	for (j=0; j<nb_chi2; j++) {
 		printf("chi2 niveau %i, pval nc "CONV"\n", j+1, rep[j]);
+	}
+	for (i=0; i<nb_sample; i++) {
+		printf("sample %i, pval min "CONV"\n", i, ens_min_pval[i]);
 	}
 	printf("pmin corrigé: "CONV"\n", min);
 
