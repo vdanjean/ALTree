@@ -1,0 +1,11 @@
+Makefile
+Makefile.old
+*.o
+lib*.a
+pm_to_blib
+MYMETA.yml
+
+/blib/
+
+/CUtils/CUtils.bs
+/CUtils/CUtils.c
