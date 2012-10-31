@@ -263,6 +263,7 @@ CalculChi2(tabnodes, ddl, test_results, sign_util)
         int sign_util
     INIT:
 	struct cc *nodes;
+	struct cc *th;
 	int nb_nodes;
 	struct calcul_chi2_res res;
 	int i;
@@ -273,6 +274,7 @@ CalculChi2(tabnodes, ddl, test_results, sign_util)
 	  XSRETURN_UNDEF;
 	}
 	nodes=(struct cc*)malloc(nb_nodes*sizeof(struct cc));
+	th=(struct cc*)malloc(nb_nodes*sizeof(struct cc));
 
 	for (i=0; i<nb_nodes; i++) {
 	  SV* ref=*av_fetch(tabnodes, i, 0);
@@ -288,7 +290,7 @@ CalculChi2(tabnodes, ddl, test_results, sign_util)
 	  nodes[i].controls=SvNV(*svp);
 	}
 
-	res=calcul_chi2(nb_nodes, nodes, sign_util, 1);
+        res=calcul_chi2(nb_nodes, nodes, sign_util, 1, th);
 
 	if (res.texte) {
 	  hv_store(test_results, "texte", 5,
@@ -312,6 +314,7 @@ CalculChi2(tabnodes, ddl, test_results, sign_util)
 	}
 
 	free(nodes);
+        free(th);
 
 	EXTEND(SP, 2);
 	PUSHs(sv_2mortal(newSVnv(res.p_val)));
@@ -390,8 +393,9 @@ ReechChi2(sum_case, sum_control, nb_nodes, chi2_reel, clades)
 	    case_avail=0;
 	  }
 	}
+        struct cc th[nb_nodes];
 
-	RETVAL=reech_chi2(sum_case, sum_control, nb_nodes, chi2_reel, nodes);
+        RETVAL=reech_chi2(sum_case, sum_control, nb_nodes, chi2_reel, nodes, th);
 
 	free(nodes);
     OUTPUT:

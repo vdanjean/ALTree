@@ -7,13 +7,15 @@
 struct chi2s {
 	int nb_leaves;
 	struct cc*leaves;
+	struct cc*th;
 	int nb_nodes;
 	int *stashed_nodes;
 	int *next_nodes;
 	struct cc*nodes;
 };
 
-static void compute_chi2s(struct tree *tree, struct cc *lcc, struct chi2s *temp,
+static void compute_chi2s(const struct tree *tree, const struct cc *lcc,
+			  struct chi2s *temp,
 			  int prolonge, datatype_t *results)
 {
 	int first_leaf=0;
@@ -32,7 +34,6 @@ static void compute_chi2s(struct tree *tree, struct cc *lcc, struct chi2s *temp,
 
 	int depth;
 	for (depth=tree->max_depth; depth>0; depth--){
-		struct cc *leaves=temp->leaves;
 		int nb_leaves=0;
 		int next_first_leaf;
 
@@ -75,7 +76,8 @@ static void compute_chi2s(struct tree *tree, struct cc *lcc, struct chi2s *temp,
 		first_leaf=next_first_leaf;
 
 		//debug("depth=%i, ddl=%i", depth, nb_leaves-1);
-		struct calcul_chi2_res r=calcul_chi2(nb_leaves, leaves, 0, 0);
+		struct calcul_chi2_res r=calcul_chi2(nb_leaves, temp->leaves,
+						     0, 0, temp->th);
 		assert(r.error==0);
 		results[depth-1]=r.chi2;
 	}
@@ -88,12 +90,14 @@ int resampling_chi2(struct tree *tree, struct cc *lcc, int prolonge,
 	struct cc rand_lcc[tree->nb_leaves];
 
 	struct cc leaves[tree->nb_leaves];
+	struct cc th[tree->nb_leaves];
 	struct cc nodes[tree->nb_nodes];
 	int stashed_nodes[tree->nb_nodes];
 	int next_nodes[tree->nb_nodes];
 	struct chi2s temp={
 		.nb_leaves=tree->nb_leaves,
 		.leaves=leaves,
+		.th=th,
 		.nb_nodes=tree->nb_nodes,
 		.stashed_nodes=stashed_nodes,
 		.next_nodes=next_nodes,

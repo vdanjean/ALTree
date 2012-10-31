@@ -151,6 +151,18 @@ datatype_t double_permutation(int nb_sample, int nb_chi2, matrice_t mat,
 	datatype_t min;
 	datatype_t local[nb_chi2];
 	
+	FILE*out=fopen("/tmp/out.txt", "w+");
+	fprintf(out, "nb_sample=%d nb_chi2=%d\n", nb_sample, nb_chi2);
+	for(i=0; i<nb_sample; i++) {
+		for(j=0; j<nb_chi2; j++) {
+			fprintf(out, "\t%.12g", mat[j][i]);
+		}
+		fprintf(out,"\n");
+	}
+	fclose(out);
+	
+	
+
 	i=0;
 	for (j=0; j<nb_chi2; j++) {
 		rep[j]=CALC_PVAL(count_superieur(mat[j], mat[j][i], nb_sample),

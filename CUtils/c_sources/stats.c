@@ -10,7 +10,8 @@
 #include <strings.h>
 #include <string.h>
 
-struct classical_chi2_res classical_chi2(int nb_nodes, struct cc *nodes) {
+struct classical_chi2_res classical_chi2(int nb_nodes,
+					 const struct cc *nodes) {
 	struct classical_chi2_res res={
 		.chi2=0.0,
 		.chi2invalid=0,
@@ -80,8 +81,8 @@ struct classical_chi2_res classical_chi2(int nb_nodes, struct cc *nodes) {
 		ch;							\
 	})
 
-struct calcul_chi2_res calcul_chi2(int nb_nodes, struct cc *nodes,
-				   int sign_util, int texte)
+struct calcul_chi2_res calcul_chi2(int nb_nodes, const struct cc *nodes,
+				   int sign_util, int texte, struct cc *th)
 {
 	struct classical_chi2_res r=
 		classical_chi2(nb_nodes, nodes);
@@ -141,7 +142,7 @@ struct calcul_chi2_res calcul_chi2(int nb_nodes, struct cc *nodes,
 			}
 		} else {
 			p_value = reech_chi2(r.sum_case, r.sum_control,
-					     nb_nodes, r.chi2, nodes);
+					     nb_nodes, r.chi2, nodes, th);
 			res.warning=msprintfcat(res.warning," (%.6g)",p_value);
 			if (sign_util) {
 				res.significatif = reech_significatif(p_value);
@@ -196,19 +197,16 @@ int chi2_fisher_significatif(datatype_t pvalue)
 	return pvalue < chi2_p;
 }
 
-datatype_t reech_chi2(int sum_case, int sum_control,
-		      int nb_nodes, int chi2_reel, struct cc *nodes)
+datatype_t reech_chi2(int sum_case, int sum_control, int nb_nodes,
+		      int chi2_reel, const struct cc *nodes, struct cc *th)
 {
 	int sum_total=sum_case+sum_control;
 	datatype_t p_val=0.0;
 
-	datatype_t th_c[nb_nodes];
-	datatype_t th_m[nb_nodes];
-
 	int i,k;
 	for(i=0; i<nb_nodes; i++) {
-		th_c[i]=((datatype_t)(sum_control*(nodes[i].cases+nodes[i].controls)))/sum_total;
-		th_m[i]=((datatype_t)(sum_case*(nodes[i].cases+nodes[i].controls)))/sum_total;
+		th[i].controls=((datatype_t)(sum_control*(nodes[i].cases+nodes[i].controls)))/sum_total;
+		th[i].cases=((datatype_t)(sum_case*(nodes[i].cases+nodes[i].controls)))/sum_total;
 	}
 
 	struct cc clades[nb_nodes];
@@ -218,10 +216,10 @@ datatype_t reech_chi2(int sum_case, int sum_control,
 		datatype_t chi2=0.0;
 		for(i=0; i<nb_nodes; i++) {
 			datatype_t t;
-			t=clades[i].cases - th_m[i];
-			chi2 += t*t/th_m[i];
-			t=clades[i].controls - th_c[i];
-			chi2 += t*t/th_c[i];
+			t=clades[i].cases - th[i].cases;
+			chi2 += t*t/th[i].cases;
+			t=clades[i].controls - th[i].controls;
+			chi2 += t*t/th[i].controls;
 		}
 		if (chi2 >= chi2_reel){
 			p_val++;
@@ -236,7 +234,7 @@ int reech_significatif(datatype_t p_val)
 	return (p_val<=chi2_p);
 }
 
-void random_clades(int nb_nodes, struct cc *nodes,
+void random_clades(int nb_nodes, const struct cc *nodes,
 		   int cases, int controls, struct cc *clades)
 {
 	bzero(clades, nb_nodes*sizeof(struct cc));
