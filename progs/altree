@@ -606,7 +606,96 @@ sub Association
     FillCaseControl($racine,$new_correspondance);
     parcours_nosplit_chi2split($racine->{"children"}, $prolonge, 
 			       SplitMode::NOSPLIT, $racine, $sign_util);
-} 
+}
+
+sub computeTreeStructure($) {
+    my $racine=shift;
+    my $nextIndex=shift;
+
+    my (@leaf_refs, @leaf_depth, @leaf_parent, @nleaf_parent);
+
+    my $nleaf2id={}; # Hash $node -> [index, $node->Father()]
+
+    my $computeNLeaf;
+    $computeNLeaf = sub {
+	my $nodeList=shift;
+	my $max_depth=0;
+	my $nextIndex=0;
+	my @childNodeList=();
+	my $parent;
+
+	foreach my $node (@{$nodeList}) {
+	    push @childNodeList, $node->GetChildrenList();
+	}
+	if (scalar(@childNodeList) > 0) {
+	    ($max_depth,$nextIndex)=$computeNLeaf->(\@childNodeList, $nextIndex);
+	}
+	foreach my $node (@{$nodeList}) {
+	    # Si on est un noeud interne sans id, on définit un index
+	    if (NbFils($node) != 0 && !exists($nleaf2id->{$node})) {
+		$nleaf2id->{$node}=[$nextIndex++, $node->Father()];
+	    }
+	}
+	if (scalar(@childNodeList) == 1) {
+	    # Dans le cas où on a juste une seule branche, on "fusionne"
+	    # avec le noeud père (on lui assigne à ce dernier le même index
+	    # que nous)
+	    my $parent=$childNodeList[0]->Father();
+	    if (defined($parent)) {
+		$nleaf2id->{$parent}=[$nleaf2id->{$childNodeList[0]}->[0], $parent->Father()] ;
+	    }
+	}
+	if (scalar(@childNodeList) > 0) {
+	    $max_depth++;
+	}
+	return ($max_depth, $nextIndex);
+    };
+    my ($max_depth,$nbIntNodes)=$computeNLeaf->([$racine], 0);
+    foreach my $node (keys(%{$nleaf2id})) {
+	my ($id_my, $parent)=@{$nleaf2id->{$node}};
+	if (!defined($parent) || !exists($nleaf2id->{$parent})) {
+	    $nleaf_parent[$id_my]=-1;
+	} else {
+	    my $id_parent=$nleaf2id->{$parent}->[0];
+	    if ($id_parent != $id_my) {
+		$nleaf_parent[$id_my]=$id_parent;
+	    }
+	}
+    }
+
+    my $computeLeaf;
+    $computeLeaf = sub {
+	my $nodeList=shift;
+	my $depth=shift;
+
+	my @childNodeList=();
+	my @leafList=();
+
+	foreach my $node (@{$nodeList}) {
+	    if (NbFils($node) != 0) {
+		push @childNodeList, $node->GetChildrenList();
+	    } else {
+		push @leafList, $node;
+	    }
+	}
+	if (scalar(@childNodeList) > 1) {
+	    $depth++;
+	}
+	if (scalar(@childNodeList) > 0) {
+	    $computeLeaf->(\@childNodeList, $depth);
+	}
+	foreach my $node (@leafList) {
+	    push @leaf_refs, $node;
+	    push @leaf_depth, $depth;
+	    push @leaf_parent, $nleaf2id->{$node->Father()}->[0];
+	}
+	return;
+    };
+    $computeLeaf->([$racine], 0);
+
+    return (\@leaf_refs, \@leaf_depth, \@leaf_parent, \@nleaf_parent, $max_depth);
+}
+
 sub RepeatAssociation
 {
     my($tree)=shift;
@@ -617,6 +706,8 @@ sub RepeatAssociation
     my($sign_util)=SignUtil::NO;
 
     my($racine)=$tree->GetRoot();
+
+    my($leaf_refs,$leaf_depth,$leaf_parent,$nleaf_parent, $max_depth)=computeTreeStructure($racine);
 
     my($ligne_stats)=[];
     print "\n Number of permutation: $nb_permutation\n";
