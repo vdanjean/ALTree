@@ -124,6 +124,92 @@ DoublePermutation(nb_sample, nb_chi2, data)
         RETVAL
 
 ############################################################
+# resampling.h
+############################################################
+
+HV *
+ResamplingChi2(leaf_refs, leaf_depth, leaf_parent, nleaf_parent, max_depth, prolonge, nb_permutations)
+	AV * leaf_refs
+	AV * leaf_depth
+	AV * leaf_parent
+	AV * nleaf_parent
+	int max_depth
+	int prolonge
+	int nb_permutations
+    INIT:
+	struct cc *lcc;
+	struct tree tree;
+
+	datatype_t *results;
+
+	int i;
+        AV * ra;
+    CODE:
+	tree.nb_leaves=av_len(leaf_refs);
+        tree.nb_nodes=av_len(nleaf_parent);
+	//fprintf(stderr, "\nSTART(%i, %i)\n", nb_leaves, nb_nodes);
+	if (tree.nb_leaves < 0
+	   || tree.nb_leaves != av_len(leaf_depth)
+	   || tree.nb_leaves != av_len(leaf_parent)
+	   || tree.nb_nodes < 0)
+	{
+	  XSRETURN_UNDEF;
+	}
+	// perl av_len...
+	tree.nb_leaves++;
+	tree.nb_nodes++;
+
+        lcc=(struct cc*)malloc(tree.nb_leaves*sizeof(struct cc));
+	tree.ld=(int*)malloc(tree.nb_leaves*sizeof(int));
+	tree.lp=(int*)malloc(tree.nb_leaves*sizeof(int));
+	tree.np=(int*)malloc(tree.nb_nodes*sizeof(int));
+	tree.max_depth=max_depth;
+
+	results=(datatype_t*)malloc((nb_permutations+1)*max_depth*sizeof(datatype_t));
+
+	for (i=0; i<tree.nb_leaves; i++) {
+	  SV* ref=*av_fetch(leaf_refs, i, 0);
+	  if (!SvROK(ref)) { return XSRETURN_UNDEF; }
+	  if (SvTYPE(SvRV(ref)) != SVt_PVHV) { return XSRETURN_UNDEF; }
+	  HV* hash=(HV*)SvRV(ref);
+	  SV** svp;
+	  svp=hv_fetch(hash, "case", 4, 0);
+	  if (!svp) { return XSRETURN_UNDEF; }
+	  lcc[i].cases=SvNV(*svp);
+	  svp=hv_fetch(hash, "control", 7, 0);
+	  if (!svp) { return XSRETURN_UNDEF; }
+	  lcc[i].controls=SvNV(*svp);
+	  tree.ld[i]=SvNV(*av_fetch(leaf_depth, i, 0));
+	  tree.lp[i]=SvNV(*av_fetch(leaf_parent, i, 0));
+	}
+	for (i=0; i<tree.nb_nodes; i++) {
+	  tree.np[i]=SvNV(*av_fetch(nleaf_parent, i, 0));
+	}
+
+	int res=resampling_chi2(&tree, lcc, prolonge, nb_permutations,
+					results);
+
+        RETVAL = newHV();
+        sv_2mortal((SV *)RETVAL);
+
+	hv_store(RETVAL, "res", 3, newSVnv(res), 0);
+
+	ra = (AV *)sv_2mortal((SV *)newAV());
+	for (i=0; i<(nb_permutations+1)*max_depth; i++) {
+		av_push(ra, newSVnv(results[i]));
+		//fprintf(stderr, "chi2[%i]=%lf\n", i ,results[i]);
+	}
+	hv_store(RETVAL, "chi2s", 5, newRV((SV *)ra), 0);
+
+	free(lcc);
+	free(tree.ld);
+	free(tree.lp);
+	free(tree.np);
+	free(results);
+    OUTPUT:
+        RETVAL
+
+############################################################
 # stats.h
 ############################################################
 
