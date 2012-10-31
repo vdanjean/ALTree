@@ -678,11 +678,12 @@ sub computeTreeStructure($) {
 		push @leafList, $node;
 	    }
 	}
-	if (scalar(@childNodeList) > 1) {
-	    $depth++;
-	}
 	if (scalar(@childNodeList) > 0) {
-	    $computeLeaf->(\@childNodeList, $depth);
+	    my $rec_depth=$depth;
+	    if (scalar(@childNodeList) > 1) {
+		$rec_depth++;
+	    }
+	    $computeLeaf->(\@childNodeList, $rec_depth);
 	}
 	foreach my $node (@leafList) {
 	    push @leaf_refs, $node;
