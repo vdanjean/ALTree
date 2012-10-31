@@ -1,8 +1,7 @@
-//#define CONV "%Le"
-//typedef long double datatype_t;
+#ifndef _DOUBLE_PERMUTATION_H
+#define _DOUBLE_PERMUTATION_H
 
-#define CONV "%le"
-typedef double datatype_t;
+#include <datatype.h>
 
 typedef datatype_t *ensemble_t;
 typedef ensemble_t *matrice_t;
@@ -20,3 +19,6 @@ void free_matrice(matrice_t mat, int nb_sample, int nb_chi2);
 datatype_t calcul(int nb_sample, int nb_chi2, matrice_t mat, replicat_t rep);
 datatype_t calcul_distrib_pmin(int nb_sample, int nb_chi2, matrice_t mat,
 			       replicat_t rep, ensemble_t ens_min_pval);
+
+#endif
+

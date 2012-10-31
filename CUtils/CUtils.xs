@@ -4,9 +4,9 @@
 
 #include "ppport.h"
 
-#include <c_sources/fisher.h>
-#include <c_sources/chisq.h>
-#include <c_sources/double_permutation.h>
+#include <fisher.h>
+#include <chisq.h>
+#include <double_permutation.h>
 
 #include "const-c.inc"
 
