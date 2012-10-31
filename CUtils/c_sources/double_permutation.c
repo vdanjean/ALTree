@@ -138,14 +138,14 @@ datatype_t calcul(int nb_sample, int nb_chi2, matrice_t mat, replicat_t rep)
 
 	ens_min_pval=alloc_ensemble(nb_sample);
 	
-	min=calcul_distrib_pmin(nb_sample, nb_chi2, mat, rep, ens_min_pval);
+	min=double_permutation(nb_sample, nb_chi2, mat, rep, ens_min_pval);
 
 	free_ensemble(ens_min_pval);
 	return min;
 }
 
-datatype_t calcul_distrib_pmin(int nb_sample, int nb_chi2, matrice_t mat,
-			       replicat_t rep, ensemble_t ens_min_pval)
+datatype_t double_permutation(int nb_sample, int nb_chi2, matrice_t mat,
+			      replicat_t rep, ensemble_t ens_min_pval)
 {
 	int i, j;
 	datatype_t min;

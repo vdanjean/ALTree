@@ -756,7 +756,7 @@ sub RepeatAssociation
 	    push @{$ligne_stats}, @{$res};
 	}
 	
-	$corrected_values=ALTree::CUtils::double_permutation
+	$corrected_values=ALTree::CUtils::DoublePermutation
 	    ($nb_permutation+1, $value_per_line, $ligne_stats);
 
     } else {
@@ -774,7 +774,7 @@ sub RepeatAssociation
 	    StockeQuanti($ligne_stats, $racine);
 	}
 	
-	$corrected_values=ALTree::CUtils::double_permutation
+	$corrected_values=ALTree::CUtils::DoublePermutation
 	    ($nb_permutation+1, $value_per_line, $ligne_stats);
     }
 

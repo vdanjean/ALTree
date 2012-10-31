@@ -46,7 +46,7 @@ right(a, b, c, d)
 	double	d
 
 HV *
-double_permutation(nb_sample, nb_chi2, data)
+DoublePermutation(nb_sample, nb_chi2, data)
 	int nb_sample
 	int nb_chi2
 	AV * data
@@ -81,7 +81,7 @@ double_permutation(nb_sample, nb_chi2, data)
 			n++;
 		}
 	}
-	min=calcul_distrib_pmin(nb_sample, nb_chi2, mat, rep, ens);
+	min=double_permutation(nb_sample, nb_chi2, mat, rep, ens);
 
         RETVAL = newHV();
         sv_2mortal((SV *)RETVAL);
