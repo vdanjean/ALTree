@@ -168,3 +168,91 @@ ClassicalChi2(tabnodes)
 	PUSHs(sv_2mortal(newSViv(res.sum_case)));
 
 	free(nodes);
+
+void
+DefinitionPChi2(p, pprop)
+	SV* p
+	SV* pprop
+    INIT:
+        double cp;
+	double cpprop;
+    PPCODE:
+	if (!SvOK(p) || !SvNOK(p)) {
+	  cp=-1;
+	} else {
+	  cp=SvNV(p);
+	}
+	if (!SvOK(pprop) || !SvNOK(pprop)) {
+	  cpprop=-1;
+	} else {
+	  cpprop=SvNV(pprop);
+	}
+	definition_p_chi2(cp, cpprop);
+
+int
+Chi2Significatif(ddl, chi2)
+        int ddl
+        double chi2
+    CODE:
+        RETVAL=chi2_significatif(ddl, chi2);
+    OUTPUT:
+        RETVAL
+
+int
+Chi2FisherSignificatif(pvalue)
+        double pvalue
+    CODE:
+        RETVAL=chi2_fisher_signigicatif(pvalue);
+    OUTPUT:
+        RETVAL
+
+double
+ReechChi2(sum_case, sum_control, nb_nodes, chi2_reel, clades)
+        int sum_case
+        int sum_control
+        int nb_nodes
+        double chi2_reel
+        AV* clades
+    INIT:
+	struct cc *nodes;
+	int case_avail;
+	int i;
+    CODE:
+	if (av_len(clades)+1 != nb_nodes)
+	{
+	  XSRETURN_UNDEF;
+	}
+	nodes=(struct cc*)malloc(nb_nodes*sizeof(struct cc));
+
+	case_avail=sum_case;
+	for (i=0; i<nb_nodes; i++) {
+	  SV* val=*av_fetch(clades, i, 0);
+	  if (!SvIOK(val)) { return XSRETURN_UNDEF; }
+	  int nb=SvIV(val);
+	  if (nb <= case_avail) {
+	    case_avail-=nb;
+	    nodes[i].cases=nb;
+	    nodes[i].controls=0;
+	  } else if (case_avail == 0) {
+	    nodes[i].cases=0;
+	    nodes[i].controls=nb;
+	  } else {
+	    nodes[i].cases=case_avail;
+	    nodes[i].controls=nb - case_avail;
+	    case_avail=0;
+	  }
+	}
+
+	RETVAL=reech_chi2(sum_case, sum_control, nb_nodes, chi2_reel, nodes);
+
+	free(nodes);
+    OUTPUT:
+        RETVAL
+
+int
+ReechSignificatif(p_val)
+        double p_val
+    CODE:
+        RETVAL=reech_significatif(p_val);
+    OUTPUT:
+        RETVAL

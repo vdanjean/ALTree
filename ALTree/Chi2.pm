@@ -69,34 +69,15 @@ END { }       # module clean-up code here (global destructor)
 
 use constant NON_SIGNIFICATIF => 0;
 use constant SIGNIFICATIF => 1;
-use constant PERM => 1000;
 ##################################################################
 # Fonctions de seuil du chi2 (pré-calcul puis stockage dans un tableau)
 
- my ($chi2_p)="chi2_p doit être initialisé !";
-#y ($chi2_p)=0.05;
-my ($test_prop_p)="test_prop_p doit être initialisé !";
-my ($chi2_seuil)=[];
 # test de significativité. Doit retourner vrai ou faux.
 sub chi2_significatif {
     my ($ddl) = shift;
     my ($chi2) = shift;
 
-    if ($ddl < 1) {
-	warn "chi[$ddl] asked...\n";
-    }
-
-    if (not defined($chi2_seuil->[$ddl])) {
-	#my $c=`critchi2 $chi2_p $ddl`+0; # Verif que les 2 appels sont équivalents
-	$chi2_seuil->[$ddl]=ALTree::CUtils::critchi($chi2_p, $ddl);
-	#if ($c != $$chi2_seuil[$ddl]) {
-	  # print STDERR "Critchi2 : $c != $$chi2_seuil[$ddl]\n";
-	#}
-	#print "chi2_seuil[$ddl]= $$chi2_seuil[$ddl]\n";
-	#warn "Seuil chi2 non défini pour ddl $ddl";
-	#return 0;
-    }
-    return ($chi2 > $chi2_seuil->[$ddl]);
+    return ALTree::CUtils::Chi2Significatif($ddl, $chi2);
 }
 
 sub definition_p_chi2
@@ -104,124 +85,36 @@ sub definition_p_chi2
 {
     my($p)=shift;
     my($pprop)=shift;
-    if (defined $p) {
-	$chi2_p=$p;
-    }
-    if (defined $pprop) {
-	$test_prop_p=$pprop;
-    }
+    ALTree::CUtils::DefinitionPChi2($p, $pprop);
 }
 
 sub chi2_fisher_significatif
-#Meme fonction pour le test F, je ne la ré-écris pas...
 {
     my($pvalue)=shift;
 
-    return ($pvalue < $chi2_p);
+    return ALTree::CUtils::Chi2FisherSignificatif($pvalue);
 }
 
 
 ##################################################################
 # Rééchantillonnage
 
-# Quelques variables globales pour aller plus vite (même si c'est à éviter
-# en général)
-my(@fils_c);
-my(@fils_m);
-my($compteur);
-my($sum_malade);
-my($sum_controle);
-my($sum_total);
-my($nb_fils);
-
-
-my(@th_c, @th_m);
-my($clades);
-sub calcule_chi2
-{
-    my($i, $chi2, $temp);
-    $chi2=0;
-    for ($i=0; $i < $nb_fils; $i++){
-	$temp=($fils_c[$i]-$th_c[$i]);
-	$chi2+=($temp)*($temp)/$th_c[$i];
-
-	$temp=($$clades[$i]-$fils_c[$i]-$th_m[$i]);
-	$chi2+=($temp)*($temp)/$th_m[$i];
-    }
-    #print "Chi2 : $chi2\n";
-    return $chi2;
-}
-
 sub reech_chi2
 {
-    $sum_malade=shift;
-    $sum_controle=shift;
-    $sum_total=$sum_malade+$sum_controle;
-    $nb_fils=shift;
+    my $sum_malade=shift;
+    my $sum_controle=shift;
+    my $nb_fils=shift;
     my($chi2_reel)=shift;
-    $clades=shift;
-    my($p_val)=0;
-    my($i, $k);
-    #my($alea);
+    my $clades=shift;
 
-# nb_fils correspond en fait a tous les groupes sur lesquelles il faut faire
-# le chi2.
-# Cet ensemble de groupe a au total: $sum_malade et $sum_controle individus
-# (respectivement malades et controles)
-# clades est une référence sur un tableau contenant les effectifs globaux de
-# chaque clade
-
-    
-    #print "Reechantillonage chi2 : ddl : ", ($nb_fils-1), " M: $sum_malade C: $sum_controle\n   ";
-    #print "Chi2 réel : $chi2_reel\n";
-    #print "Clades: ";
-    #for $i (@{$clades}) { print "$i "; } print "\n";
-
-    # Pré calcul des effectifs théoriques
-    for ($i=0; $i < $nb_fils; $i++){
-	$th_c[$i]=($sum_controle*$$clades[$i])/($sum_total);
-	$th_m[$i]=($sum_malade*$$clades[$i])/($sum_total);
-    }
-
-    my($clade, $alea, $malades, $controles);
-    my($nb_tests)=PERM;
-    for ($k=1;$k<=$nb_tests; $k++){
-	$malades=$sum_malade;
-	$controles=$sum_controle;
-	for($clade=0; $clade<$nb_fils; $clade++) {
-	    $fils_m[$clade]=0;
-	    $fils_c[$clade]=0;
-	    for($i=0; $i<$$clades[$clade]; $i++) {
-		$alea=rand($malades+$controles);
-		if ($alea < $malades) {
-		    $malades--;
-		    $fils_m[$clade]++;
-		} else {
-		    $controles--;
-		    $fils_c[$clade]++;
-		}
-	    }
-	}
-
-	if (calcule_chi2 >= $chi2_reel){
-	    $p_val++;
-	}
-    }
-    #DEBUG  print "CHI2=$chi2_reel\n";
-    #print"nb de chi2 non calculable (effectif nul)= $compteur\n";
-    #DEBUG print "p_val1 = ", $p_val/$nb_tests,"\n";
-    # print "chi2_p771=$chi2_p\n";
-    return ($p_val/$nb_tests);
+    return ALTree::CUtils::ReechChi2($sum_malade, $sum_controle, $nb_fils,
+				     $chi2_reel, $clades);
 }
 
 sub reech_significatif 
 {
     my($p_val)=shift;
-    my($nb_tests)=PERM;
-  #DEBUG  print "Chi2P= $chi2_p\n";
-  #DEBUG  print "p=  ", $p_val , "\n";
-  #DEBUG  print "test=", $p_val/$nb_tests<=$chi2_p, "\n";
-    return ($p_val<=$chi2_p);
+    return ALTree::CUtils::ReechSignificatif($p_val)
 }
 
 1;
