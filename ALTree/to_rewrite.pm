@@ -153,7 +153,7 @@ sub CalculChi2
     my($p_value);
     
     ($chi2, $chi2invalid, $error, $sum_control, $sum_case)= 
-	ClassicalChi2($tabnodes_a_traiter);
+	ALTree::CUtils::ClassicalChi2($tabnodes_a_traiter);
     if ($error != 0) {
 	# TODO: A vérifier : est-ce OK de mettre $significatif à 0
 	# la valeur est utilisée au retour de cette fonction
