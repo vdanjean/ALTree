@@ -1,7 +1,7 @@
 #ifndef _DOUBLE_PERMUTATION_H
 #define _DOUBLE_PERMUTATION_H
 
-#include <datatype.h>
+#include "datatype.h"
 
 typedef datatype_t *ensemble_t;
 typedef ensemble_t *matrice_t;

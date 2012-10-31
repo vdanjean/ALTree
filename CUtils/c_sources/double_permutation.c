@@ -6,8 +6,8 @@
 #include "double_permutation.h"
 
 #define CALC_PVAL(count, nb_sample) \
-     ((datatype_t)(count-1))/* On s'enlève soi-même*/ \
-     /nb_sample
+     (((datatype_t)(count-1))/* On s'enlève soi-même*/ \
+      /(nb_sample))
 
 
 int read_matrice(matrice_t mat, int nb_sample, int nb_chi2)
