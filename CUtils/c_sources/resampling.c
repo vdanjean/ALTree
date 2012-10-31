@@ -4,6 +4,8 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "myrand.h"
 
 struct chi2s {
@@ -163,7 +165,7 @@ static void *resampling_worker(void* param) {
 int resampling_chi2(const struct tree *tree, const struct cc *lcc, int prolonge,
 		    int nb_permutations, datatype_t *results, int parallel)
 {
-
+#if defined(DEBUG) && 0 
 	FILE* dump=fopen("/tmp/dump", "w+");
 	fwrite(tree, sizeof(struct tree), 1, dump);
 	fwrite(tree->ld, sizeof(int), tree->nb_leaves, dump);
@@ -173,7 +175,7 @@ int resampling_chi2(const struct tree *tree, const struct cc *lcc, int prolonge,
 	fwrite(&prolonge, sizeof(int), 1, dump);
 	fwrite(&nb_permutations, sizeof(int), 1, dump);
 	fclose(dump);
-
+#endif
 	char* envvar=getenv("ALTREE_PARALLEL");
 	if (envvar) {
 		parallel=atoi(envvar);

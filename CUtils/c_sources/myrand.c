@@ -21,6 +21,7 @@ int myrand_init(unsigned long value) {
 #ifdef MT
 	init_genrand_mt(&rdata, value);
 #endif
+	return 0;
 }
 
 static void init() __attribute__((constructor));
