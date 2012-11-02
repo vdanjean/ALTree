@@ -5,7 +5,7 @@ WriteMakefile(
     NAME   => 'ALTree::CUtils',
     SKIP   => [qw(all static static_lib dynamic dynamic_lib)],
     clean  => {'FILES' => 'libaltree-cutils$(LIB_EXT)'},
-    INC               => '-I. -Ic_sources',
+    INC    => '-Wall -I. -Ic_sources',
 );
 
 sub MY::top_targets {
