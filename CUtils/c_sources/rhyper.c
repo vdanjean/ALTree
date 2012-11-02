@@ -140,14 +140,14 @@ int rhyper(int nn1, int nn2, int kk)
     double xk, xm, xn, y1, ym, yn, yk, alv;
 
     /* These should become `thread_local globals' : */
-    static __thread int ks = -1;
-    static __thread int n1s = -1, n2s = -1;
+    //int ks = -1;
+    //int n1s = -1, n2s = -1;
 
-    static __thread int k, m;
-    static __thread int minjx, maxjx, n1, n2;
+    int k, m;
+    int minjx, maxjx, n1, n2;
 
-    static __thread double a, d, s, w;
-    static __thread double tn, xl, xr, kl, kr, lamdl, lamdr, p1, p2, p3;
+    double a, d, s, w;
+    double tn, xl, xr, kl, kr, lamdl, lamdr, p1, p2, p3;
 
 
     /* check parameter validity */
@@ -157,16 +157,16 @@ int rhyper(int nn1, int nn2, int kk)
 
     /* if new parameter values, initialize */
     reject = 1;
-    if (nn1 != n1s || nn2 != n2s) {
+    //if (nn1 != n1s || nn2 != n2s) {
 	setup1 = 1;	setup2 = 1;
-    } else if (kk != ks) {
+    /*} else if (kk != ks) {
 	setup1 = 0;	setup2 = 1;
     } else {
 	setup1 = 0;	setup2 = 0;
-    }
+    }*/
     if (setup1) {
-	n1s = nn1;
-	n2s = nn2;
+	//n1s = nn1;
+	//n2s = nn2;
 	tn = nn1 + nn2;
 	if (nn1 <= nn2) {
 	    n1 = nn1;
@@ -177,7 +177,7 @@ int rhyper(int nn1, int nn2, int kk)
 	}
     }
     if (setup2) {
-	ks = kk;
+	//ks = kk;
 	if (kk + kk >= tn) {
 	    k = (int)(tn - kk);
 	} else {
