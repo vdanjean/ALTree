@@ -3,7 +3,7 @@
 #include "stats.h"
 #include "fisher.h"
 #include "chisq.h"
-#include "myrand.h"
+#include "rhyper.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <gsl/gsl_cdf.h>
@@ -240,17 +240,12 @@ void random_clades(int nb_nodes, const struct cc *nodes,
 	bzero(clades, nb_nodes*sizeof(struct cc));
 	int c;
 	for(c=0; c<nb_nodes; c++) {
-		int i;
 		int s=nodes[c].cases+nodes[c].controls;
-		for(i=0; i<s; i++) {
-			int alea=myrand(cases+controls);
-			if (alea < cases) {
-				cases--;
-				clades[c].cases++;
-			} else {
-				controls--;
-				clades[c].controls++;
-				}
-		}
+		int ncases=rhyper(cases, controls, s);
+		//debug("clades: (%i, %i, %i)=%i", cases, controls, s, ncases);
+		clades[c].cases = ncases;
+		clades[c].controls = s-ncases;
+		cases -= ncases;
+		controls -= (s-ncases);
 	}
 }
