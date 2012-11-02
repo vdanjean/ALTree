@@ -41,6 +41,9 @@
    email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
+#ifndef _MT19937AR_H
+#define _MT19937AR_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -68,19 +71,25 @@ unsigned long genrand_int32_mt(mt19937ar_t* priv);
 
 /* generates a random number on [0,0x7fffffff]-interval */
 long genrand_int31(void);
+long genrand_int31_mt(mt19937ar_t* priv);
 
 /* generates a random number on [0,1]-real-interval */
 double genrand_real1(void);
+double genrand_real1_mt(mt19937ar_t* priv);
 
 /* generates a random number on [0,1)-real-interval */
 double genrand_real2(void);
+double genrand_real2_mt(mt19937ar_t* priv);
 
 /* generates a random number on (0,1)-real-interval */
 double genrand_real3(void);
+double genrand_real3_mt(mt19937ar_t* priv);
 
 /* generates a random number on [0,1) with 53-bit resolution*/
 double genrand_res53(void);
+double genrand_res53_mt(mt19937ar_t* priv);
 
 #ifdef __cplusplus
 }
+#endif
 #endif

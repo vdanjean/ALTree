@@ -42,6 +42,7 @@
 */
 
 #include <stdio.h>
+#include "debug.h"
 #include "mt19937ar.h"
 
 /* Period parameters */  
@@ -51,7 +52,7 @@
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-static mt19937ar_t local = { {0, }, /* the array for the state vector  */
+static __thread mt19937ar_t local = { {0, }, /* the array for the state vector  */
 			     N+1, /* mti==N+1 means mt[N] is not initialized */
 };
 
@@ -60,6 +61,7 @@ void init_genrand_mt(mt19937ar_t* p, unsigned long s)
 {
     int mti;
     unsigned long *mt=&p->mt[0];
+    debug("init init_genrand_mt(%li)", s);
     mt[0]= s & 0xffffffffUL;
     for (mti=1; mti<N; mti++) {
         mt[mti] = 
@@ -87,6 +89,7 @@ void init_by_array_mt(mt19937ar_t* p, unsigned long init_key[], int key_length)
 {
     int i, j, k;
     unsigned long *mt=&p->mt[0];
+    debug("init init_by_array_mt");
     init_genrand_mt(p, 19650218UL);
     i=1; j=0;
     k = (N>key_length ? N : key_length);
@@ -163,10 +166,21 @@ long genrand_int31(void)
     return (long)(genrand_int32()>>1);
 }
 
+long genrand_int31_mt(mt19937ar_t* p)
+{
+    return (long)(genrand_int32_mt(p)>>1);
+}
+
 /* generates a random number on [0,1]-real-interval */
 double genrand_real1(void)
 {
     return genrand_int32()*(1.0/4294967295.0); 
+    /* divided by 2^32-1 */ 
+}
+
+double genrand_real1_mt(mt19937ar_t* p)
+{
+    return genrand_int32_mt(p)*(1.0/4294967295.0); 
     /* divided by 2^32-1 */ 
 }
 
@@ -177,6 +191,12 @@ double genrand_real2(void)
     /* divided by 2^32 */
 }
 
+double genrand_real2_mt(mt19937ar_t* p)
+{
+    return genrand_int32_mt(p)*(1.0/4294967296.0); 
+    /* divided by 2^32 */
+}
+
 /* generates a random number on (0,1)-real-interval */
 double genrand_real3(void)
 {
@@ -184,10 +204,22 @@ double genrand_real3(void)
     /* divided by 2^32 */
 }
 
+double genrand_real3_mt(mt19937ar_t* p)
+{
+    return (((double)genrand_int32_mt(p)) + 0.5)*(1.0/4294967296.0); 
+    /* divided by 2^32 */
+}
+
 /* generates a random number on [0,1) with 53-bit resolution*/
 double genrand_res53(void) 
 { 
     unsigned long a=genrand_int32()>>5, b=genrand_int32()>>6; 
+    return(a*67108864.0+b)*(1.0/9007199254740992.0); 
+} 
+
+double genrand_res53_mt(mt19937ar_t* p) 
+{ 
+    unsigned long a=genrand_int32_mt(p)>>5, b=genrand_int32_mt(p)>>6; 
     return(a*67108864.0+b)*(1.0/9007199254740992.0); 
 } 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
