@@ -162,6 +162,37 @@ static void *resampling_worker(void* param) {
 	return NULL;
 }
 
+/* From http://stackoverflow.com/questions/150355/programmatically-find-the-number-of-cores-on-a-machine */
+static int nbproc()
+{
+	int numCPU=0;
+#ifdef __linux
+	numCPU = sysconf( _SC_NPROCESSORS_ONLN );
+#elif defined(__bsd)
+	int mib[4];
+	size_t len = sizeof(numCPU); 
+
+	/* set the mib for hw.ncpu */
+	mib[0] = CTL_HW;
+	mib[1] = HW_AVAILCPU;  // alternatively, try HW_NCPU;
+
+	/* get the number of CPUs from the system */
+	sysctl(mib, 2, &numCPU, &len, NULL, 0);
+
+	if( numCPU < 1 ) {
+	     mib[1] = HW_NCPU;
+	     sysctl( mib, 2, &numCPU, &len, NULL, 0 );
+
+	     if( numCPU < 1 ) {
+	          numCPU = 1;
+	     }
+	}
+#else
+#  warning no support on this plate-form. Patch welcome.
+#endif
+	return numCPU;
+}
+
 int resampling_chi2(const struct tree *tree, const struct cc *lcc, int prolonge,
 		    int nb_permutations, datatype_t *results, int parallel)
 {
@@ -179,6 +210,12 @@ int resampling_chi2(const struct tree *tree, const struct cc *lcc, int prolonge,
 	char* envvar=getenv("ALTREE_PARALLEL");
 	if (envvar) {
 		parallel=atoi(envvar);
+	}
+	if (parallel == -1) {
+		parallel=nbproc();
+	}
+	if (parallel < 0) {
+		parallel=0;
 	}
 	debug("parallel=%i", parallel);
 
