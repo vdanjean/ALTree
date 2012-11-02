@@ -10,7 +10,6 @@
 #ifdef MT
 #  include "mt19937ar.h"
 
-static __thread mt19937ar_t rdata;
 #  define MYRAND_MAX (0xffffffffUL)
 #else
 #  define MYRAND_MAX RAND_MAX
@@ -19,7 +18,7 @@ static __thread mt19937ar_t rdata;
 
 int myrand_init(unsigned long value) {
 #ifdef MT
-	init_genrand_mt(&rdata, value);
+	init_genrand(value);
 #endif
 	return 0;
 }
@@ -39,7 +38,7 @@ int myrand(int up) {
 
 	for(;;) {
 #ifdef MT
-		unsigned long r=genrand_int32_mt(&rdata);
+		unsigned long r=genrand_int32();
 #else
 		int r=rand();
 #endif
