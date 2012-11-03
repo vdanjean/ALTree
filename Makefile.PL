@@ -6,7 +6,8 @@ WriteMakefile(
     NAME              => 'altree',
     PMLIBDIRS         => [ 'ALTree' ],
     DIR               => [ 'CUtils' ],
-    VERSION	      => '1.2.1',
+    VERSION_FROM      => 'progs/altree',
+    depend	      => { Makefile => '$(VERSION_FROM)' },
     LICENSE           => 'perl',
     PREREQ_PM         => {}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005

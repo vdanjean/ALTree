@@ -10,8 +10,7 @@ use Data::Dumper;
 
 srand(654321);
 
-our $VERSION;
-$VERSION = sprintf "0.%03d", q$Revision: 433 $ =~ /(\d+)/g;
+use version; our $VERSION = qv(1.2.1);
 
 # Positionner la variable PERL5LIB si besoin
 
@@ -1195,9 +1194,7 @@ sub manage_options
 		) or pod2usage(2);
     if (defined($options{"version"})) {
 	print $0, " version ", $VERSION, "\n";
-	print "(CUtils version ", $ALTree::CUtils::VERSION, 
-	"; chi2.pm version ", $ALTree::Chi2::VERSION,
-	"; Perl version ", $], ")\n";
+	print "(Perl version ", $], ")\n";
 	exit 0;
     }
     if (defined($options{"short-help"})) {
