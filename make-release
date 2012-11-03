@@ -42,11 +42,12 @@ make realclean
 make -C Documentation distclean
 set +x
 
-if [ "$(svn st)" != "" ]; then
+if [ "$(git status --short --untracked)" != "" ]; then
    echo "************************************"
    echo "* Not all files are commited/cleaned"
    echo "* Please correct before creating a release"
-   echo "* (use 'svn st' to look for problematic files"
+   echo "* (use 'git status --short --untracked' to look for problematic files)"
+   echo "* (use 'git stash -a' to remove them temporarely)"
    echo "************************************"
    if [ "$FORCE" ]; then
      echo "* !!! WARNING: --force enabled : type 'ENTER to continue'"
@@ -74,55 +75,14 @@ if [ "$(make distcheck 2>&1 1>/dev/null | grep -v "^No such file: META.yml$")" !
    fi
 fi
   
-DEPO=svn+ssh://atsina/users/huron/danjean/svnroot/claire/altree
-D=$DEPO/tags/release-$VERSION
-echo ""
-echo "Checking if the tag release-$VERSION already exists in SVN database..."
-echo ""
-if [ "$(svn ls "$D/altree")" = "altree" ]; then
-   echo "************************************"
-   echo "* Tag for revision $VERSION already exists"
-   echo "* Did you really increase the revision number in Makefile.PL ?"
-   echo "************************************"
-   if [ "$FORCE" ]; then
-     echo "* !!! WARNING: skipping creation tag"
-     echo "* !!! WARNING: --force enabled : type 'ENTER to continue'"
-     echo "************************************"
-     read a
-     DO_TAG=false
-   else
-     exit 1
-   fi
-else
-  DO_TAG=true
-fi
-
-FILE="altree-$VERSION.tar.gz"
-if [ -f "$FILE" ]; then
-   echo "************************************"
-   echo "* File $FILE already exists"
-   echo "* Remove it if you really want to recreate it"
-   echo "************************************"
-   if [ "$FORCE" ]; then
-     echo "* !!! WARNING: --force enabled : type 'ENTER to continue'"
-     echo "************************************"
-     read a
-   else
-     exit 1
-   fi
-fi
 make disttest
 make dist
-
-if [ "$DO_TAG" = true ]; then
-  $DRYRUN svn copy -m "Release $VERSION" \
-    $DEPO/trunk "$D"
-fi
 
 echo "************************************"
 echo "* SUCCESS !"
 echo "************************************"
 echo "* Release created in altree-$VERSION.tar.gz"
+echo "* Do not forget to create a git tag and push it"
 echo "* You need to copy this file to the web site"
 echo "* and tell Vince to update the debian package"
 echo "************************************"
