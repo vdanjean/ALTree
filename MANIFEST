@@ -1,3 +1,4 @@
+.gitignore
 ALTree/Base.pm
 ALTree/Chi2.pm
 ALTree/Foret.pm
@@ -20,11 +21,23 @@ bash_completion
 Changes
 CUtils/c_sources/chisq.c
 CUtils/c_sources/chisq.h
+CUtils/c_sources/datatype.h
+CUtils/c_sources/debug.h
 CUtils/c_sources/double_permutation.c
 CUtils/c_sources/double_permutation.h
 CUtils/c_sources/fisher.c
 CUtils/c_sources/fisher.h
 CUtils/c_sources/Makefile.PL
+CUtils/c_sources/mt19937ar.c
+CUtils/c_sources/mt19937ar.h
+CUtils/c_sources/myrand.c
+CUtils/c_sources/myrand.h
+CUtils/c_sources/resampling.c
+CUtils/c_sources/resampling.h
+CUtils/c_sources/rhyper.c
+CUtils/c_sources/rhyper.h
+CUtils/c_sources/stats.c
+CUtils/c_sources/stats.h
 CUtils/c_sources/z.c
 CUtils/c_sources/z.h
 CUtils/const-c.inc
@@ -54,7 +67,6 @@ Documentation/manual.tex
 Documentation/stage.bib
 Makefile.PL
 MANIFEST			This list of files
-META.yml
 progs/altree
 progs/altree-add-S
 progs/altree-convert

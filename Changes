@@ -1,9 +1,177 @@
-Revision history for Perl extension Alphy::Utils.
+Revision history for Altree Perl program
 
-0.9.2 Tue Aug  2 19:19:05 2005
-	- New name : ALTree instead of ALPhy
+Version v1.3.0
+==============
 
-0.01  Sun Jun  5 19:04:07 2005
-	- original version; created by h2xs 1.23 with options
-		-AX -n Alphy::Utils
+Vincent Danjean (37):
+      Merge RepeatAssociationQuali and RepeatAssociationQuanti
+      Merge CleanCaseControl, CleanChi2 and CleanQuanti into CleanStats
+      Add gitignore for build files
+      Compute tree representation for efficient stat computation
+      Fix depth computation
+      Refactor code
+      Cleanup C headers
+      Cleanup headers
+      Cleanup name in XS functions
+      ClassicalChi2 as a C function with validation checks
+      Remove perl version of ClassicalChi2
+      Cleanup and comments in CUtils, add debugging facilities
+      move ALTree/Chi2.pm function into CUtils
+      Rewrite CalculChi2 in C
+      Rewrite Chi2 resampling in C
+      Use Chi2 resampling accelerator...
+      Run altree in tree for an example
+      cleanup Manifest
+      Fix "Use Chi2 resampling accelerator..."
+      memory managed outside inner functions
+      Parallel execution of Chi2 resampling
+      Fix some compilation warnings and protect debugging code
+      Do not compile with debug code by default
+      Fix link so that all functions are found, even if TamuAnova is not loaded
+      Get the R code source of the hypergeometric distribution
+      Add missing MT-aware random functions
+      Use internal mt19937ar_t per thread structure
+      Use the hypergeometric distribution
+      If ALTREE_PARALLEL is set to -1, all available CPU are used
+      Increase compiler warning level
+      Optimize rhyper.c for our use case
+      Remove dependencies on PDL and PDL::GSL::CDF
+      Cleanup version handling
+      Update make-release for git
+      Fix typo in function name
+      Fix linkage for CUtils
+      Bump version, new release
+
+Version v1.2.1
+==============
+
+Vincent Danjean (5):
+      Update external perl modules
+      Bump version
+      Move to_rewrite.pm into ALTree namespace
+      Update MANIFEST
+      Ignore generated files in SVN
+
+Version v1.2
+==============
+
+Vincent Danjean (2):
+      pour release 1.2
+      Pour release avec fix bug
+
+Version v1.1.1
+==============
+
+Vincent Danjean (3):
+      changement adresse e-mail
+      MacOSX does not handle files with different case     For example, altree and ALTree can not be both existing     Now, altree is moved into progs/
+
+Version v1.1.0
+==============
+
+Claire Bardel (6):
+      ajout de la fonctionalité: éliminer les haplotypes présents en moins de xxx examplaires
+      commit avant la release de la 1.1.0
+      re-commit pré-release
+      la dernière?
+      la vraie dernière?
+      correction meta-données (email, license)
+
+Vincent Danjean (32):
+      check for .tar.gz before trying to create it
+      Stop with an error when input file contains no tree
+      prolongation -> no-prologation, à vérifier...
+      ajout de FillQuanti (pas finie) et modif de ReadCorrespondQuanti
+      doc
+      verification que j'ai bien commité tout
+      debuggage avec Vince
+      bug tableaux
+      fin de FillQuanti, ça marche
+      modif de la doc pour rapporteurs
+      parcoursQuanti et CalculAnova modifiées mais pas finies (non testées)
+      pb avec l'appel de tamuanova
+      bash completion
+      correction bash_completion
+      modif dans la lecture de l'arbre
+      suite adaptation en quanti: affichage marche, pas la permutation
+      Youhou! Ca tourne en quanto anova 1 facteur
+      Qualitatif: correction bugs, déplacement de code et suite du développement
+      ajout du quantitatif pour phase/paup dans altree-convert
+      ajout quanti dans altree-add-S
+      récupération de la distrib de pmin
+      un reste de cvs
+      Ajout de la possibilité de traiter plusieurs fichiers conjointement
+      ajout de nanova.pm
+      Correction de FillHeight     Calcul de la matrice d'un arbre
+      correction de bug de la localisation du fait de la modif 9 fichiers
+      correction bug sur all_file foret, calcul des Vi pour tous fichiers
+
+Version v1.0.1
+==============
+
+Vincent Danjean (9):
+      make-release to create a release
+      Correct make-release for META.yml
+      Check for already existing version earlier
+      modification du numero de version dans le MAKEFILE.PL
+
+Version v1.0.0
+==============
+
+Vincent Danjean (77):
+      résolution du pb des _ dans les noms, plus de flexibilité dans les noms
+      On garde root
+      selection des arbres
+      selection des arbres (correction bugs)
+      paup exemples
+      phylip/paml exemples
+      bug mineur
+      debut reorg
+      run_altree
+      lecture refaite
+      restructuration Input
+      no CI
+      altree un peu mieux
+      option output-file
+      options
+      correction version
+      paup ignore le root supplémentaire inutile (comme phylip)
+      Deletetion of old Documentation/example_files/     Version 1.0.0
+      Release 1.0.0
+
+Version v0.9.2
+==============
+
+Vincent Danjean (34):
+      Amélioration README     Alphy tourne en localisation
+      Renommage chi2.pm en Alphy::Chi2.pm
+      change warn for warning
+      orrection du chemin e la bib cutils lgne 1880
+      modification in alphy-add-S
+      Addition of example files for case control data
+      prog avec pb ligne 570
+      plein de modifs partout pour adapter à phylip
+      modifs dans alphy-add-S: il prend les nb cas/controle dans correspond.txt maintenant
+      modifs dans alphy-add-S: opt-s est devenu opt-e
+      doc
+      version
+      fix tests
+      version
+      man alphy-add-S
+      début de man pour alphy-add-S et alphy-convert
+      file to ignore
+      modif du manuel
+      version 0d
+      Switching Alphy to ALTree
+
+Version v0.01
+==============
+
+Vincent Danjean (8):
+      original version; created by h2xs 1.23 with options -AX -n Alphy::Utils
+      initial import
+      ajout du .bib
+
+cvs2svn (1):
+      New repository initialized by cvs2svn.
 
