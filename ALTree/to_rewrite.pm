@@ -10,8 +10,6 @@ use ALTree::Utils qw(erreur);
 use ALTree::Input qw(PrepareTree);
 #use Newchi2treeUtils;
 use Math::TamuAnova;
-use PDL;
-use PDL::GSL::CDF;
 
 sub parcours_nosplit_chi2split
 {
