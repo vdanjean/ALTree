@@ -374,7 +374,7 @@ int
 Chi2FisherSignificatif(pvalue)
         double pvalue
     CODE:
-        RETVAL=chi2_fisher_signigicatif(pvalue);
+        RETVAL=chi2_fisher_significatif(pvalue);
     OUTPUT:
         RETVAL
 
