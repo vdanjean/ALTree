@@ -6,6 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More tests => 3;
+use Test::Deep;
 BEGIN { use_ok('ALTree::CUtils') };
 
 #########################
@@ -21,9 +22,12 @@ $res=ALTree::CUtils::DoublePermutation(10, 2,
 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 );
 
-is_deeply($res, { "pmin" => 0.2,
-		  "chi2" => [ 0.8, 0.1],
+$p=0.00001;
+cmp_deeply($res, { "pmin" => num(0.2, $p),
+		  "chi2" => [ num(0.8, $p), num(0.1, $p)],
 		  "distrib_pmin" => 
-		      [0.1, 0.1, 0, 0.2, 0.2, 0.8, 0.6, 0.5, 0.4, 0.3]
+		      [num(0.1, $p), num(0.1, $p), num(0  , $p), num(0.2, $p),
+		       num(0.2, $p), num(0.8, $p), num(0.6, $p), num(0.5, $p),
+		       num(0.4, $p), num(0.3, $p)]
 		}, "double_permutation");
 
