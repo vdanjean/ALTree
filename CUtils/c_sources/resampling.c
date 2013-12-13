@@ -148,14 +148,14 @@ static void *resampling_worker(void* param) {
 
 	myrand_init(pthread_self()+getpid());
 
-	do {
+	while (permutation < data.nb_permutations) {
 		//debug("thread %i handle perm %i", p->permutation, permutation);
 		random_clades(data.tree->nb_leaves, data.lcc,
 			      data.cases, data.controls, mem->rand_lcc);
 		compute_chi2s(data.tree, mem->rand_lcc, &mem->temp, data.prolonge,
 			      data.results+(permutation * data.tree->max_depth));
 		permutation=__sync_fetch_and_add(&p->ctl->permutation, 1);
-	} while (permutation < data.nb_permutations);
+	}
 
 	free_alloc(mem);
 
