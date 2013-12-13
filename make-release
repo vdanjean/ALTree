@@ -2,8 +2,13 @@
 
 set -e
 
-VERSION=$(cat Makefile.PL | \
-	sed -e '/VERSION/s/.*'"'"'\([0-9a-ZA-Z._-]\+\)'"'"'.*/\1/p;d')
+VERSION=$(cat progs/altree | \
+	sed -e '/our.*VERSION/s/.*qv(\([0-9.]\+\)).*/\1/p;d')
+
+if [ "$VERSION" = "" ]; then
+	echo "Unable to read current version. Aborting."
+	exit 1
+fi
 
 FORCE=""
 

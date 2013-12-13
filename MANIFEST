@@ -30,6 +30,7 @@ CUtils/c_sources/fisher.h
 CUtils/c_sources/Makefile.PL
 CUtils/c_sources/mt19937ar.c
 CUtils/c_sources/mt19937ar.h
+CUtils/c_sources/MYMETA.json
 CUtils/c_sources/myrand.c
 CUtils/c_sources/myrand.h
 CUtils/c_sources/resampling.c
@@ -47,6 +48,7 @@ CUtils/fallback/const-c.inc
 CUtils/fallback/const-xs.inc
 CUtils/lib/ALTree/CUtils.pm
 CUtils/Makefile.PL
+CUtils/MYMETA.json
 CUtils/ppport.h
 CUtils/t/ALTree-CUtils.t
 CUtils/t/double_permutation.t
@@ -67,6 +69,7 @@ Documentation/manual.tex
 Documentation/stage.bib
 Makefile.PL
 MANIFEST			This list of files
+MYMETA.json
 progs/altree
 progs/altree-add-S
 progs/altree-convert
