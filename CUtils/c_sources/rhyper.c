@@ -52,55 +52,61 @@
  *	   If (i > 7), use Stirling's approximation, otherwise use table lookup.
 */
 
+struct afc_data {
+    int computed;
+    double al[1756];
+};
+
+double compute(int n, struct afc_data * __restrict__ data) {
+    static long double cur=3628800;
+    static int i=11;
+    static volatile int mutex=0;
+
+    while (__sync_lock_test_and_set(&mutex, 1)) {
+	/* Internal loop with only read to avoid cache line ping-pong
+	   on multi-processors */
+	while(mutex) {
+	    /* spinlock */
+	}
+     }
+
+     for(; i<=n; i++) {
+	cur*=i;
+	data->al[i+1]=logl(cur);
+     }
+     data->computed=n;
+     __sync_lock_release(&mutex);
+     return data->al[i];
+};
+
 static double afc(int i)
 {
-    static int computed=10;
-    static double al[1756] =
-    {
-	0.0,
-	0,/*ln(0!)*/
-	0,/*ln(1!)*/
-	0.693147180559945309,/*ln(2!)*/
-	1.791759469228055,/*ln(3!)*/
-	3.17805383034794562,/*ln(4!)*/
-	4.78749174278204599,/*ln(5!)*/
-	6.579251212010101,/*ln(6!)*/
-	8.5251613610654143,/*ln(7!)*/
-	10.6046029027452502,/*ln(8!)*/
-	12.8018274800814696,/*ln(9!)*/
-	15.1044125730755153,/*ln(10!)*/
-    };
-    double compute(int n) {
-	static long double cur=3628800;
-	static int i=11;
-	static volatile int mutex=0;
-
-	while (__sync_lock_test_and_set(&mutex, 1)) {
-		/* Internal loop with only read to avoid cache line ping-pong
-		   on multi-processors */
-		while(mutex) {
-			/* spinlock */
-		}
-	}
-
-	for(; i<=n; i++) {
-		cur*=i;
-		al[i+1]=logl(cur);
-	}
-	computed=n;
-	__sync_lock_release(&mutex);
-	return al[i];
-    };
-
     double di, value;
+    static struct afc_data data = {
+	.computed = 10,
+	.al = {
+	    0.0,
+	    0,/*ln(0!)*/
+	    0,/*ln(1!)*/
+	    0.693147180559945309,/*ln(2!)*/
+	    1.791759469228055,/*ln(3!)*/
+	    3.17805383034794562,/*ln(4!)*/
+	    4.78749174278204599,/*ln(5!)*/
+	    6.579251212010101,/*ln(6!)*/
+	    8.5251613610654143,/*ln(7!)*/
+	    10.6046029027452502,/*ln(8!)*/
+	    12.8018274800814696,/*ln(9!)*/
+	    15.1044125730755153,/*ln(10!)*/
+	}
+    };
 
     if (i < 0) {
       fprintf(stderr, "rhyper.c: afc(i), i=%d < 0 -- SHOULD NOT HAPPEN!\n", i);
       exit(1);
-    } else if (i <= computed) {
-	value = al[i + 1];
+    } else if (i <= data.computed) {
+	value = data.al[i + 1];
     } else if (i <= 1754) {
-	value = compute(i);
+	value = compute(i, &data);
     } else {
 	di = i;
 	value = (di + 0.5) * log(di) - di + 0.08333333333333 / di
